@@ -109,10 +109,10 @@
 
 <main>
   <div class="wrap">
-    <a class="back" href="index.html#pricing">&larr; Back to pricing</a>
+    <a class="back" href="index.html#pricing">&larr; Back to Home Page</a>
     <div class="eyebrow">Get started</div>
     <h1>Tell us about your business</h1>
-    <p class="lead">Fill in your details and we'll be in touch to get started.</p>
+    <p class="lead">Fill in your details and we'll be in touch to get started. We may ask you to send us your existing logo.</p>
 
     <div class="card">
       <div class="package" id="package">
@@ -225,7 +225,7 @@ form.addEventListener('submit', async (e) => {
       throw new Error('Request failed');
     }
   } catch (err) {
-    statusEl.textContent = 'Sorry, that didn\'t send. Please try again, or email branding@logohero.co.uk.';
+    statusEl.textContent = 'Sorry, something happened. Please try again, or email branding@logohero.co.uk.';
     statusEl.className = 'status error';
     submitBtn.disabled = false;
     submitBtn.textContent = 'Send';
