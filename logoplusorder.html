@@ -226,7 +226,8 @@ form.addEventListener('submit', async (e) => {
       throw new Error('Request failed');
     }
   } catch (err) {
-    statusEl.textContent = 'Sorry, something happened. Please try again, or email branding@logohero.co.uk.';
+    statusEl.textContent = 'Sorry, something happened.';
+    statusEl.textContent = 'Please try again, or email branding@logohero.co.uk.';
     statusEl.className = 'status error';
     submitBtn.disabled = false;
     submitBtn.textContent = 'Send';
