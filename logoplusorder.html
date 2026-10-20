@@ -60,9 +60,13 @@
   .lead { color: var(--muted); font-size: 18px; margin: 0 0 28px; max-width: 34em; }
 
   .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 32px; max-width: 560px; }
-  .package { display: none; background: var(--soft); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; font-weight: 600; }
+  .package { display: none; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 24px; }
   .package.show { display: block; }
-  .package span { color: var(--blue); }
+  .package-head { font-weight: 600; }
+  .package-head span { color: var(--blue); }
+  .package ul { list-style: none; padding: 0; margin: 12px 0 0; color: var(--muted); }
+  .package li { padding: 4px 0 4px 28px; position: relative; }
+  .package li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
   .field { margin-bottom: 20px; }
   label { display: block; font-weight: 600; margin-bottom: 6px; }
   input[type="text"], input[type="email"] {
@@ -111,9 +115,12 @@
     <p class="lead">Fill in your details and we'll be in touch to get started.</p>
 
     <div class="card">
-      <div class="package" id="package">Your choice: <span id="package-name"></span></div>
+      <div class="package" id="package">
+        <div class="package-head">Your choice: <span id="package-name"></span></div>
+        <ul id="package-list"></ul>
+      </div>
 
-      <form id="order-form" action="https://formspree.io/f/mljgygzg" method="POST">
+      <form id="order-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
         <input type="hidden" name="package" id="package-field" value="Not specified">
 
         <div class="field">
@@ -162,14 +169,36 @@ document.getElementById('y').textContent = new Date().getFullYear();
 
 // Show which package was chosen (from the link on the pricing page)
 const packages = {
-  'logo': 'Logo (£150)',
-  'logo-plus': 'Logo+ (£225)'
+  'logo': {
+    label: 'Logo (£150)',
+    items: [
+      'Your logo, refined',
+      'High-resolution files, ready to use',
+      'Yours to keep'
+    ]
+  },
+  'logo-plus': {
+    label: 'Logo+ (£225)',
+    items: [
+      'Everything in Logo',
+      'Email signatures for up to 10 employees',
+      'Covers any new recruits over the next 3 months',
+      'LinkedIn banners',
+      'Yours to keep'
+    ]
+  }
 };
 const chosen = packages[new URLSearchParams(location.search).get('package')];
 if (chosen) {
-  document.getElementById('package-name').textContent = chosen;
+  document.getElementById('package-name').textContent = chosen.label;
+  const list = document.getElementById('package-list');
+  chosen.items.forEach((text) => {
+    const li = document.createElement('li');
+    li.textContent = text;
+    list.appendChild(li);
+  });
   document.getElementById('package').classList.add('show');
-  document.getElementById('package-field').value = chosen;
+  document.getElementById('package-field').value = chosen.label;
 }
 
 // Send the form without leaving the page
