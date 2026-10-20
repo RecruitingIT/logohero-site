@@ -1,34 +1,207 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Logo Hero</title>
+<title>Logo Hero | Your vision, sharpened</title>
+<meta name="description" content="Logo Hero helps you on your branding journey, boosting the vision you've already created for a fraction of the price of a design studio.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --blue: #0A45E0;
+    --blue-dark: #0A2A8F;
+    --ink: #0E1B3D;
+    --muted: #55607A;
+    --line: #DDE3F0;
+    --soft: #F3F6FC;
+    --bg: #FFFFFF;
+  }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #14284B;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    text-align: center;
-    padding: 24px;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.6;
   }
-  h1 { font-size: clamp(40px, 9vw, 84px); margin: 0 0 12px; letter-spacing: -1px; }
-  p { font-size: 18px; margin: 0 0 24px; color: #C9D6EA; }
-  a { color: #F5A623; text-decoration: none; font-weight: 600; }
-  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { font-family: "Barlow Condensed", Inter, sans-serif; line-height: 1.02; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; }
+  a { color: var(--blue); }
+
+  header { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  header img { height: 44px; width: auto; display: block; }
+  .btn {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 14px 26px;
+    border-radius: 10px;
+    border: 2px solid var(--blue);
+    transition: background .15s, transform .15s;
+  }
+  .btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--blue); }
+  .btn.ghost:hover { background: var(--soft); color: var(--blue-dark); }
+
+  .hero { padding: 72px 0 80px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+  .hero h1 { font-size: clamp(48px, 8vw, 92px); color: var(--ink); }
+  .hero h1 span { color: var(--blue); }
+  .hero p { font-size: 19px; color: var(--muted); max-width: 30em; margin: 20px 0 32px; }
+  .hero .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero img { width: 100%; height: auto; display: block; }
+
+  section { padding: 72px 0; }
+  section.soft { background: var(--soft); }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
+  h2 { font-size: clamp(34px, 5vw, 52px); margin-bottom: 36px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .step { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px; }
+  .step .n { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 44px; color: var(--blue); line-height: 1; margin-bottom: 12px; }
+  .step h3 { font-size: 26px; margin-bottom: 8px; }
+  .step p { margin: 0; color: var(--muted); }
+
+  .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; }
+  .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; }
+  .price.featured { border-color: var(--blue); }
+  .price h3 { font-size: 28px; margin-bottom: 4px; }
+  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
+  .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); }
+  .price li { padding: 6px 0 6px 28px; position: relative; }
+  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
+  .price .btn { margin-top: auto; text-align: center; }
+
+  .about { max-width: 760px; }
+  .about p { font-size: 19px; color: var(--muted); margin: 0 0 18px; }
+  .contact { text-align: center; }
+  .contact p { color: var(--muted); max-width: 32em; margin: 0 auto 28px; font-size: 18px; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+  @media (max-width: 760px) {
+    .hero { padding: 40px 0 56px; }
+    .hero .wrap { grid-template-columns: 1fr; gap: 32px; }
+    .hero img { max-width: 360px; margin: 0 auto; }
+    .steps, .prices { grid-template-columns: 1fr; }
+    section { padding: 52px 0; }
+    header img { height: 36px; }
+  }
 </style>
 </head>
 <body>
-  <main>
-    <h1>Logo Hero</h1>
-    <p>Something new is on its way.</p>
-    <a href="mailto:branding@logohero.co.uk">Get in touch</a>
-  </main>
+
+<header>
+  <div class="wrap">
+    <img src="logo.png" alt="Logo Hero">
+    <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">Get in touch</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Your vision, <span>sharpened.</span></h1>
+        <p>Every brand starts with a vision. Logo Hero is a service to help you on your branding journey: we boost the vision you've already created, for a fraction of the price of engaging with a design studio.</p>
+        <div class="actions">
+          <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">Get in touch</a>
+          <a class="btn ghost" href="#pricing">See pricing</a>
+        </div>
+      </div>
+      <img src="logo.png" alt="Logo Hero logo">
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="wrap about">
+      <div class="eyebrow">Why Logo Hero</div>
+      <h2>Your vision, boosted</h2>
+      <p>You've already done the hard part: you had the idea, built the business and created a brand to match. We don't replace that. We build on it.</p>
+      <p>Logo Hero sharpens the logo you already have, refining the shapes, balance and finish so it looks as professional as the business behind it. It's a way to take the next step on your branding journey, for a fraction of the price of engaging with a design studio.</p>
+    </div>
+  </section>
+
+  <section class="soft" id="how">
+    <div class="wrap">
+      <div class="eyebrow">How it works</div>
+      <h2>Same logo. Sharper result.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <h3>Start with yours</h3>
+          <p>We work from the logo you already use, so it still looks like your business.</p>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <h3>We refine it</h3>
+          <p>Spacing, proportions, alignment and finish are tidied so it holds up on your website, socials and signage.</p>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <h3>You use it</h3>
+          <p>Get print-ready, high-resolution files, plus matching email signatures and LinkedIn banners if you'd like them.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <div class="eyebrow">Pricing</div>
+      <h2>Simple, fixed prices</h2>
+      <div class="prices">
+        <div class="price">
+          <h3>Logo</h3>
+          <div class="amount">£150</div>
+          <ul>
+            <li>Your logo, refined</li>
+            <li>High-resolution files, ready to use</li>
+            <li>Yours to keep</li>
+          </ul>
+          <a class="btn ghost" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20-%20Logo%20(%C2%A3150)">Choose Logo</a>
+        </div>
+        <div class="price featured">
+          <h3>Logo+</h3>
+          <div class="amount">£225</div>
+          <ul>
+            <li>Everything in Logo</li>
+            <li>Email signatures for up to 10 employees</li>
+            <li>Covers any new recruits over the next 3 months</li>
+            <li>LinkedIn banners</li>
+            <li>Yours to keep</li>
+          </ul>
+          <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20-%20Logo%2B%20(%C2%A3225)">Choose Logo+</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="soft contact" id="contact">
+    <div class="wrap">
+      <div class="eyebrow">Contact</div>
+      <h2>Let's sharpen yours</h2>
+      <p>Send us your current logo and we'll tell you what we'd change.</p>
+      <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">branding@logohero.co.uk</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© <span id="y">2026</span> Logo Hero</div>
+    <div><a href="mailto:branding@logohero.co.uk">branding@logohero.co.uk</a></div>
+  </div>
+</footer>
+
+<script>document.getElementById('y').textContent = new Date().getFullYear();</script>
 </body>
 </html>
