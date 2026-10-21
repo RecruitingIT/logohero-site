@@ -79,16 +79,24 @@
   footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 
-  .js .eyebrow, .js h1, .js .lead, .js .example, .js .cta h2, .js .cta p, .js .cta .btn {
+  /* Fade-in for the intro and call to action (slower and with a longer rise than before) */
+  .js .eyebrow, .js h1, .js .lead, .js .cta h2, .js .cta p, .js .cta .btn {
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity .8s ease, transform .8s ease;
+    transform: translateY(48px);
+    transition: opacity 1.2s ease, transform 1.2s ease;
   }
   .js .in-view { opacity: 1 !important; transform: none !important; }
+
+  /* Examples fade in and out as you scroll (opacity and movement are set by the script below).
+     The extra space lets the first and last example reach the middle of the screen. */
+  .js .examples { padding-top: 12vh; padding-bottom: 12vh; }
+  .js .example { will-change: opacity, transform; }
+
   @media (prefers-reduced-motion: reduce) {
-    .js .eyebrow, .js h1, .js .lead, .js .example, .js .cta h2, .js .cta p, .js .cta .btn {
+    .js .eyebrow, .js h1, .js .lead, .js .cta h2, .js .cta p, .js .cta .btn {
       opacity: 1; transform: none; transition: none;
     }
+    .js .examples { padding-top: 32px; padding-bottom: 72px; }
   }
 
   @media (max-width: 760px) {
@@ -194,13 +202,64 @@
 
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
-const targets = document.querySelectorAll('.eyebrow, h1, .lead, .example, .cta h2, .cta p, .cta .btn');
+// Fade-in for the intro and call to action
+const targets = document.querySelectorAll('.eyebrow, h1, .lead, .cta h2, .cta p, .cta .btn');
 const io = new IntersectionObserver((entries) => {
   entries.forEach((e) => {
     if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
   });
 }, { threshold: 0.15 });
 targets.forEach((el) => io.observe(el));
+
+// Examples: fade in as they reach the middle of the screen, fade out as they move up or down,
+// so only one example is clearly visible at a time.
+const examples = Array.from(document.querySelectorAll('.example'));
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const FADE_START = 0.10; // distance from screen centre (in example heights) where fading begins
+const FADE_END = 0.60;   // distance where the example is fully invisible
+const SLIDE = 60;        // pixels an example drifts up or down as it fades
+let layout = [];
+
+function measure() {
+  // Measure positions with no transform applied so the movement never feeds back into the maths
+  examples.forEach((el) => { el.style.transform = 'none'; });
+  layout = examples.map((el) => {
+    const r = el.getBoundingClientRect();
+    const gap = parseFloat(getComputedStyle(el).marginBottom) || 0;
+    return { centre: r.top + window.scrollY + r.height / 2, spacing: r.height + gap };
+  });
+  update();
+}
+
+function update() {
+  const viewMid = window.scrollY + window.innerHeight / 2;
+  examples.forEach((el, i) => {
+    const { centre, spacing } = layout[i];
+    const offset = centre - viewMid;
+    let t = (Math.abs(offset) / spacing - FADE_START) / (FADE_END - FADE_START);
+    t = Math.min(1, Math.max(0, t));
+    const eased = t * t * (3 - 2 * t);
+    el.style.opacity = (1 - eased).toFixed(3);
+    el.style.transform = 'translateY(' + (Math.sign(offset) * eased * SLIDE).toFixed(1) + 'px)';
+  });
+}
+
+if (!reduceMotion && examples.length) {
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(() => { update(); ticking = false; });
+    }
+  }, { passive: true });
+  window.addEventListener('resize', measure);
+  window.addEventListener('load', measure);
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(measure);
+    examples.forEach((el) => ro.observe(el));
+  }
+  measure();
+}
 </script>
 </body>
 </html>
