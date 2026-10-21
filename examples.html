@@ -97,7 +97,19 @@
   .js .example { will-change: opacity, transform; opacity: 0; transition: opacity .45s ease-out, transform .45s ease-out; margin-bottom: -220px; } /* panels overlap in the layout: only one is ever visible, so less scrolling is needed between them */
   .js .example:last-of-type { margin-bottom: 28px; }
 
+  /* Faded logo sitting behind the page until the visitor starts scrolling.
+     The script fades it out as the examples fade in. Change the image in the <img> tag near the top of <main>. */
+  .bg-logo { display: none; }
+  .js .bg-logo {
+    display: block; position: fixed; left: 50%; top: 66%;
+    width: min(560px, 80vw); height: auto;
+    transform: translate(-50%, -50%);
+    opacity: .35; transition: opacity .3s ease-out;
+    pointer-events: none; z-index: -1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .js .bg-logo { display: none; }
     .js .eyebrow, .js h1, .js .lead, .js .packages h2, .js .packages .btn, .js .cta p, .js .cta .btn {
       opacity: 1; transform: none; transition: none;
     }
@@ -124,6 +136,8 @@
 </header>
 
 <main>
+  <img class="bg-logo" src="LogoHero2.png" alt="" aria-hidden="true">
+
   <div class="intro">
     <div class="wrap">
       <a class="back" href="index.html">&larr; Back to home</a>
@@ -230,6 +244,8 @@ const FADE_END = 0.80;   // distance where the example is fully invisible
 const SLIDE = 340;       // pixels an example drifts up or down as it fades
 const SHRINK = 0.25;     // how much an example shrinks as it fades (0.25 = down to 75%)
 const REVEAL_AFTER = 150; // pixels of scrolling before examples start to appear (keeps them hidden when the page opens)
+const bgLogo = document.querySelector('.bg-logo');
+const BG_LOGO_OPACITY = 0.35; // how visible the background logo is before scrolling (0 to 1)
 let layout = [];
 
 function measure() {
@@ -255,6 +271,7 @@ function update() {
   // Nothing shows until the visitor starts scrolling (skipped if the page is too short to scroll)
   const scrollable = document.documentElement.scrollHeight > window.innerHeight + 1;
   const gate = scrollable ? Math.min(1, window.scrollY / REVEAL_AFTER) : 1;
+  if (bgLogo) bgLogo.style.opacity = (BG_LOGO_OPACITY * (1 - gate)).toFixed(3);
   examples.forEach((el, i) => {
     const { centre, spacing } = layout[i];
     const offset = centre - viewMid;
