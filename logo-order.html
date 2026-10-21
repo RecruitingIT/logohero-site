@@ -88,6 +88,8 @@
     color: var(--ink);
   }
   input:focus { outline: 3px solid rgba(10, 69, 224, .25); border-color: var(--blue); }
+  input[readonly] { background: var(--soft); color: var(--muted); cursor: not-allowed; }
+  input[readonly]:focus { outline: none; border-color: #C5CDDF; }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .fine { color: var(--muted); font-size: 14px; margin: 16px 0 0; }
   .status { margin-top: 16px; font-weight: 600; }
@@ -145,6 +147,11 @@
 
       <form id="order-form" action="https://formspree.io/f/mljgygzg" method="POST">
         <input type="hidden" name="package" id="package-field" value="Not specified">
+
+        <div class="field">
+          <label for="package-requested">Package Requested</label>
+          <input type="text" id="package-requested" name="package_requested" value="Logo Only" readonly aria-readonly="true">
+        </div>
 
         <div class="field">
           <label for="business">Business name</label>
