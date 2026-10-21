@@ -90,7 +90,7 @@
   /* Examples fade in and out as you scroll (opacity and movement are set by the script below).
      The extra space lets the first and last example reach the middle of the screen. */
   .js .examples { padding-top: 12vh; padding-bottom: 12vh; }
-  .js .example { will-change: opacity, transform; margin-bottom: -220px; } /* panels overlap in the layout: only one is ever visible, so less scrolling is needed between them */
+  .js .example { will-change: opacity, transform; opacity: 0; transition: opacity .45s ease-out, transform .45s ease-out; margin-bottom: -220px; } /* panels overlap in the layout: only one is ever visible, so less scrolling is needed between them */
   .js .example:last-of-type { margin-bottom: 28px; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -98,7 +98,7 @@
       opacity: 1; transform: none; transition: none;
     }
     .js .examples { padding-top: 32px; padding-bottom: 72px; }
-    .js .example { margin-bottom: 28px; }
+    .js .example { margin-bottom: 28px; opacity: 1; transform: none; transition: none; }
   }
 
   @media (max-width: 760px) {
@@ -124,8 +124,7 @@
     <div class="wrap">
       <a class="back" href="index.html">&larr; Back to home</a>
       <h1>Before. <span>After.</span></h1>
-      <p class="lead">Same brand, same idea, sharpened.
-        <p> Scroll to see how a Logo Hero refresh looks in practice.</p>
+      <p class="lead">Same brand, same idea, sharpened. Here's what a Logo Hero refresh looks like in practice.</p>
     </div>
   </div>
 
@@ -221,20 +220,21 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 // The fade is centred on the halfway point between two panels (0.5), so as one fades out the next
 // fades in at the same rate and the page is never blank. Narrow the gap between these two numbers
 // for a quicker swap, widen it for a softer one.
-const FADE_START = 0.40; // distance from screen centre (as a share of the gap between panels) where fading begins
-const FADE_END = 0.60;   // distance where the example is fully invisible
+const FADE_START = 0.20; // distance from screen centre (as a share of the gap between panels) where fading begins
+const FADE_END = 0.80;   // distance where the example is fully invisible
 const SLIDE = 340;       // pixels an example drifts up or down as it fades
 const SHRINK = 0.25;     // how much an example shrinks as it fades (0.25 = down to 75%)
 const REVEAL_AFTER = 150; // pixels of scrolling before examples start to appear (keeps them hidden when the page opens)
 let layout = [];
 
 function measure() {
-  // Measure positions with no transform applied so the movement never feeds back into the maths
-  examples.forEach((el) => { el.style.transform = 'none'; });
-  const centres = examples.map((el) => {
-    const r = el.getBoundingClientRect();
-    return { centre: r.top + window.scrollY + r.height / 2, height: r.height };
-  });
+  // Measure from layout positions (offsetTop) rather than on-screen positions, so the movement
+  // and the smoothing transition never feed back into the maths
+  const pageTop = (el) => { let y = 0; for (let n = el; n; n = n.offsetParent) y += n.offsetTop; return y; };
+  const centres = examples.map((el) => ({
+    centre: pageTop(el) + el.offsetHeight / 2,
+    height: el.offsetHeight
+  }));
   // Spacing = scroll distance to the nearest neighbouring panel, so the fade always finishes before the next one arrives
   layout = centres.map((c, i) => {
     const gaps = [];
@@ -255,7 +255,8 @@ function update() {
     const offset = centre - viewMid;
     let t = (Math.abs(offset) / spacing - FADE_START) / (FADE_END - FADE_START);
     t = Math.min(1, Math.max(0, t));
-    const eased = 1 - (1 - t * t * (3 - 2 * t)) * gate;
+    const soft = t * t * t * (t * (t * 6 - 15) + 10); // smootherstep: gentler start and finish than a plain ease
+    const eased = 1 - (1 - soft) * gate;
     el.style.opacity = (1 - eased).toFixed(3);
     el.style.transform = 'translateY(' + (Math.sign(offset) * eased * SLIDE).toFixed(1) + 'px) scale(' + (1 - eased * SHRINK).toFixed(3) + ')';
   });
