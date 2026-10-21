@@ -99,6 +99,12 @@
     opacity: 1; transform: none; transition: none;
   }
 }
+  /* Desktop only: shift the hero logo left so its shadow tucks behind the text.
+     The text sits above the image. Make the number more negative to move the logo further left. */
+  @media (min-width: 761px) {
+    .hero .wrap > div { position: relative; z-index: 1; }
+    .hero img { transform: translateX(-22%); }
+  }
   @media (max-width: 760px) {
     .hero { padding: 40px 0 0; }
     .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
