@@ -65,7 +65,6 @@
   section { padding: 72px 0; }
   section.soft { background: var(--soft); }
   #how, #contact { background: #DCE6FB; }
-  .eyebrow { font-size: 15px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
   h2 { font-size: clamp(34px, 5vw, 52px); margin-bottom: 36px; }
 
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -75,7 +74,8 @@
   .step p { margin: 0; color: var(--muted); }
 
   .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; margin: 0 auto; }
-  .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; }
+  .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
+  .price:hover, .price:focus-within { transform: scale(1.02); box-shadow: 0 10px 24px rgba(14, 27, 61, .12); }
   .price.featured { border-color: var(--blue); }
   .price h3 { font-size: 28px; margin-bottom: 4px; }
   .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
@@ -91,14 +91,14 @@
 
   footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-.js .eyebrow, .js h2, .js .about p, .js .step, .js .price, .js .contact p, .js .contact .btn {
+.js h2, .js .about p, .js .step, .js .contact p, .js .contact .btn {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity .8s ease, transform .8s ease;
 }
 .js .in-view { opacity: 1 !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .js .eyebrow, .js h2, .js .about p, .js .step, .js .price, .js .contact p, .js .contact .btn {
+  .js h2, .js .about p, .js .step, .js .contact p, .js .contact .btn {
     opacity: 1; transform: none; transition: none;
   }
 }
@@ -142,7 +142,6 @@
 
   <section id="about">
     <div class="wrap about">
-      <div class="eyebrow">Why Logo Hero</div>
       <h2>Professionalism your business deserves</h2>
       <p>You've already done the hard part; you had the idea, you built the business and you created a brand to match.</p>
 <p>We don't replace your identity, we build on it.</p>
@@ -161,7 +160,6 @@
 
   <section class="soft" id="how">
     <div class="wrap">
-      <div class="eyebrow">How it works</div>
       <h2>Same logo. Sharper result.</h2>
       <div class="steps">
         <div class="step">
@@ -185,7 +183,6 @@
 
   <section id="pricing">
     <div class="wrap">
-      <div class="eyebrow">Pricing</div>
       <h2>Simple, fixed prices</h2>
       <div class="prices">
         <div class="price">
@@ -216,7 +213,6 @@
 
   <section class="soft contact" id="contact">
     <div class="wrap">
-      <div class="eyebrow">Contact</div>
       <h2>Let's sharpen yours</h2>
       <p>Send us your current logo, we'll enhance it.</p>
       <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">branding@logohero.co.uk</a>
@@ -233,7 +229,7 @@
 
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
-const targets = document.querySelectorAll('.eyebrow, h2, .about p, .step, .price, .contact p, .contact .btn');
+const targets = document.querySelectorAll('h2, .about p, .step, .contact p, .contact .btn');
 const io = new IntersectionObserver((entries) => {
   entries.forEach((e) => {
     if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
