@@ -59,7 +59,6 @@
   .hero h1 + p { margin-top: 32px; }
   .hero p:last-child { margin-bottom: 32px; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; }
-  section.cta-row { padding: 0 0 72px; }
   .hero img { width: 100%; height: auto; display: block; }
 
   section { padding: 72px 0; }
@@ -75,7 +74,8 @@
 
   /* ---------- Examples: constant right-to-left scroll ---------- */
   #examples { padding: 0 0 80px; overflow: hidden; }
-  #examples .wrap { margin-bottom: 0; }
+  #examples h2 { margin-bottom: 10px; }
+  .examples-sub { margin: 0 0 24px; font-size: 19px; color: var(--muted); }
   .marquee {
     --cardw: 420px;
     --gap: 32px;
@@ -105,17 +105,17 @@
     transition: opacity .2s ease;
   }
   .ex .after { opacity: 0; }
-  .ex.is-after { box-shadow: 0 12px 30px rgba(10, 69, 224, .18); }
+  .ex.is-after { box-shadow: 0 0 0 1.5px var(--blue), 0 12px 30px rgba(10, 69, 224, .18); }
   .ex.is-after .before { opacity: 0; }
   .ex.is-after .after { opacity: 1; }
   .ex .tag {
     position: absolute; left: 12px; bottom: 10px;
     font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
     color: var(--muted);
-    transition: color .2s ease;
+    transition: color .2s ease, font-size .2s ease;
   }
   .ex .tag::before { content: "Before"; }
-  .ex.is-after .tag { color: var(--blue); }
+  .ex.is-after .tag { color: var(--blue); font-size: 15px; font-weight: 800; }
   .ex.is-after .tag::before { content: "After"; }
 
   /* Reduced motion: no auto-scroll, let people swipe/scroll and tap to compare */
@@ -141,14 +141,14 @@
 
   footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-.js h2, .js .about p, .js .step, .js .contact p, .js .contact .btn {
+.js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity .8s ease, transform .8s ease;
 }
 .js .in-view { opacity: 1 !important; transform: none !important; }
 @media (prefers-reduced-motion: reduce) {
-  .js h2, .js .about p, .js .step, .js .contact p, .js .contact .btn {
+  .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
     opacity: 1; transform: none; transition: none;
   }
 }
@@ -201,18 +201,10 @@
     </div>
   </section>
 
-  <section class="cta-row">
-    <div class="wrap about">
-      <div class="actions">
-        <a class="btn" href="#examples">Show Examples</a>
-        <a class="btn ghost" href="#pricing">See Pricing</a>
-      </div>
-    </div>
-  </section>
-
   <section id="examples">
     <div class="wrap">
       <h2>See the difference</h2>
+      <p class="examples-sub">Hover to see the logo enhanced</p>
     </div>
     <div class="marquee" id="marquee" aria-label="Examples of logos before and after Logo Hero">
       <div class="track" id="track"></div>
@@ -290,7 +282,7 @@
 
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
-const targets = document.querySelectorAll('h2, .about p, .step, .contact p, .contact .btn');
+const targets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
 const io = new IntersectionObserver((entries) => {
   entries.forEach((e) => {
     if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
