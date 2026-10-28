@@ -309,7 +309,7 @@ const EXAMPLES = [
 ];
 
 const SPEED = 85;        // px per second, right to left, constant
-const COAST_MS = 600;    // touch only: how long a flick takes to settle back to the normal speed
+const COAST_MS = 220;    // touch only: how long a flick takes to settle back to the normal speed
 
 (function () {
   const marquee = document.getElementById('marquee');
@@ -445,7 +445,7 @@ const COAST_MS = 600;    // touch only: how long a flick takes to settle back to
         const span = samples[n - 1].t - samples[0].t;
         if (span > 0) v = -(samples[n - 1].x - samples[0].x) / span * 1000;
       }
-      vel = Math.max(-3500, Math.min(3500, v));
+      vel = Math.max(-2000, Math.min(2000, v));
     };
     marquee.addEventListener('pointerup', e => release(e, false));
     marquee.addEventListener('pointercancel', e => release(e, true));
