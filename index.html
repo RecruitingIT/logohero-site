@@ -77,8 +77,8 @@
   #examples { padding: 0 0 80px; overflow: hidden; }
   #examples .wrap { margin-bottom: 0; }
   .marquee {
-    --cardw: 280px;
-    --gap: 24px;
+    --cardw: 420px;
+    --gap: 32px;
     position: relative;
     overflow: hidden;
     padding: 12px 0 20px;
@@ -92,27 +92,27 @@
     width: var(--cardw);
     aspect-ratio: 4 / 3;
     background: #fff;
-    border: 1px solid var(--line);
+    border: 2px solid var(--blue);
     border-radius: 16px;
     overflow: hidden;
-    transition: box-shadow .6s ease, border-color .6s ease;
+    transition: box-shadow .2s ease;
   }
   .ex img {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: contain;
-    padding: 28px;
-    transition: opacity .6s ease;
+    padding: 42px;
+    transition: opacity .2s ease;
   }
   .ex .after { opacity: 0; }
-  .ex.is-after { border-color: var(--blue); box-shadow: 0 12px 30px rgba(10, 69, 224, .18); }
+  .ex.is-after { box-shadow: 0 12px 30px rgba(10, 69, 224, .18); }
   .ex.is-after .before { opacity: 0; }
   .ex.is-after .after { opacity: 1; }
   .ex .tag {
     position: absolute; left: 12px; bottom: 10px;
     font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
     color: var(--muted);
-    transition: color .6s ease;
+    transition: color .2s ease;
   }
   .ex .tag::before { content: "Before"; }
   .ex.is-after .tag { color: var(--blue); }
@@ -166,7 +166,7 @@
     section { padding: 52px 0; }
     #examples { padding: 0 0 52px; }
     header img { height: 52px; }
-    .marquee { --cardw: 220px; --gap: 16px; }
+    .marquee { --cardw: 330px; --gap: 20px; }
   }
 </style>
 </head>
@@ -301,22 +301,15 @@ targets.forEach((el) => io.observe(el));
 /* ============================================================
    EXAMPLES MARQUEE
    1. Add your examples to the list below (before + after image per logo).
-   2. Tweak SPEED / HOLD_MS / SLOW_ZONE to taste.
+   2. Tweak SPEED to taste. Hover a tile to swap it to its 'after' image.
    ============================================================ */
 const EXAMPLES = [
-  { name: 'Example 1', before: 'HEW%20Before.png', after: 'HEWW%20After.png' },
+  { name: 'Example 1', before: 'HEW%20Before.png', after: 'HEW%20After.png' },
   { name: 'Example 2', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
-  { name: 'Example 3', before: 'TCG-Before.png', after: 'TCG-After.png' },
-  { name: 'Example 4', before: 'HEW%20Before.png', after: 'HEWW%20After.png' },
-  { name: 'Example 5', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
-  { name: 'Example 5', before: 'TCG-Before.png', after: 'TCG-After.png' }
+  { name: 'Example 3', before: 'TCG-Before.png', after: 'TCG-After.png' }
 ];
 
-const SPEED     = 70;    // px per second, right to left
-const HOLD_MS   = 1400;  // how long each logo pauses in the centre column
-const SLOW_ZONE = 160;   // px before centre where the scroll eases down
-const RAMP_MS   = 600;   // how long it takes to pick speed back up after a pause
-const CENTRE_W  = 0.4;   // fraction of a card's width either side of centre that counts as "in the centre column"
+const SPEED = 70;   // px per second, right to left, constant
 
 (function () {
   const marquee = document.getElementById('marquee');
@@ -324,7 +317,7 @@ const CENTRE_W  = 0.4;   // fraction of a card's width either side of centre tha
   if (!marquee || !track || !EXAMPLES.length) return;
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let items = [], setWidth = 0, offset = 0, hold = 0, rampT = RAMP_MS, last = 0, hovering = false, rafId;
+  let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
 
   function makeCard(ex, decorative) {
     const d = document.createElement('div');
@@ -356,46 +349,25 @@ const CENTRE_W  = 0.4;   // fraction of a card's width either side of centre tha
         track.appendChild(makeCard(EXAMPLES[i % EXAMPLES.length], pass === 1));
       }
     }
-    items = Array.from(track.children).map(el => ({ el, prev: null, w: cardW }));
+    items = Array.from(track.children).map(el => ({ el }));
     track.style.transform = 'translate3d(0,0,0)';
   }
 
   function frame(t) {
     const dt = Math.min(t - (last || t), 50);
     last = t;
-    const rect = marquee.getBoundingClientRect();
-    const centre = rect.left + rect.width / 2;
 
-    // Work out each card's distance from the centre line
-    let nearestAhead = Infinity;
-    items.forEach(it => {
-      const r = it.el.getBoundingClientRect();
-      it.dx = r.left + r.width / 2 - centre;
-      if (it.dx > 0 && it.dx < nearestAhead) nearestAhead = it.dx;
-    });
-
-    // Speed: ease down on approach, stop during hold, ramp back up after
-    let factor = 1;
-    if (hold > 0) {
-      hold -= dt;
-      factor = 0;
-      if (hold <= 0) rampT = 0;
-    } else {
-      if (nearestAhead < SLOW_ZONE) factor = Math.max(0.3, nearestAhead / SLOW_ZONE);
-      if (rampT < RAMP_MS) { rampT += dt; factor *= Math.min(1, rampT / RAMP_MS); }
-    }
-    if (hovering) factor = 0;
-
-    offset += SPEED * factor * dt / 1000;
-    if (offset >= setWidth) { offset -= setWidth; items.forEach(it => it.prev = null); }
+    // Constant speed: never slows, never pauses (hover included)
+    offset += SPEED * dt / 1000;
+    if (offset >= setWidth) offset -= setWidth;
     track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
 
-    // Swap before/after and detect the moment a card crosses the centre line
+    // Hit-test the pointer against the moving tiles every frame, so the
+    // swap still happens when a tile slides under a stationary mouse
     items.forEach(it => {
-      const inCentre = Math.abs(it.dx) < it.w * CENTRE_W;
-      it.el.classList.toggle('is-after', inCentre);
-      if (hold <= 0 && it.prev !== null && it.prev > 0 && it.dx <= 0 && !hovering) hold = HOLD_MS;
-      it.prev = it.dx;
+      const r = it.el.getBoundingClientRect();
+      const over = mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom;
+      it.el.classList.toggle('is-after', over);
     });
 
     rafId = requestAnimationFrame(frame);
@@ -406,12 +378,12 @@ const CENTRE_W  = 0.4;   // fraction of a card's width either side of centre tha
     build();
     if (reduce) { marquee.classList.add('static'); return; }
     marquee.classList.remove('static');
-    last = 0; hold = 0; rampT = RAMP_MS;
+    last = 0;
     rafId = requestAnimationFrame(frame);
   }
 
-  marquee.addEventListener('mouseenter', () => { hovering = true; });
-  marquee.addEventListener('mouseleave', () => { hovering = false; });
+  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  document.addEventListener('mouseleave', () => { mx = my = -1; });
 
   // Only run the animation while the section is on screen
   let visible = true;
