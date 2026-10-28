@@ -94,26 +94,26 @@
     flex: 0 0 var(--cardw);
     width: var(--cardw);
     aspect-ratio: 4 / 3;
-    background: #fff;
-    border: 2px solid var(--blue);
-    border-radius: 16px;
-    overflow: hidden;
-    transition: box-shadow .2s ease;
   }
   .ex img {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: contain;
-    padding: 42px;
+    padding: 12px 12px 44px;
     transition: opacity .2s ease;
+    -webkit-user-drag: none;
+  }
+  .marquee.touch {
+    touch-action: pan-y;            /* vertical page scroll still works; sideways swipes drive the marquee */
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
   }
   .marquee.touch .ex { -webkit-tap-highlight-color: transparent; cursor: pointer; }
   .ex .after { opacity: 0; }
-  .ex.is-after { box-shadow: 0 0 0 1.5px var(--blue), 0 12px 30px rgba(10, 69, 224, .18); }
   .ex.is-after .before { opacity: 0; }
   .ex.is-after .after { opacity: 1; }
   .ex .tag {
-    position: absolute; left: 12px; bottom: 10px;
+    position: absolute; left: 0; right: 0; bottom: 8px; text-align: center;
     font-size: 14px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
     color: var(--muted);
     transition: color .2s ease, font-size .2s ease;
@@ -308,7 +308,8 @@ const EXAMPLES = [
   { name: 'Example 3', before: 'ALRS-Before.png', after: 'ALRS-After.png' }
 ];
 
-const SPEED = 85;   // px per second, right to left, constant
+const SPEED = 85;        // px per second, right to left, constant
+const COAST_MS = 600;    // touch only: how long a flick takes to settle back to the normal speed
 
 (function () {
   const marquee = document.getElementById('marquee');
@@ -317,6 +318,7 @@ const SPEED = 85;   // px per second, right to left, constant
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
+  let vel = SPEED, dragging = false, moved = false;   // vel: current speed in px/s (positive = right to left)
 
   // Phones/tablets have no hover, so there a tap pins a tile to its 'after' image
   const touchMode = window.matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -363,13 +365,19 @@ const SPEED = 85;   // px per second, right to left, constant
     track.style.transform = 'translate3d(0,0,0)';
   }
 
+  function wrap() { offset = ((offset % setWidth) + setWidth) % setWidth; }
+
   function frame(t) {
     const dt = Math.min(t - (last || t), 50);
     last = t;
 
-    // Constant speed: never slows, never pauses (hover included)
-    offset += SPEED * dt / 1000;
-    if (offset >= setWidth) offset -= setWidth;
+    // Constant speed (hover never pauses it). On touch, a swipe sets 'vel' and it eases back to SPEED;
+    // while a finger is down the marquee holds still.
+    if (!dragging) {
+      vel += (SPEED - vel) * (1 - Math.exp(-dt / COAST_MS));
+      offset += vel * dt / 1000;
+      wrap();
+    }
     track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
 
     // Hit-test the pointer against the moving tiles every frame, so the
@@ -398,7 +406,7 @@ const SPEED = 85;   // px per second, right to left, constant
 
   // Tap a tile to flip it; tap again (or wait) to flip back. One tile at a time.
   track.addEventListener('click', e => {
-    if (!touchMode) return;
+    if (!touchMode || moved) return;
     const card = e.target.closest('.ex');
     if (!card) return;
     pinned = (pinned === card) ? null : card;
@@ -410,6 +418,38 @@ const SPEED = 85;   // px per second, right to left, constant
     items.forEach(it => it.el.classList.toggle('is-after', touchMode && it.el === pinned));
   }
   document.addEventListener('mouseleave', () => { mx = my = -1; });
+
+  // Touch: drag to scroll either way, hold to pause, flick for momentum. Then it carries on by itself.
+  if (touchMode && !reduce) {
+    let pid = null, startX = 0, lastX = 0, samples = [];
+    marquee.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' || dragging) return;
+      pid = e.pointerId; dragging = true; moved = false;
+      startX = lastX = e.clientX;
+      samples = [{ x: e.clientX, t: e.timeStamp }];
+    });
+    marquee.addEventListener('pointermove', e => {
+      if (!dragging || e.pointerId !== pid) return;
+      if (Math.abs(e.clientX - startX) > 8) moved = true;
+      offset -= e.clientX - lastX; lastX = e.clientX;
+      wrap();
+      samples.push({ x: e.clientX, t: e.timeStamp });
+      while (samples.length > 2 && e.timeStamp - samples[0].t > 100) samples.shift();
+    });
+    const release = (e, cancelled) => {
+      if (!dragging || e.pointerId !== pid) return;
+      dragging = false;
+      let v = 0;                                   // finger held still before lifting = no momentum
+      const n = samples.length;
+      if (!cancelled && n > 1 && e.timeStamp - samples[n - 1].t < 80) {
+        const span = samples[n - 1].t - samples[0].t;
+        if (span > 0) v = -(samples[n - 1].x - samples[0].x) / span * 1000;
+      }
+      vel = Math.max(-3500, Math.min(3500, v));
+    };
+    marquee.addEventListener('pointerup', e => release(e, false));
+    marquee.addEventListener('pointercancel', e => release(e, true));
+  }
 
   // Only run the animation while the section is on screen
   let visible = true;
