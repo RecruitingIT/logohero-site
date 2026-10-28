@@ -73,6 +73,56 @@
   .step h3 { font-size: 26px; margin-bottom: 8px; }
   .step p { margin: 0; color: var(--muted); }
 
+  /* ---------- Examples: constant right-to-left scroll ---------- */
+  #examples { padding: 0 0 80px; overflow: hidden; }
+  #examples .wrap { margin-bottom: 0; }
+  .marquee {
+    --cardw: 280px;
+    --gap: 24px;
+    position: relative;
+    overflow: hidden;
+    padding: 12px 0 20px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+  }
+  .track { display: flex; gap: var(--gap); width: max-content; will-change: transform; }
+  .ex {
+    position: relative;
+    flex: 0 0 var(--cardw);
+    width: var(--cardw);
+    aspect-ratio: 4 / 3;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: box-shadow .6s ease, border-color .6s ease;
+  }
+  .ex img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 28px;
+    transition: opacity .6s ease;
+  }
+  .ex .after { opacity: 0; }
+  .ex.is-after { border-color: var(--blue); box-shadow: 0 12px 30px rgba(10, 69, 224, .18); }
+  .ex.is-after .before { opacity: 0; }
+  .ex.is-after .after { opacity: 1; }
+  .ex .tag {
+    position: absolute; left: 12px; bottom: 10px;
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted);
+    transition: color .6s ease;
+  }
+  .ex .tag::before { content: "Before"; }
+  .ex.is-after .tag { color: var(--blue); }
+  .ex.is-after .tag::before { content: "After"; }
+
+  /* Reduced motion: no auto-scroll, let people swipe/scroll and tap to compare */
+  .marquee.static { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .marquee.static .ex:hover .before, .marquee.static .ex:focus .before { opacity: 0; }
+  .marquee.static .ex:hover .after, .marquee.static .ex:focus .after { opacity: 1; }
+
   .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; margin: 0 auto; }
   .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
   .price:hover, .price:focus-within { transform: scale(1.02); box-shadow: 0 10px 24px rgba(14, 27, 61, .12); }
@@ -114,7 +164,9 @@
     .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
     .steps, .prices { grid-template-columns: 1fr; }
     section { padding: 52px 0; }
+    #examples { padding: 0 0 52px; }
     header img { height: 52px; }
+    .marquee { --cardw: 220px; --gap: 16px; }
   }
 </style>
 </head>
@@ -152,9 +204,18 @@
   <section class="cta-row">
     <div class="wrap about">
       <div class="actions">
-        <a class="btn" href="/examples">Show Examples</a>
+        <a class="btn" href="#examples">Show Examples</a>
         <a class="btn ghost" href="#pricing">See Pricing</a>
       </div>
+    </div>
+  </section>
+
+  <section id="examples">
+    <div class="wrap">
+      <h2>See the difference</h2>
+    </div>
+    <div class="marquee" id="marquee" aria-label="Examples of logos before and after Logo Hero">
+      <div class="track" id="track"></div>
     </div>
   </section>
 
@@ -236,6 +297,136 @@ const io = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.15 });
 targets.forEach((el) => io.observe(el));
+
+/* ============================================================
+   EXAMPLES MARQUEE
+   1. Add your examples to the list below (before + after image per logo).
+   2. Tweak SPEED / HOLD_MS / SLOW_ZONE to taste.
+   ============================================================ */
+const EXAMPLES = [
+  { name: 'Example 1', before: 'HEW%20Before.png', after: 'HEWW%20After.png' },
+  { name: 'Example 2', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
+  { name: 'Example 3', before: 'TCG-Before.png', after: 'TCG-After.png' },
+  { name: 'Example 4', before: 'HEW%20Before.png', after: 'HEWW%20After.png' },
+  { name: 'Example 5', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
+  { name: 'Example 5', before: 'TCG-Before.png', after: 'TCG-After.png' }
+];
+
+const SPEED     = 70;    // px per second, right to left
+const HOLD_MS   = 1400;  // how long each logo pauses in the centre column
+const SLOW_ZONE = 160;   // px before centre where the scroll eases down
+const RAMP_MS   = 600;   // how long it takes to pick speed back up after a pause
+const CENTRE_W  = 0.4;   // fraction of a card's width either side of centre that counts as "in the centre column"
+
+(function () {
+  const marquee = document.getElementById('marquee');
+  const track = document.getElementById('track');
+  if (!marquee || !track || !EXAMPLES.length) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let items = [], setWidth = 0, offset = 0, hold = 0, rampT = RAMP_MS, last = 0, hovering = false, rafId;
+
+  function makeCard(ex, decorative) {
+    const d = document.createElement('div');
+    d.className = 'ex';
+    if (decorative) d.setAttribute('aria-hidden', 'true');
+    else d.tabIndex = 0;
+    d.innerHTML =
+      '<img class="before" src="' + ex.before + '" alt="' + ex.name + ' logo before" loading="eager" draggable="false">' +
+      '<img class="after" src="' + ex.after + '" alt="' + ex.name + ' logo after" loading="eager" draggable="false">' +
+      '<span class="tag"></span>';
+    return d;
+  }
+
+  function build() {
+    track.innerHTML = '';
+    offset = 0;
+    const vw = marquee.clientWidth;
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    const cardW = parseFloat(getComputedStyle(marquee).getPropertyValue('--cardw')) || 280;
+    const unit = cardW + gap;
+
+    // Repeat the list until one "set" is wider than the screen, then clone the set once for a seamless loop
+    let count = EXAMPLES.length;
+    while (count * unit < vw * 1.2) count += EXAMPLES.length;
+    setWidth = count * unit;
+
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < count; i++) {
+        track.appendChild(makeCard(EXAMPLES[i % EXAMPLES.length], pass === 1));
+      }
+    }
+    items = Array.from(track.children).map(el => ({ el, prev: null, w: cardW }));
+    track.style.transform = 'translate3d(0,0,0)';
+  }
+
+  function frame(t) {
+    const dt = Math.min(t - (last || t), 50);
+    last = t;
+    const rect = marquee.getBoundingClientRect();
+    const centre = rect.left + rect.width / 2;
+
+    // Work out each card's distance from the centre line
+    let nearestAhead = Infinity;
+    items.forEach(it => {
+      const r = it.el.getBoundingClientRect();
+      it.dx = r.left + r.width / 2 - centre;
+      if (it.dx > 0 && it.dx < nearestAhead) nearestAhead = it.dx;
+    });
+
+    // Speed: ease down on approach, stop during hold, ramp back up after
+    let factor = 1;
+    if (hold > 0) {
+      hold -= dt;
+      factor = 0;
+      if (hold <= 0) rampT = 0;
+    } else {
+      if (nearestAhead < SLOW_ZONE) factor = Math.max(0.3, nearestAhead / SLOW_ZONE);
+      if (rampT < RAMP_MS) { rampT += dt; factor *= Math.min(1, rampT / RAMP_MS); }
+    }
+    if (hovering) factor = 0;
+
+    offset += SPEED * factor * dt / 1000;
+    if (offset >= setWidth) { offset -= setWidth; items.forEach(it => it.prev = null); }
+    track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
+
+    // Swap before/after and detect the moment a card crosses the centre line
+    items.forEach(it => {
+      const inCentre = Math.abs(it.dx) < it.w * CENTRE_W;
+      it.el.classList.toggle('is-after', inCentre);
+      if (hold <= 0 && it.prev !== null && it.prev > 0 && it.dx <= 0 && !hovering) hold = HOLD_MS;
+      it.prev = it.dx;
+    });
+
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    cancelAnimationFrame(rafId);
+    build();
+    if (reduce) { marquee.classList.add('static'); return; }
+    marquee.classList.remove('static');
+    last = 0; hold = 0; rampT = RAMP_MS;
+    rafId = requestAnimationFrame(frame);
+  }
+
+  marquee.addEventListener('mouseenter', () => { hovering = true; });
+  marquee.addEventListener('mouseleave', () => { hovering = false; });
+
+  // Only run the animation while the section is on screen
+  let visible = true;
+  new IntersectionObserver(es => {
+    visible = es[0].isIntersecting;
+    if (reduce) return;
+    if (visible) { last = 0; cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame); }
+    else cancelAnimationFrame(rafId);
+  }).observe(marquee);
+
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
+
+  start();
+})();
 </script>
 </body>
 </html>
