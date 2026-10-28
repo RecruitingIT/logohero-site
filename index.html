@@ -107,6 +107,7 @@
     padding: 42px;
     transition: opacity .2s ease;
   }
+  .marquee.touch .ex { -webkit-tap-highlight-color: transparent; cursor: pointer; }
   .ex .after { opacity: 0; }
   .ex.is-after { box-shadow: 0 0 0 1.5px var(--blue), 0 12px 30px rgba(10, 69, 224, .18); }
   .ex.is-after .before { opacity: 0; }
@@ -314,6 +315,16 @@ const SPEED = 70;   // px per second, right to left, constant
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
 
+  // Phones/tablets have no hover, so there a tap pins a tile to its 'after' image
+  const touchMode = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const PIN_MS = 5000;               // a tapped tile flips back by itself after this long
+  let pinned = null, pinTimer;
+  if (touchMode) {
+    const sub = document.querySelector('.examples-sub');
+    if (sub) sub.textContent = 'Tap a logo to see it enhanced';
+    marquee.classList.add('touch');
+  }
+
   function makeCard(ex, decorative) {
     const d = document.createElement('div');
     d.className = 'ex';
@@ -328,6 +339,7 @@ const SPEED = 70;   // px per second, right to left, constant
 
   function build() {
     track.innerHTML = '';
+    pinned = null;
     offset = 0;
     const vw = marquee.clientWidth;
     const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
@@ -361,7 +373,9 @@ const SPEED = 70;   // px per second, right to left, constant
     // swap still happens when a tile slides under a stationary mouse
     items.forEach(it => {
       const r = it.el.getBoundingClientRect();
-      const over = mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom;
+      const over = touchMode
+        ? it.el === pinned
+        : (mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom);
       it.el.classList.toggle('is-after', over);
     });
 
@@ -377,7 +391,21 @@ const SPEED = 70;   // px per second, right to left, constant
     rafId = requestAnimationFrame(frame);
   }
 
-  window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  window.addEventListener('mousemove', e => { if (!touchMode) { mx = e.clientX; my = e.clientY; } });
+
+  // Tap a tile to flip it; tap again (or wait) to flip back. One tile at a time.
+  track.addEventListener('click', e => {
+    if (!touchMode) return;
+    const card = e.target.closest('.ex');
+    if (!card) return;
+    pinned = (pinned === card) ? null : card;
+    clearTimeout(pinTimer);
+    if (pinned) pinTimer = setTimeout(() => { pinned = null; applyPinned(); }, PIN_MS);
+    applyPinned();
+  });
+  function applyPinned() {            // also covers the reduced-motion layout, where the frame loop isn't running
+    items.forEach(it => it.el.classList.toggle('is-after', touchMode && it.el === pinned));
+  }
   document.addEventListener('mouseleave', () => { mx = my = -1; });
 
   // Only run the animation while the section is on screen
