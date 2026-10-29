@@ -427,56 +427,7 @@ if (!reduceOpeningMotion) {
     if (openingFrame) return;
     openingFrame = requestAnimationFrame(() => { openingFrame = 0; updateOpening(); });
   };
-  let previousScrollY = window.scrollY;
-  let snapGestureStartY = previousScrollY;
-  let scrollDirection = 0;
-  let snapTimer = 0;
-  let snapUnlockTimer = 0;
-  let snapInProgress = false;
-
-  function tryOpeningSnap() {
-    if (!openingMetrics || snapInProgress) return;
-    const y = window.scrollY;
-    const start = openingMetrics.stageTop;
-    const animationEnd = start + openingMetrics.travel;
-    const stageRelease = start + openingStage.offsetHeight - window.innerHeight;
-    let snapTo = null;
-
-    if (scrollDirection > 0) {
-      if (snapGestureStartY < animationEnd - 24 &&
-          y > start + 24 && y < stageRelease + 24) {
-        snapTo = animationEnd;
-      }
-    } else if (scrollDirection < 0) {
-      if (snapGestureStartY > animationEnd + 24 && y <= animationEnd + 24 && y < stageRelease + 24) {
-        snapTo = animationEnd;
-      } else if (y > start + 24 && y <= animationEnd + 24) {
-        snapTo = start;
-      }
-    }
-
-    if (snapTo === null || Math.abs(y - snapTo) < 28) return;
-    snapInProgress = true;
-    window.scrollTo({ top: snapTo, behavior: 'smooth' });
-    clearTimeout(snapUnlockTimer);
-    snapUnlockTimer = setTimeout(() => { snapInProgress = false; }, 1400);
-  }
-
-  window.addEventListener('scroll', () => {
-    const y = window.scrollY;
-    if (Math.abs(y - previousScrollY) > 1) scrollDirection = y > previousScrollY ? 1 : -1;
-    previousScrollY = y;
-    queueOpeningUpdate();
-    if (snapInProgress) return;
-    if (!snapTimer) snapGestureStartY = y;
-    clearTimeout(snapTimer);
-    snapTimer = setTimeout(() => { snapTimer = 0; tryOpeningSnap(); }, 150);
-  }, { passive: true });
-  window.addEventListener('scrollend', () => {
-    if (!snapInProgress) return;
-    snapInProgress = false;
-    clearTimeout(snapUnlockTimer);
-  });
+  window.addEventListener('scroll', queueOpeningUpdate, { passive: true });
   window.addEventListener('resize', () => { measureOpening(); queueOpeningUpdate(); });
   targetLogo.addEventListener('load', () => { measureOpening(); queueOpeningUpdate(); });
   measureOpening();
