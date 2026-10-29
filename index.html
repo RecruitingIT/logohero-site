@@ -54,7 +54,51 @@
   .btn.ghost { background: transparent; color: var(--blue); }
   .btn.ghost:hover { background: var(--soft); color: var(--blue-dark); }
 
+  /* The opening scene stays pinned while the large logo travels into its normal hero position. */
+  .opening-stage { position: relative; }
+  .opening-scene { position: relative; background: var(--bg); }
   .hero { padding: 72px 0 80px; }
+  .hero-logo-flight { display: none; }
+  .js .opening-stage { height: 220vh; }
+  .js .opening-scene {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .js .opening-scene header { opacity: 0; transition: opacity .01s linear; }
+  .js .opening-scene .hero-copy { opacity: 0; }
+  .js .opening-scene .hero { min-height: calc(100% - 105px); display: flex; align-items: center; }
+  .js .hero-logo-target { opacity: 0; }
+  .js .hero-logo-flight {
+    display: block;
+    position: fixed;
+    z-index: 20;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+    object-fit: contain;
+    object-position: center;
+    pointer-events: none;
+    will-change: left, top, width, height, opacity;
+  }
+  @media (max-width: 760px) {
+    .js .opening-stage { height: 240vh; }
+    .js .opening-scene .hero { min-height: calc(100% - 91px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js .opening-stage { height: auto; }
+    .js .opening-scene { position: relative; height: auto; min-height: 0; overflow: visible; }
+    .js .opening-scene header, .js .opening-scene .hero-copy { opacity: 1; }
+    .js .hero-logo-target { opacity: 1; }
+    .js .hero-logo-flight { display: none; }
+    .js .opening-scene .hero { min-height: 0; }
+  }
   .hero .wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center; }
   .hero h1 { font-size: clamp(48px, 8vw, 92px); color: var(--ink); }
   .hero h1 span { color: var(--blue); }
@@ -181,6 +225,8 @@
 </head>
 <body>
 
+<div class="opening-stage" id="opening-stage">
+  <div class="opening-scene" id="opening-scene">
 <header>
   <div class="wrap">
     <img src="LOGO%20HERO.png" alt="Logo Hero Icon">
@@ -188,19 +234,22 @@
   </div>
 </header>
 
-<main>
   <div class="hero">
     <div class="wrap">
-      <div>
+      <div class="hero-copy">
         <h1>Your vision, <span>sharpened.</span></h1>
         <p>Every brand starts with a vision.</p>
         <p>Logo Hero simply helps you on your branding journey.</p>
         <p>We boost the vision you've already created for a fraction of the price of engaging with a design agency.</p>
       </div>
-      <img src="LogoHero2.png" alt="Logo Hero logo">
+      <img id="hero-logo-target" src="LogoHero2.png" alt="Logo Hero logo">
     </div>
   </div>
+  <img class="hero-logo-flight" id="hero-logo-flight" src="LogoHero2.png" alt="" aria-hidden="true">
+  </div>
+</div>
 
+<main>
   <section id="about">
     <div class="wrap about">
       <h2>Professionalism your business deserves</h2>
@@ -296,48 +345,78 @@
 document.getElementById('y').textContent = new Date().getFullYear();
 
 /* ------------------------------------------------------------
-   Scroll-reveal.
-   - The About section's colour fades in only once the visitor starts scrolling.
-   - On mobile, the About section's text is also held back until the first scroll
-     (otherwise its heading sits alone at the bottom of the screen on load).
+   Scroll-driven opening logo.
+   The overlay starts viewport-sized and follows the page scroll into
+   the exact box occupied by the regular hero logo. The scene stays pinned
+   until the opening copy and header have fully appeared.
    ------------------------------------------------------------ */
-const aboutSection = document.getElementById('about');
-const mobileQuery = window.matchMedia('(max-width: 760px)');
-let hasScrolled = window.scrollY > 2;   // already scrolled (e.g. page restored after a refresh)
-const heldBack = [];
+const openingStage = document.getElementById('opening-stage');
+const openingScene = document.getElementById('opening-scene');
+const flightLogo = document.getElementById('hero-logo-flight');
+const targetLogo = document.getElementById('hero-logo-target');
+const openingHeader = openingScene.querySelector('header');
+const openingCopy = openingScene.querySelector('.hero-copy');
+const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function showTarget(el) { el.classList.add('in-view'); io.unobserve(el); }
+function clamp01(value) { return Math.max(0, Math.min(1, value)); }
+function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
+function updateOpening() {
+  if (reduceOpeningMotion) return;
+  const stageTop = openingStage.getBoundingClientRect().top + window.scrollY;
+  const travel = Math.max(1, openingStage.offsetHeight - window.innerHeight);
+  const progress = clamp01((window.scrollY - stageTop) / travel);
+  const eased = easeInOut(progress);
+  const destination = targetLogo.getBoundingClientRect();
+  const start = { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+  const end = { left: destination.left, top: destination.top, width: destination.width, height: destination.height };
+  const mix = (a, b) => a + (b - a) * eased;
 
-function onFirstScroll() {
-  if (hasScrolled) return;
-  hasScrolled = true;
-  aboutSection.classList.add('tinted');
-  while (heldBack.length) showTarget(heldBack.pop());
+  flightLogo.style.left = mix(start.left, end.left) + 'px';
+  flightLogo.style.top = mix(start.top, end.top) + 'px';
+  flightLogo.style.width = mix(start.width, end.width) + 'px';
+  flightLogo.style.height = mix(start.height, end.height) + 'px';
+
+  // Bring in the top bar and opening copy together, late in the logo's journey.
+  const reveal = clamp01((progress - 0.70) / 0.25);
+  openingHeader.style.opacity = reveal;
+  openingCopy.style.opacity = reveal;
+
+  // Cross-fade the travelling copy of the logo into its normal image at the destination.
+  const handoff = clamp01((progress - 0.975) / 0.025);
+  flightLogo.style.opacity = 1 - handoff;
+  targetLogo.style.opacity = handoff;
 }
 
-const targets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
-const io = new IntersectionObserver((entries) => {
-  entries.forEach((e) => {
-    if (!e.isIntersecting) return;
-    if (!hasScrolled && mobileQuery.matches && e.target.closest('#about')) {
-      if (heldBack.indexOf(e.target) === -1) heldBack.push(e.target);   // wait for the first scroll
-      return;
-    }
-    showTarget(e.target);
+if (!reduceOpeningMotion) {
+  let openingFrame = 0;
+  const queueOpeningUpdate = () => {
+    if (openingFrame) return;
+    openingFrame = requestAnimationFrame(() => { openingFrame = 0; updateOpening(); });
+  };
+  window.addEventListener('scroll', queueOpeningUpdate, { passive: true });
+  window.addEventListener('resize', queueOpeningUpdate);
+  updateOpening();
+}
+
+/* Fade headings and supporting content into view as the visitor reaches them. */
+const revealTargets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
+const revealObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('in-view');
+    observer.unobserve(entry.target);
   });
 }, { threshold: 0.15 });
-targets.forEach((el) => io.observe(el));
+revealTargets.forEach((el) => revealObserver.observe(el));
 
-if (hasScrolled) {
-  aboutSection.classList.add('tinted');
-} else {
-  window.addEventListener('scroll', function handler() {
-    if (window.scrollY > 2) {
-      window.removeEventListener('scroll', handler);
-      onFirstScroll();
-    }
-  }, { passive: true });
-}
+const aboutSection = document.getElementById('about');
+const aboutTintObserver = new IntersectionObserver((entries, observer) => {
+  if (entries.some((entry) => entry.isIntersecting)) {
+    aboutSection.classList.add('tinted');
+    observer.disconnect();
+  }
+}, { threshold: 0.05 });
+aboutTintObserver.observe(aboutSection);
 
 /* ============================================================
    EXAMPLES MARQUEE
