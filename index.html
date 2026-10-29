@@ -483,7 +483,7 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 
   // Phones/tablets have no hover, so there a tap pins a tile to its 'after' image
   const touchMode = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-  const PIN_MS = 5000;               // a tapped tile flips back by itself after this long
+  const PIN_MS = 4000;               // a tapped tile flips back by itself after this long
   let pinned = null, pinTimer;
   if (touchMode) {
     const sub = document.querySelector('.examples-sub');
