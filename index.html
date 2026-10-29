@@ -59,7 +59,7 @@
   .opening-scene { position: relative; background: var(--bg); }
   .hero { padding: 72px 0 80px; }
   .hero-logo-flight { display: none; }
-  .js .opening-stage { height: 190vh; }
+  .js .opening-stage { height: 202vh; }
   .js .opening-scene {
     position: sticky;
     top: 0;
@@ -89,7 +89,7 @@
     will-change: transform, opacity;
   }
   @media (max-width: 760px) {
-    .js .opening-stage { height: 205vh; }
+    .js .opening-stage { height: 217vh; }
     .js .opening-scene .hero { min-height: calc(100% - 91px); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -383,7 +383,8 @@ function measureOpening() {
   flightLogo.style.height = baseHeight + 'px';
   openingMetrics = {
     stageTop: stageRect.top + window.scrollY,
-    travel: Math.max(1, openingStage.offsetHeight - viewHeight),
+    // Reserve a short pinned settle zone after the animation finishes, before normal page flow begins.
+    travel: Math.max(1, openingStage.offsetHeight - viewHeight - viewHeight * 0.12),
     startLeft: viewWidth * 0.5 - baseWidth * 0.76,
     startTop: mobileOpeningQuery.matches
       ? viewHeight * 0.5 - baseHeight * 0.46
@@ -426,7 +427,56 @@ if (!reduceOpeningMotion) {
     if (openingFrame) return;
     openingFrame = requestAnimationFrame(() => { openingFrame = 0; updateOpening(); });
   };
-  window.addEventListener('scroll', queueOpeningUpdate, { passive: true });
+  let previousScrollY = window.scrollY;
+  let snapGestureStartY = previousScrollY;
+  let scrollDirection = 0;
+  let snapTimer = 0;
+  let snapUnlockTimer = 0;
+  let snapInProgress = false;
+
+  function tryOpeningSnap() {
+    if (!openingMetrics || snapInProgress) return;
+    const y = window.scrollY;
+    const start = openingMetrics.stageTop;
+    const animationEnd = start + openingMetrics.travel;
+    const stageRelease = start + openingStage.offsetHeight - window.innerHeight;
+    let snapTo = null;
+
+    if (scrollDirection > 0) {
+      if (snapGestureStartY < animationEnd - 24 &&
+          y > start + 24 && y < stageRelease + 24) {
+        snapTo = animationEnd;
+      }
+    } else if (scrollDirection < 0) {
+      if (snapGestureStartY > animationEnd + 24 && y <= animationEnd + 24 && y < stageRelease + 24) {
+        snapTo = animationEnd;
+      } else if (y > start + 24 && y <= animationEnd + 24) {
+        snapTo = start;
+      }
+    }
+
+    if (snapTo === null || Math.abs(y - snapTo) < 28) return;
+    snapInProgress = true;
+    window.scrollTo({ top: snapTo, behavior: 'smooth' });
+    clearTimeout(snapUnlockTimer);
+    snapUnlockTimer = setTimeout(() => { snapInProgress = false; }, 1400);
+  }
+
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (Math.abs(y - previousScrollY) > 1) scrollDirection = y > previousScrollY ? 1 : -1;
+    previousScrollY = y;
+    queueOpeningUpdate();
+    if (snapInProgress) return;
+    if (!snapTimer) snapGestureStartY = y;
+    clearTimeout(snapTimer);
+    snapTimer = setTimeout(() => { snapTimer = 0; tryOpeningSnap(); }, 150);
+  }, { passive: true });
+  window.addEventListener('scrollend', () => {
+    if (!snapInProgress) return;
+    snapInProgress = false;
+    clearTimeout(snapUnlockTimer);
+  });
   window.addEventListener('resize', () => { measureOpening(); queueOpeningUpdate(); });
   targetLogo.addEventListener('load', () => { measureOpening(); queueOpeningUpdate(); });
   measureOpening();
