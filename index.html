@@ -59,7 +59,7 @@
   .opening-scene { position: relative; background: var(--bg); }
   .hero { padding: 72px 0 80px; }
   .hero-logo-flight { display: none; }
-  .js .opening-stage { height: 220vh; }
+  .js .opening-stage { height: 160vh; }
   .js .opening-scene {
     position: sticky;
     top: 0;
@@ -88,7 +88,7 @@
     will-change: left, top, width, height, opacity;
   }
   @media (max-width: 760px) {
-    .js .opening-stage { height: 240vh; }
+    .js .opening-stage { height: 170vh; }
     .js .opening-scene .hero { min-height: calc(100% - 91px); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -367,7 +367,7 @@ function updateOpening() {
   const progress = clamp01((window.scrollY - stageTop) / travel);
   const eased = easeInOut(progress);
   const destination = targetLogo.getBoundingClientRect();
-  const start = { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+  const start = { left: -window.innerWidth * 0.26, top: 0, width: window.innerWidth, height: window.innerHeight };
   const end = { left: destination.left, top: destination.top, width: destination.width, height: destination.height };
   const mix = (a, b) => a + (b - a) * eased;
 
