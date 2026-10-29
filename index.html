@@ -59,7 +59,7 @@
   .opening-scene { position: relative; background: var(--bg); }
   .hero { padding: 72px 0 80px; }
   .hero-logo-flight { display: none; }
-  .js .opening-stage { height: 160vh; }
+  .js .opening-stage { height: 190vh; }
   .js .opening-scene {
     position: sticky;
     top: 0;
@@ -88,7 +88,7 @@
     will-change: left, top, width, height, opacity;
   }
   @media (max-width: 760px) {
-    .js .opening-stage { height: 170vh; }
+    .js .opening-stage { height: 205vh; }
     .js .opening-scene .hero { min-height: calc(100% - 91px); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -357,6 +357,7 @@ const targetLogo = document.getElementById('hero-logo-target');
 const openingHeader = openingScene.querySelector('header');
 const openingCopy = openingScene.querySelector('.hero-copy');
 const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
 
 function clamp01(value) { return Math.max(0, Math.min(1, value)); }
 function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
@@ -367,7 +368,13 @@ function updateOpening() {
   const progress = clamp01((window.scrollY - stageTop) / travel);
   const eased = easeInOut(progress);
   const destination = targetLogo.getBoundingClientRect();
-  const start = { left: -window.innerWidth * 0.26, top: 0, width: window.innerWidth, height: window.innerHeight };
+  const openingScale = mobileOpeningQuery.matches ? 1.75 : 1;
+  const start = {
+    left: window.innerWidth * 0.5 - window.innerWidth * openingScale * 0.76,
+    top: mobileOpeningQuery.matches ? window.innerHeight * 0.5 - window.innerHeight * openingScale * 0.46 : 0,
+    width: window.innerWidth * openingScale,
+    height: window.innerHeight * openingScale
+  };
   const end = { left: destination.left, top: destination.top, width: destination.width, height: destination.height };
   const mix = (a, b) => a + (b - a) * eased;
 
