@@ -84,8 +84,9 @@
     height: 100svh;
     object-fit: contain;
     object-position: center;
+    transform-origin: top left;
     pointer-events: none;
-    will-change: left, top, width, height, opacity;
+    will-change: transform, opacity;
   }
   @media (max-width: 760px) {
     .js .opening-stage { height: 205vh; }
@@ -217,7 +218,7 @@
     .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
     .steps, .prices { grid-template-columns: 1fr; }
     section { padding: 52px 0; }
-    #examples { padding: 14px 0 52px; }
+    #examples { padding: 52px 0 52px; }
     header img { height: 52px; }
     .marquee { --cardw: 330px; --gap: 50px; }
   }
@@ -361,27 +362,52 @@ const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
 
 function clamp01(value) { return Math.max(0, Math.min(1, value)); }
 function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
-function updateOpening() {
+let openingMetrics = null;
+function measureOpening() {
   if (reduceOpeningMotion) return;
-  const stageTop = openingStage.getBoundingClientRect().top + window.scrollY;
-  const travel = Math.max(1, openingStage.offsetHeight - window.innerHeight);
-  const progress = clamp01((window.scrollY - stageTop) / travel);
-  const eased = easeInOut(progress);
-  const destination = targetLogo.getBoundingClientRect();
+  const sceneRect = openingScene.getBoundingClientRect();
+  const stageRect = openingStage.getBoundingClientRect();
+  const targetRect = targetLogo.getBoundingClientRect();
+  const viewWidth = window.innerWidth;
+  const viewHeight = window.innerHeight;
+  const ratio = targetLogo.naturalWidth && targetLogo.naturalHeight
+    ? targetLogo.naturalWidth / targetLogo.naturalHeight
+    : targetRect.width / targetRect.height;
+  const fitWidth = Math.min(viewWidth, viewHeight * ratio);
+  const fitHeight = fitWidth / ratio;
   const openingScale = mobileOpeningQuery.matches ? 1.75 : 1;
-  const start = {
-    left: window.innerWidth * 0.5 - window.innerWidth * openingScale * 0.76,
-    top: mobileOpeningQuery.matches ? window.innerHeight * 0.5 - window.innerHeight * openingScale * 0.46 : 0,
-    width: window.innerWidth * openingScale,
-    height: window.innerHeight * openingScale
-  };
-  const end = { left: destination.left, top: destination.top, width: destination.width, height: destination.height };
-  const mix = (a, b) => a + (b - a) * eased;
+  const baseWidth = fitWidth * openingScale;
+  const baseHeight = fitHeight * openingScale;
 
-  flightLogo.style.left = mix(start.left, end.left) + 'px';
-  flightLogo.style.top = mix(start.top, end.top) + 'px';
-  flightLogo.style.width = mix(start.width, end.width) + 'px';
-  flightLogo.style.height = mix(start.height, end.height) + 'px';
+  flightLogo.style.width = baseWidth + 'px';
+  flightLogo.style.height = baseHeight + 'px';
+  openingMetrics = {
+    stageTop: stageRect.top + window.scrollY,
+    travel: Math.max(1, openingStage.offsetHeight - viewHeight),
+    startLeft: viewWidth * 0.5 - baseWidth * 0.76,
+    startTop: mobileOpeningQuery.matches
+      ? viewHeight * 0.5 - baseHeight * 0.46
+      : (viewHeight - fitHeight) * 0.5,
+    baseWidth,
+    baseHeight,
+    endLeft: targetRect.left - sceneRect.left,
+    endTop: targetRect.top - sceneRect.top,
+    endScaleX: targetRect.width / baseWidth,
+    endScaleY: targetRect.height / baseHeight
+  };
+}
+
+function updateOpening() {
+  if (reduceOpeningMotion || !openingMetrics) return;
+  const m = openingMetrics;
+  const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
+  const eased = easeInOut(progress);
+  const mix = (a, b) => a + (b - a) * eased;
+  const x = mix(m.startLeft, m.endLeft);
+  const y = mix(m.startTop, m.endTop);
+  const scaleX = mix(1, m.endScaleX);
+  const scaleY = mix(1, m.endScaleY);
+  flightLogo.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + scaleX + ',' + scaleY + ')';
 
   // Bring in the top bar and opening copy together, late in the logo's journey.
   const reveal = clamp01((progress - 0.70) / 0.25);
@@ -401,7 +427,9 @@ if (!reduceOpeningMotion) {
     openingFrame = requestAnimationFrame(() => { openingFrame = 0; updateOpening(); });
   };
   window.addEventListener('scroll', queueOpeningUpdate, { passive: true });
-  window.addEventListener('resize', queueOpeningUpdate);
+  window.addEventListener('resize', () => { measureOpening(); queueOpeningUpdate(); });
+  targetLogo.addEventListener('load', () => { measureOpening(); queueOpeningUpdate(); });
+  measureOpening();
   updateOpening();
 }
 
