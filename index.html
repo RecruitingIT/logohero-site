@@ -134,8 +134,8 @@
     position: relative;
     overflow: hidden;
     padding: 12px 0 20px;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
   }
   .track { display: flex; gap: var(--gap); width: max-content; will-change: transform; }
   .ex {
@@ -149,7 +149,7 @@
     width: 100%; height: 100%;
     object-fit: contain;
     padding: 12px 12px 44px;
-    transition: opacity .2s ease;
+    transition: opacity .55s ease;
     -webkit-user-drag: none;
   }
   .marquee.touch {
@@ -158,6 +158,7 @@
     -webkit-touch-callout: none;
   }
   .marquee.touch .ex { -webkit-tap-highlight-color: transparent; cursor: pointer; }
+  .ex .before { opacity: 1; }
   .ex .after { opacity: 0; }
   .ex.is-after .before { opacity: 0; }
   .ex.is-after .after { opacity: 1; }
