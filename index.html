@@ -186,6 +186,8 @@
   .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
   .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
+  .price li.plus-item { color: var(--blue); font-weight: 800; }
+  .price li.plus-item::before { content: none; display: none; }
   .price .btn { margin-top: auto; text-align: center; font-size: 24px; }
 
   .about { max-width: 760px; }
@@ -314,6 +316,7 @@
           <div class="amount">£225</div>
           <ul>
             <li>Everything in Logo</li>
+            <li class="plus-item">PLUS...</li>
             <li>Favicon</li>
             <li>Email signatures for up to 10 employees</li>
             <li>Covers any new recruits over the next 3 months</li>
