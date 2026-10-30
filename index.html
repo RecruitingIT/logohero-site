@@ -367,6 +367,25 @@ const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
 
 function clamp01(value) { return Math.max(0, Math.min(1, value)); }
 function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
+
+/* Slows the shrink near the end so it settles smoothly into normal scrolling.
+   Final 15% of the journey runs at 50% slower, final 5% at 75% slower.
+   Overall scroll length is unchanged (the rest speeds up very slightly to compensate).
+   Tweak the numbers below to taste. */
+const SLOW_START_1 = 0.85;   // last 15% begins here
+const SLOW_START_2 = 0.95;   // last 5% begins here
+const SLOW_SPEED_1 = 0.5;    // speed multiplier in the last 15% (0.5 = 50% slower)
+const SLOW_SPEED_2 = 0.25;   // speed multiplier in the last 5%  (0.25 = 75% slower)
+function slowEnd(p) {
+  const a = SLOW_START_1, b = SLOW_START_2;
+  const total = a + (b - a) * SLOW_SPEED_1 + (1 - b) * SLOW_SPEED_2;
+  let raw;
+  if (p < a)      raw = p;
+  else if (p < b) raw = a + (p - a) * SLOW_SPEED_1;
+  else            raw = a + (b - a) * SLOW_SPEED_1 + (p - b) * SLOW_SPEED_2;
+  return raw / total;
+}
+
 let openingMetrics = null;
 function measureOpening() {
   if (reduceOpeningMotion) return;
@@ -407,7 +426,7 @@ function updateOpening() {
   if (reduceOpeningMotion || !openingMetrics) return;
   const m = openingMetrics;
   const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
-  const eased = easeInOut(progress);
+  const eased = easeInOut(slowEnd(progress));
   const mix = (a, b) => a + (b - a) * eased;
   const x = mix(m.startLeft, m.endLeft);
   const y = mix(m.startTop, m.endTop);
