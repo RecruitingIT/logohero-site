@@ -650,5 +650,79 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
   start();
 })();
 </script>
+
+<script>
+/* ============================================================
+   GENTLE SCROLL EASING (desktop mouse wheel / trackpad only)
+   Scrolling glides to a stop instead of jumping, and slows slightly
+   as each section edge passes the top of the screen.
+   Touch devices and reduced-motion users keep normal native scrolling.
+   Remove this whole <script> block to go back to default scrolling.
+   ============================================================ */
+(function () {
+  const EASE = 0.12;       // glide: lower = floatier (0.06 to 0.2 is a sensible range)
+  const SLOW_ZONE = 0.22;  // size of the slow zone around each section edge, as a fraction of screen height
+  const SLOW_MIN = 0.6;    // wheel speed right at a section edge (1 = no slowing, 0.6 = 40% slower)
+
+  const noHover = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (noHover || reduce) return;
+
+  const edges = [];
+  function measureEdges() {
+    edges.length = 0;
+    document.querySelectorAll('main > section, footer').forEach(function (el) {
+      edges.push(el.getBoundingClientRect().top + window.scrollY);
+    });
+  }
+  measureEdges();
+  window.addEventListener('load', measureEdges);
+  window.addEventListener('resize', measureEdges);
+
+  let target = window.scrollY, current = window.scrollY, running = false;
+  const smooth = function (t) { return t * t * (3 - 2 * t); };
+
+  function factor(y) {
+    const zone = window.innerHeight * SLOW_ZONE;
+    let d = Infinity;
+    for (let i = 0; i < edges.length; i++) d = Math.min(d, Math.abs(y - edges[i]));
+    if (d >= zone) return 1;
+    return SLOW_MIN + (1 - SLOW_MIN) * smooth(d / zone);
+  }
+
+  function tick() {
+    const diff = target - current;
+    if (Math.abs(diff) < 0.4) {
+      current = target;
+      window.scrollTo({ top: current, behavior: 'instant' });
+      running = false;
+      return;
+    }
+    current += diff * EASE;
+    window.scrollTo({ top: current, behavior: 'instant' });
+    requestAnimationFrame(tick);
+  }
+
+  // If something else moves the page (keyboard, scrollbar drag, anchor link), stay in sync with it
+  window.addEventListener('scroll', function () {
+    if (!running || Math.abs(window.scrollY - current) > 2) {
+      current = target = window.scrollY;
+    }
+  }, { passive: true });
+
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.defaultPrevented) return;                 // leave pinch/zoom alone
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;         // leave sideways scrolling alone
+    e.preventDefault();
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;
+    else if (e.deltaMode === 2) dy *= window.innerHeight;
+    if (!running) current = target = window.scrollY;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    target = Math.max(0, Math.min(max, target + dy * factor(target)));
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  }, { passive: false });
+})();
+</script>
 </body>
 </html>
