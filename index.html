@@ -409,10 +409,19 @@ function updateOpening() {
   const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
   const eased = easeInOut(progress);
   const mix = (a, b) => a + (b - a) * eased;
-  const x = mix(m.startLeft, m.endLeft);
-  const y = mix(m.startTop, m.endTop);
-  const scaleX = mix(1, m.endScaleX);
-  const scaleY = mix(1, m.endScaleY);
+  let x = mix(m.startLeft, m.endLeft);
+  let y = mix(m.startTop, m.endTop);
+  let scaleX = mix(1, m.endScaleX);
+  let scaleY = mix(1, m.endScaleY);
+
+  // Give the logo a small undershoot, then return it to its exact resting size
+  // before the pinned opening ends. Keep the logo centred during the pulse.
+  const settleProgress = clamp01((progress - 0.86) / 0.14);
+  const settleScale = 1 - 0.08 * Math.sin(Math.PI * settleProgress);
+  x += m.baseWidth * scaleX * (1 - settleScale) / 2;
+  y += m.baseHeight * scaleY * (1 - settleScale) / 2;
+  scaleX *= settleScale;
+  scaleY *= settleScale;
   flightLogo.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + scaleX + ',' + scaleY + ')';
 
   // Bring in the top bar and opening copy together, late in the logo's journey.
