@@ -406,7 +406,8 @@ function measureOpening() {
 function updateOpening() {
   if (reduceOpeningMotion || !openingMetrics) return;
   const m = openingMetrics;
-  const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
+  const rawProgress = (window.scrollY - m.stageTop) / m.travel;
+  const progress = clamp01(rawProgress);
   const eased = easeInOut(progress);
   const mix = (a, b) => a + (b - a) * eased;
   let x = mix(m.startLeft, m.endLeft);
@@ -418,7 +419,7 @@ function updateOpening() {
   // before the pinned opening ends. Keep the logo centred during the pulse.
   const settleProgress = clamp01((progress - 0.60) / 0.40);
   const smoothSettle = value => value * value * (3 - 2 * value);
-  const settleScale = settleProgress < 0.30
+  const settleScale = settleProgress < 0.12
     ? 1 - 0.08 * smoothSettle(settleProgress / 0.12)
     : 0.92 + 0.08 * smoothSettle((settleProgress - 0.12) / 0.88);
   x += m.baseWidth * scaleX * (1 - settleScale) / 2;
@@ -433,7 +434,8 @@ function updateOpening() {
   openingCopy.style.opacity = reveal;
 
   // Cross-fade the travelling copy of the logo into its normal image at the destination.
-  const handoff = clamp01((progress - 0.995) / 0.005);
+  const settleZone = window.innerHeight * 0.12 / m.travel;
+  const handoff = clamp01((rawProgress - 1) / settleZone);
   flightLogo.style.opacity = 1 - handoff;
   targetLogo.style.opacity = handoff;
 }
