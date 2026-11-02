@@ -38,6 +38,26 @@
   header { padding: 20px 0; border-bottom: 1px solid var(--line); }
   header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   header img { height: 64px; width: auto; display: block; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 11px 18px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: border-color .15s, background .15s, transform .15s;
+  }
+  .login-btn:hover { border-color: var(--blue); background: var(--soft); transform: translateY(-1px); }
+  .login-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .login-btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
   .btn {
     display: inline-block;
     background: var(--blue);
@@ -223,6 +243,10 @@
     section { padding: 52px 0; }
     #examples { padding: 52px 0 52px; }
     header img { height: 52px; }
+    .header-actions { gap: 8px; }
+    .header-actions .btn { padding: 11px 14px; font-size: 19px; }
+    .login-btn { gap: 6px; padding: 9px 10px; font-size: 17px; }
+    .login-btn svg { width: 15px; height: 15px; }
     .marquee { --cardw: 330px; --gap: 50px; }
   }
 </style>
@@ -234,7 +258,16 @@
 <header>
   <div class="wrap">
     <img src="LOGO%20HERO.png" alt="Logo Hero Icon">
-    <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20Enquiry">Get in touch</a>
+    <div class="header-actions">
+      <a class="login-btn" href="/client-login" aria-label="Customer login area">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <rect x="4.5" y="10" width="15" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Customer login
+      </a>
+      <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20Enquiry">Get in touch</a>
+    </div>
   </div>
 </header>
 
