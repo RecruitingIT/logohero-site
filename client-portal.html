@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Your private Logo Hero customer portal.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Your Customer Portal | Logo Hero</title>
+  <link rel="icon" href="/LOGO%20HERO.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Darker+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue: #0A45E0; --blue-dark: #0A2A8F; --ink: #0E1B3D; --muted: #55607A; --line: #DDE3F0; --soft: #F3F6FC; --bg: #EEF0F3; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font: 500 20px/1.3 "Darker Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    header { padding: 18px 24px; border-bottom: 1px solid var(--line); }
+    header .bar { max-width: 1040px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    header img { display: block; width: auto; height: 58px; }
+    .signout { border: 0; background: transparent; color: var(--blue); font: 700 19px "Darker Grotesque", sans-serif; cursor: pointer; }
+    .signout:hover { color: var(--blue-dark); text-decoration: underline; }
+    main { flex: 1; width: 100%; max-width: 1040px; margin: 0 auto; padding: 64px 24px; }
+    .card { padding: 40px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 16px 42px rgba(14, 27, 61, .08); }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 16px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
+    h1 { margin: 0 0 10px; font: 700 clamp(36px, 7vw, 52px)/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    .reference { margin: 20px 0 0; color: var(--muted); }
+    .reference strong { color: var(--ink); }
+    .status { min-height: 1.5em; margin: 18px 0 0; color: var(--muted); }
+    footer { padding: 20px 24px; color: var(--muted); text-align: center; font-size: 17px; }
+    @media (max-width: 520px) { header img { height: 48px; } main { padding: 36px 16px; } .card { padding: 30px 24px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <a href="/" aria-label="Logo Hero home"><img src="/LOGO%20HERO.png" alt="Logo Hero"></a>
+      <button class="signout" id="signout" type="button" hidden>Sign out</button>
+    </div>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="portal-title">
+      <p class="eyebrow">Your customer area</p>
+      <h1 id="portal-title">Your Logo Hero portal</h1>
+      <p class="status" id="portal-status" role="status" aria-live="polite">Checking your sign-in…</p>
+      <p class="reference" id="reference" hidden>Customer reference: <strong></strong></p>
+    </section>
+  </main>
+  <footer>© <span id="year"></span> Logo Hero</footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const supabaseClient = window.supabase.createClient(
+      'https://nnyuapzufrzucvpoczjv.supabase.co',
+      'sb_publishable_-svOFUFfYM47A9E-XSB6Jw_9mjJGzif'
+    );
+    const statusEl = document.getElementById('portal-status');
+    const signoutButton = document.getElementById('signout');
+
+    async function loadCustomerPage() {
+      const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError || !session) {
+        window.location.replace('/client-login.html');
+        return;
+      }
+
+      const { data: page, error } = await supabaseClient
+        .from('customer_pages')
+        .select('customer_reference, page_title, welcome_message')
+        .eq('user_id', session.user.id)
+        .maybeSingle();
+
+      if (error) {
+        statusEl.textContent = 'We couldn’t load your portal. Please try again later or contact Logo Hero.';
+        return;
+      }
+      if (!page) {
+        statusEl.textContent = 'Your account is signed in, but its customer page hasn’t been set up yet. Please contact Logo Hero.';
+        return;
+      }
+
+      document.getElementById('portal-title').textContent = page.page_title;
+      statusEl.textContent = page.welcome_message;
+      const referenceEl = document.getElementById('reference');
+      referenceEl.querySelector('strong').textContent = page.customer_reference;
+      referenceEl.hidden = false;
+      signoutButton.hidden = false;
+    }
+
+    signoutButton.addEventListener('click', async function () {
+      await supabaseClient.auth.signOut();
+      window.location.replace('/client-login.html');
+    });
+
+    loadCustomerPage();
+  </script>
+</body>
+</html>
