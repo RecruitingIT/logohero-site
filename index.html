@@ -84,6 +84,41 @@
   .btn.ghost { background: transparent; color: var(--blue); }
   .btn.ghost:hover { background: var(--soft); color: var(--blue-dark); }
 
+  /* ---------- Menu button (three lines) + pop-up menu ---------- */
+  .menu-wrap { position: relative; margin-left: 4px; }
+  .menu-btn {
+    width: 48px; height: 48px;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 0;
+    border: 2px solid var(--line); border-radius: 10px;
+    background: #fff; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
+  .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .menu-btn span { display: block; width: 22px; height: 3px; border-radius: 2px; background: var(--ink); transition: transform .2s ease, opacity .2s ease; }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+  .menu-panel {
+    position: absolute; right: 0; top: calc(100% + 14px);
+    width: 300px; max-width: calc(100vw - 48px);
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(14, 27, 61, .18);
+    padding: 8px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  }
+  .menu-panel.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .menu-group { padding: 4px 0; }
+  .menu-group + .menu-group { border-top: 1px solid var(--line); }
+  .menu-panel a {
+    display: block; padding: 12px 14px; border-radius: 8px;
+    color: var(--ink); text-decoration: none; font-size: 22px; font-weight: 700;
+  }
+  .menu-panel a:hover, .menu-panel a:focus-visible { background: var(--soft); color: var(--blue); outline: none; }
+  @media (prefers-reduced-motion: reduce) { .menu-panel, .menu-btn span { transition: none; } }
+
   /* The opening scene stays pinned while the large logo travels into its normal hero position. */
   .opening-stage { position: relative; }
   .opening-scene { position: relative; background: var(--bg); }
@@ -151,7 +186,7 @@
   .actions { display: flex; flex-wrap: wrap; gap: 12px; }
   .hero img { width: 100%; height: auto; display: block; }
 
-  section { padding: 72px 0; }
+  section { padding: 72px 0; scroll-margin-top: 30px; }  /* keeps menu-link targets clear of the top bar */
   section.soft { background: var(--soft); }
   #how, #contact { background: #DCE6FB; }
   /* About section: same colour as #how, but it only fades in once the visitor starts scrolling */
@@ -272,6 +307,16 @@
     .login-btn { gap: 6px; padding: 9px 10px; font-size: 17px; }
     .login-btn svg { width: 15px; height: 15px; }
     .marquee { --cardw: 330px; --gap: 50px; }
+    .menu-wrap { margin-left: 0; }
+    .menu-btn { width: 42px; height: 42px; gap: 5px; }
+    .menu-btn span { width: 20px; }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+    .menu-panel a { font-size: 21px; }
+    @media (max-width: 400px) {
+      .login-btn svg { display: none; }
+      .header-actions { gap: 6px; }
+    }
   }
 </style>
 </head>
@@ -290,6 +335,21 @@
         Customer Login
       </a>
       <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20Enquiry">Get in touch</a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
+          <div class="menu-group">
+            <a href="#examples">Before/After Examples</a>
+            <a href="#how">Process</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <div class="menu-group"><a href="/client-login">Customer Area</a></div>
+          <div class="menu-group"><a href="/privacy-notice">Privacy Policy</a></div>
+          <div class="menu-group"><a href="#contact">Contact</a></div>
+        </nav>
+      </div>
     </div>
   </div>
 </header>
@@ -754,6 +814,31 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
 
   start();
+})();
+</script>
+
+<script>
+/* ============================================================
+   MENU: three-line button opens/closes the pop-up menu.
+   Closes on link tap, tap outside, Escape, or scrolling.
+   ============================================================ */
+(function () {
+  const btn = document.getElementById('menu-btn');
+  const panel = document.getElementById('menu-panel');
+  if (!btn || !panel) return;
+  function isOpen() { return panel.classList.contains('open'); }
+  function setOpen(open) {
+    panel.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!isOpen()); });
+  panel.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('click', function (e) { if (isOpen() && !panel.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
+  });
+  window.addEventListener('scroll', function () { if (isOpen()) setOpen(false); }, { passive: true });
 })();
 </script>
 
