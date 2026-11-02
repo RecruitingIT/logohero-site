@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Sign in to your Logo Hero customer area.">
   <title>Customer Login | Logo Hero</title>
-  <link rel="icon" href="../LOGO%20HERO.png">
+  <link rel="icon" href="/LOGO%20HERO.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Darker+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -37,30 +37,62 @@
 <body>
   <header>
     <div class="bar">
-      <a href="../index.html" aria-label="Logo Hero home"><img src="../LOGO%20HERO.png" alt="Logo Hero"></a>
-      <a class="back" href="../index.html">Back to website</a>
+      <a href="/" aria-label="Logo Hero home"><img src="/LOGO%20HERO.png" alt="Logo Hero"></a>
+      <a class="back" href="/">Back to website</a>
     </div>
   </header>
   <main>
     <section class="card" aria-labelledby="login-title">
       <h1 id="login-title">Where the <span class="magic">magic</span> happens</h1>
-      <p class="intro">Sign in to access your Logo Hero portal.</p>
+      <p class="intro">Enter your email and we’ll send you a secure sign-in link.</p>
       <form id="login-form">
-        <label for="customer-reference">Customer Reference</label>
-        <input id="customer-reference" name="customer-reference" type="text" autocomplete="username" required>
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" autocomplete="current-password" required>
-        <button type="submit">Log in</button>
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+        <button type="submit">Email me a sign-in link</button>
         <p class="status" id="login-status" role="status" aria-live="polite"></p>
       </form>
     </section>
   </main>
   <footer>© <span id="year"></span> Logo Hero</footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
-    document.getElementById('login-form').addEventListener('submit', function (event) {
+
+    const supabaseClient = window.supabase.createClient(
+      'https://nnyuapzufrzucvpoczjv.supabase.co',
+      'sb_publishable_-svOFUFfYM47A9E-XSB6Jw_9mjJGzif'
+    );
+    const loginForm = document.getElementById('login-form');
+    const loginStatus = document.getElementById('login-status');
+    const submitButton = loginForm.querySelector('button[type="submit"]');
+
+    async function continueIfSignedIn() {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) window.location.replace('/client-portal.html');
+    }
+    continueIfSignedIn();
+
+    loginForm.addEventListener('submit', async function (event) {
       event.preventDefault();
-      document.getElementById('login-status').textContent = 'Those credentials have not been recognised. Please try again or contact Logo Hero for access.';
+      if (window.location.protocol === 'file:') {
+        loginStatus.textContent = 'Sign-in is available on the published website, not in this local preview.';
+        return;
+      }
+
+      submitButton.disabled = true;
+      loginStatus.textContent = 'Sending your sign-in link…';
+      const email = document.getElementById('email').value.trim();
+      const { error } = await supabaseClient.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: 'https://logohero.co.uk/client-login.html',
+          shouldCreateUser: false
+        }
+      });
+      submitButton.disabled = false;
+      loginStatus.textContent = error
+        ? 'We couldn’t send a sign-in link. Please check the address or contact Logo Hero.'
+        : 'If this email has portal access, a sign-in link is on its way. Check your inbox and junk folder.';
     });
   </script>
 </body>
