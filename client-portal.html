@@ -34,7 +34,10 @@
   <header>
     <div class="bar">
       <a href="/" aria-label="Logo Hero home"><img src="/LOGO%20HERO.png" alt="Logo Hero"></a>
-      <button class="signout" id="signout" type="button" hidden>Sign out</button>
+      <nav style="display:flex; align-items:center; gap:18px;">
+        <a class="signout" id="password-link" href="/set-password.html" hidden style="text-decoration:none;">Password</a>
+        <button class="signout" id="signout" type="button" hidden>Sign out</button>
+      </nav>
     </div>
   </header>
   <main>
@@ -84,6 +87,7 @@
       referenceEl.querySelector('strong').textContent = page.customer_reference;
       referenceEl.hidden = false;
       signoutButton.hidden = false;
+      document.getElementById('password-link').hidden = false;
     }
 
     signoutButton.addEventListener('click', async function () {
