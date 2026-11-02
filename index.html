@@ -139,6 +139,8 @@
   .opening-done .hero-copy,
   .opening-done .hero-logo-target { opacity: 1 !important; }
   .opening-done .hero-logo-flight { display: none !important; }
+  /* The top bar is visible at the top of the page in this state, so push the hero content down to clear it */
+  .opening-done .hero { padding-top: 135px; }
 
   .hero .wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center; }
   .hero h1 { font-size: clamp(48px, 8vw, 92px); color: var(--ink); }
@@ -259,6 +261,7 @@
     .hero { padding: 40px 0 0; }
     .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
     .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
+    .opening-done .hero { padding-top: 120px; }
     .steps, .prices { grid-template-columns: 1fr; }
     section { padding: 52px 0; }
     #examples { padding: 52px 0 52px; }
