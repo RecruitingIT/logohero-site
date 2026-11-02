@@ -424,7 +424,10 @@ window.addEventListener('scroll', () => {
   const y = window.scrollY;
   if (Math.abs(y - previousScrollY) > 2) {
     scrollingUp = y < previousScrollY;
-    openingHeader.classList.toggle('is-hidden', y <= 20 || !scrollingUp);
+    // During the opening animation the bar stays hidden at the very top. Once the animation
+    // has been skipped/collapsed (openingDone), the bar is always visible at the top of the page.
+    const hideAtTop = !openingDone;
+    openingHeader.classList.toggle('is-hidden', (hideAtTop && y <= 20) || !scrollingUp && (hideAtTop || y > 20));
     openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
     previousScrollY = y;
   }
@@ -503,6 +506,10 @@ function endOpening() {
   targetLogo.style.opacity = 1;
   openingCopy.style.opacity = 1;
   openingHeader.style.opacity = 1;
+  // Show the top bar straight away at the top of the page
+  openingHeader.classList.remove('is-hidden');
+  openingHeader.classList.remove('is-revealed');
+  previousScrollY = 0;
   // 'instant' because the page has scroll-behavior: smooth
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   // Let the gentle-scroll script know the layout and scroll position just changed
