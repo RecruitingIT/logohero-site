@@ -22,6 +22,7 @@
     .card { width: min(100%, 460px); padding: 40px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 16px 42px rgba(14, 27, 61, .08); }
     .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 16px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
     h1 { margin: 0 0 8px; font: 700 42px/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    h1 .magic { color: var(--blue); }
     .intro { margin: 0 0 28px; color: var(--muted); font-size: 21px; }
     label { display: block; margin: 0 0 6px; font-size: 19px; font-weight: 700; }
     input { width: 100%; min-height: 52px; margin: 0 0 20px; padding: 11px 14px; border: 1px solid #BFC9DC; border-radius: 9px; background: #fff; color: var(--ink); font: inherit; }
@@ -42,8 +43,9 @@
   </header>
   <main>
     <section class="card" aria-labelledby="login-title">
-      <h1 id="login-title">Where the magic happens</h1>
-      <p class="intro">Sign in to access your Logo Hero portal.</p>
+      <p class="eyebrow">Customer area</p>
+      <h1 id="login-title">Where the <span class="magic">magic</span> happens</h1>
+      <p class="intro">Sign in to access your Logo Hero account.</p>
       <form id="login-form">
         <label for="customer-reference">Customer Reference</label>
         <input id="customer-reference" name="customer-reference" type="text" autocomplete="username" required>
@@ -59,7 +61,7 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     document.getElementById('login-form').addEventListener('submit', function (event) {
       event.preventDefault();
-      document.getElementById('login-status').textContent = 'Those credentials have not been recognised. Please try again or contact Logo Hero for access.';
+      document.getElementById('login-status').textContent = 'Online sign-in is not connected yet. Please contact Logo Hero for access.';
     });
   </script>
 </body>
