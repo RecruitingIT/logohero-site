@@ -36,6 +36,16 @@
   a { color: var(--blue); }
 
   header { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 30;
+    background: rgba(238, 240, 243, .97);
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .site-header.is-hidden { transform: translateY(-105%); }
+  .site-header.is-hidden.is-revealed { transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
   header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   header img { height: 64px; width: auto; display: block; }
   .header-actions { display: flex; align-items: center; gap: 12px; }
@@ -242,6 +252,7 @@
     .steps, .prices { grid-template-columns: 1fr; }
     section { padding: 52px 0; }
     #examples { padding: 52px 0 52px; }
+    header { padding: 14px 0; }
     header img { height: 52px; }
     .header-actions { gap: 8px; }
     .header-actions .btn { padding: 11px 14px; font-size: 19px; }
@@ -254,8 +265,7 @@
 <body>
 
 <div class="opening-stage" id="opening-stage">
-  <div class="opening-scene" id="opening-scene">
-<header>
+<header class="site-header" id="site-header">
   <div class="wrap">
     <img src="LOGO%20HERO.png" alt="Logo Hero Icon">
     <div class="header-actions">
@@ -270,7 +280,7 @@
     </div>
   </div>
 </header>
-
+  <div class="opening-scene" id="opening-scene">
   <div class="hero">
     <div class="wrap">
       <div class="hero-copy">
@@ -393,7 +403,18 @@ const openingStage = document.getElementById('opening-stage');
 const openingScene = document.getElementById('opening-scene');
 const flightLogo = document.getElementById('hero-logo-flight');
 const targetLogo = document.getElementById('hero-logo-target');
-const openingHeader = openingScene.querySelector('header');
+const openingHeader = document.getElementById('site-header');
+let previousScrollY = window.scrollY;
+let scrollingUp = false;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (Math.abs(y - previousScrollY) > 2) {
+    scrollingUp = y < previousScrollY;
+    openingHeader.classList.toggle('is-hidden', !scrollingUp && y > 20);
+    openingHeader.classList.toggle('is-revealed', scrollingUp || y <= 20);
+    previousScrollY = y;
+  }
+}, { passive: true });
 const openingCopy = openingScene.querySelector('.hero-copy');
 const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
@@ -469,7 +490,7 @@ function updateOpening() {
 
   // Bring in the top bar and opening copy together, late in the logo's journey.
   const reveal = clamp01((progress - 0.70) / 0.25);
-  openingHeader.style.opacity = reveal;
+  openingHeader.style.opacity = (scrollingUp || window.scrollY <= 20) ? 1 : reveal;
   openingCopy.style.opacity = reveal;
 
   // Cross-fade the travelling copy of the logo into its normal image at the destination.
