@@ -43,9 +43,8 @@
   </header>
   <main>
     <section class="card" aria-labelledby="login-title">
-      <p class="eyebrow">Customer area</p>
       <h1 id="login-title">Where the <span class="magic">magic</span> happens</h1>
-      <p class="intro">Sign in to access your Logo Hero account.</p>
+      <p class="intro">Sign in to access your Logo Hero portal.</p>
       <form id="login-form">
         <label for="customer-reference">Customer Reference</label>
         <input id="customer-reference" name="customer-reference" type="text" autocomplete="username" required>
@@ -61,7 +60,7 @@
     document.getElementById('year').textContent = new Date().getFullYear();
     document.getElementById('login-form').addEventListener('submit', function (event) {
       event.preventDefault();
-      document.getElementById('login-status').textContent = 'Online sign-in is not connected yet. Please contact Logo Hero for access.';
+      document.getElementById('login-status').textContent = 'Those credentials have not been recognised. Please try again or contact Logo Hero for access.';
     });
   </script>
 </body>
