@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sign in to your Logo Hero customer area.">
+  <title>Customer Login | Logo Hero</title>
+  <link rel="icon" href="../LOGO%20HERO.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Darker+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue: #0A45E0; --blue-dark: #0A2A8F; --ink: #0E1B3D; --muted: #55607A; --line: #DDE3F0; --soft: #F3F6FC; --bg: #EEF0F3; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font: 500 20px/1.3 "Darker Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    header { padding: 18px 24px; border-bottom: 1px solid var(--line); }
+    header .bar { max-width: 1040px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    header img { display: block; width: auto; height: 58px; }
+    .back { color: var(--blue); font-weight: 700; text-decoration: none; }
+    .back:hover { color: var(--blue-dark); text-decoration: underline; }
+    main { flex: 1; display: grid; place-items: center; padding: 48px 24px; }
+    .card { width: min(100%, 460px); padding: 40px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 16px 42px rgba(14, 27, 61, .08); }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 16px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
+    h1 { margin: 0 0 8px; font: 700 42px/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    .intro { margin: 0 0 28px; color: var(--muted); font-size: 21px; }
+    label { display: block; margin: 0 0 6px; font-size: 19px; font-weight: 700; }
+    input { width: 100%; min-height: 52px; margin: 0 0 20px; padding: 11px 14px; border: 1px solid #BFC9DC; border-radius: 9px; background: #fff; color: var(--ink); font: inherit; }
+    input:focus { border-color: var(--blue); outline: 3px solid rgba(10, 69, 224, .16); }
+    button { width: 100%; min-height: 54px; margin-top: 4px; border: 2px solid var(--blue); border-radius: 10px; background: var(--blue); color: #fff; font: 700 21px "Darker Grotesque", sans-serif; cursor: pointer; }
+    button:hover { border-color: var(--blue-dark); background: var(--blue-dark); }
+    .status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 17px; }
+    footer { padding: 20px 24px; color: var(--muted); text-align: center; font-size: 17px; }
+    @media (max-width: 520px) { header img { height: 48px; } .card { padding: 30px 24px; } h1 { font-size: 36px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <a href="../logo-hero.html" aria-label="Logo Hero home"><img src="../LOGO%20HERO.png" alt="Logo Hero"></a>
+      <a class="back" href="../logo-hero.html">Back to website</a>
+    </div>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="login-title">
+      <h1 id="login-title">Where the magic happens</h1>
+      <p class="intro">Sign in to access your Logo Hero portal.</p>
+      <form id="login-form">
+        <label for="customer-reference">Customer Reference</label>
+        <input id="customer-reference" name="customer-reference" type="text" autocomplete="username" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit">Log in</button>
+        <p class="status" id="login-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <footer>© <span id="year"></span> Logo Hero</footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.getElementById('login-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      document.getElementById('login-status').textContent = 'Online sign-in is not connected yet. Please contact Logo Hero for access.';
+    });
+  </script>
+</body>
+</html>
