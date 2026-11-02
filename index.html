@@ -130,6 +130,16 @@
     .js .hero-logo-flight { display: none; }
     .js .opening-scene .hero { min-height: 0; }
   }
+  /* Opening animation finished and the visitor has scrolled back up:
+     the pinned scroll-animation zone is collapsed so the page behaves as a normal page from the top.
+     (Same settled state as reduced motion; added by the script below.) */
+  .opening-done .opening-stage { height: auto !important; }
+  .opening-done .opening-scene { position: relative !important; height: auto !important; min-height: 0 !important; overflow: visible !important; }
+  .opening-done .opening-scene .hero { min-height: 0 !important; }
+  .opening-done .hero-copy,
+  .opening-done .hero-logo-target { opacity: 1 !important; }
+  .opening-done .hero-logo-flight { display: none !important; }
+
   .hero .wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center; }
   .hero h1 { font-size: clamp(48px, 8vw, 92px); color: var(--ink); }
   .hero h1 span { color: var(--blue); }
@@ -398,6 +408,10 @@ document.getElementById('y').textContent = new Date().getFullYear();
    The overlay starts viewport-sized and follows the page scroll into
    the exact box occupied by the regular hero logo. The scene stays pinned
    until the opening copy and header have fully appeared.
+
+   The animation only plays on the first scroll down. Once the logo has
+   landed, scrolling back up into the animation zone collapses it and
+   drops the visitor at the top of a normal page (see endOpening below).
    ------------------------------------------------------------ */
 const openingStage = document.getElementById('opening-stage');
 const openingScene = document.getElementById('opening-scene');
@@ -418,6 +432,9 @@ window.addEventListener('scroll', () => {
 const openingCopy = openingScene.querySelector('.hero-copy');
 const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
+
+let openingFinished = false;  // true once the logo has fully landed in its resting place
+let openingDone = false;      // true once the animation zone has been collapsed for good
 
 function clamp01(value) { return Math.max(0, Math.min(1, value)); }
 function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
@@ -442,7 +459,7 @@ function slowEnd(p) {
 
 let openingMetrics = null;
 function measureOpening() {
-  if (reduceOpeningMotion) return;
+  if (reduceOpeningMotion || openingDone) return;
   const sceneRect = openingScene.getBoundingClientRect();
   const stageRect = openingStage.getBoundingClientRect();
   const targetRect = targetLogo.getBoundingClientRect();
@@ -476,10 +493,35 @@ function measureOpening() {
   };
 }
 
+/* Collapse the pinned animation zone and send the visitor to the top of a normal page.
+   Called when someone who has already seen the logo land scrolls back up into the animation. */
+function endOpening() {
+  openingDone = true;
+  document.documentElement.classList.add('opening-done');
+  // Settled state: logo and copy visible, travelling logo gone, header handled by its normal show/hide logic
+  flightLogo.style.display = 'none';
+  targetLogo.style.opacity = 1;
+  openingCopy.style.opacity = 1;
+  openingHeader.style.opacity = 1;
+  // 'instant' because the page has scroll-behavior: smooth
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  // Let the gentle-scroll script know the layout and scroll position just changed
+  if (window.__syncSmoothScroll) window.__syncSmoothScroll();
+}
+
 function updateOpening() {
-  if (reduceOpeningMotion || !openingMetrics) return;
+  if (reduceOpeningMotion || !openingMetrics || openingDone) return;
   const m = openingMetrics;
   const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
+
+  // Logo has landed: remember it. Scrolling back up into the animation afterwards skips it.
+  if (progress >= 1) {
+    openingFinished = true;
+  } else if (openingFinished && progress < 0.995) {
+    endOpening();
+    return;
+  }
+
   const eased = easeInOut(slowEnd(progress));
   const mix = (a, b) => a + (b - a) * eased;
   const x = mix(m.startLeft, m.endLeft);
@@ -735,6 +777,13 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 
   let target = window.scrollY, current = window.scrollY, running = false;
   const smooth = function (t) { return t * t * (3 - 2 * t); };
+
+  // Called by the opening animation when it collapses and jumps to the top:
+  // re-measure the section edges and drop any glide that was in progress.
+  window.__syncSmoothScroll = function () {
+    measureEdges();
+    current = target = window.scrollY;
+  };
 
   function factor(y) {
     const zone = window.innerHeight * SLOW_ZONE;
