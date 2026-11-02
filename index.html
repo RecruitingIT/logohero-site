@@ -271,6 +271,16 @@
   .about p { font-size: 25px; color: var(--muted); margin: 0 0 18px; }
   .contact { text-align: center; }
   .contact p { color: var(--muted); max-width: 32em; margin: 0 auto 28px; font-size: 24px; }
+  /* At the very bottom of the page the contact section fills the screen above the footer,
+     with its content centred. (--footer-h is measured by the script near the end of the page.) */
+  #contact {
+    min-height: calc(100vh - var(--footer-h, 90px));
+    min-height: calc(100svh - var(--footer-h, 90px));
+    display: flex; align-items: center; justify-content: center;
+  }
+  #contact .wrap { width: 100%; }
+  /* The pricing area fades out as the contact section scrolls up to meet it (opacity set by script) */
+  #pricing .wrap { opacity: var(--pricing-fade, 1); }
 
   footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 19px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
@@ -814,6 +824,48 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
 
   start();
+})();
+</script>
+
+<script>
+/* ============================================================
+   CONTACT FINALE
+   - Measures the footer so the contact section can fill the screen above it.
+   - Fades the pricing area out as the contact section scrolls up,
+     so at the bottom of the page the contact section is all you see (plus the footer).
+   Tweak FADE_START / FADE_END: they are how far down the screen (as a fraction of its height)
+   the top of the contact section is when the fade begins and when pricing is fully gone.
+   ============================================================ */
+(function () {
+  const contact = document.getElementById('contact');
+  const footer = document.querySelector('footer');
+  const pricingWrap = document.querySelector('#pricing .wrap');
+  if (!contact || !footer) return;
+
+  function setFooterHeight() {
+    document.documentElement.style.setProperty('--footer-h', footer.offsetHeight + 'px');
+  }
+  setFooterHeight();
+  window.addEventListener('resize', setFooterHeight);
+  window.addEventListener('load', setFooterHeight);
+
+  if (!pricingWrap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const FADE_START = 0.9;
+  const FADE_END = 0.3;
+  let frame = 0;
+  function update() {
+    frame = 0;
+    const vh = window.innerHeight;
+    const top = contact.getBoundingClientRect().top / vh;
+    const t = Math.max(0, Math.min(1, (FADE_START - top) / (FADE_START - FADE_END)));
+    pricingWrap.style.setProperty('--pricing-fade', String(1 - t));
+    pricingWrap.style.pointerEvents = t > 0.6 ? 'none' : '';
+  }
+  function queue() { if (!frame) frame = requestAnimationFrame(update); }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  update();
 })();
 </script>
 
