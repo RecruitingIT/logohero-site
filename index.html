@@ -145,7 +145,7 @@
   .opening-scene { position: relative; background: var(--bg); }
   .hero { padding: 72px 0 80px; }
   .hero-logo-flight { display: none; }
-  .js .opening-stage { height: 202vh; }
+  .js .opening-stage { height: 165vh; }
   .js .opening-scene {
     position: sticky;
     top: 0;
@@ -175,7 +175,7 @@
     will-change: transform, opacity;
   }
   @media (max-width: 760px) {
-    .js .opening-stage { height: 217vh; }
+    .js .opening-stage { height: 180vh; }
     .js .opening-scene .hero { min-height: calc(100% - 91px); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -685,9 +685,9 @@ function updateOpening() {
     return;
   }
 
-  // Scroll-down arrow: fully visible at the top, gone by the time the logo
-  // has shrunk a little (first ~12% of the opening animation).
-  if (scrollCue) scrollCue.style.opacity = 1 - clamp01(progress / 0.12);
+  // Scroll-down arrow: fully visible at the top, then fades out over the
+  // first ~40% of the opening animation (increase 0.4 to keep it longer).
+  if (scrollCue) scrollCue.style.opacity = 1 - clamp01(progress / 0.4);
 
   const eased = easeInOut(slowEnd(progress));
   const mix = (a, b) => a + (b - a) * eased;
