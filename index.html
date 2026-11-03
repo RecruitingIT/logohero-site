@@ -438,6 +438,11 @@
       padding-right: clamp(9px, 2.6vw, 13px);
     }
   }
+
+  /* Change 5: banner fades in (no slide) a moment after the logo animation ends.
+     banner-prep = in place but fully transparent; banner-fade = animate up to opaque. */
+  .site-header.banner-prep { transform: none !important; opacity: 0 !important; transition: none !important; }
+  .site-header.banner-prep.banner-fade { opacity: 1 !important; transition: opacity .9s ease !important; }
 </style>
 </head>
 <body>
@@ -604,6 +609,8 @@ window.addEventListener('scroll', () => {
   const y = window.scrollY;
   if (Math.abs(y - previousScrollY) > 2) {
     scrollingUp = y < previousScrollY;
+    // Any real scrolling hands the banner back to its normal show/hide behaviour.
+    openingHeader.classList.remove('banner-prep', 'banner-fade');
     const hideAtTop = !openingDone;
     openingHeader.classList.toggle('is-hidden', (hideAtTop && y <= 20) || !scrollingUp && (hideAtTop || y > 20));
     openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
@@ -616,6 +623,23 @@ const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
 
 let openingFinished = false;
 let openingDone = false;
+
+// The top banner fades into view this long after the logo animation finishes.
+const BANNER_DELAY = 1500;
+let bannerTimer = 0;
+function scheduleBannerFade() {
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => {
+    if (openingDone || !openingMetrics) return;
+    // Only if the visitor is still sitting at the end of the animation.
+    const endY = openingMetrics.stageTop + openingMetrics.travel;
+    if (window.scrollY > endY + 40) return;
+    // Start fully transparent (and in place), then fade up to full opacity.
+    openingHeader.classList.add('banner-prep');
+    void openingHeader.offsetWidth;
+    openingHeader.classList.add('banner-fade');
+  }, BANNER_DELAY);
+}
 
 function clamp01(value) { return Math.max(0, Math.min(1, value)); }
 function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
@@ -671,6 +695,8 @@ function measureOpening() {
 
 function endOpening() {
   openingDone = true;
+  clearTimeout(bannerTimer);
+  openingHeader.classList.remove('banner-prep', 'banner-fade');
   document.documentElement.classList.add('opening-done');
   flightLogo.style.display = 'none';
   targetLogo.style.opacity = 1;
@@ -689,6 +715,7 @@ function updateOpening() {
   const m = openingMetrics;
   const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
   if (progress >= 1) {
+    if (!openingFinished) scheduleBannerFade();
     openingFinished = true;
   } else if (openingFinished && progress < 0.995) {
     endOpening();
