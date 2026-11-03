@@ -175,7 +175,7 @@
     will-change: transform, opacity;
   }
   @media (max-width: 760px) {
-    .js .opening-stage { height: 190vh; }
+    .js .opening-stage { height: 195vh; }
     .js .opening-scene .hero { min-height: calc(100% - 91px); }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -427,6 +427,16 @@
   .opening-done .scroll-cue { display: none !important; }
   @media (prefers-reduced-motion: reduce) {
     .scroll-cue { display: none !important; }
+  }
+
+  /* Change 4: Customer Login text 1pt (~1.33px) larger, button widened to fit */
+  .header-actions .login-btn { font-size: 21.33px; padding-left: 22px; padding-right: 22px; }
+  @media (max-width: 760px) {
+    .header-actions .login-btn {
+      font-size: clamp(13.33px, 3.7vw, 16.33px);
+      padding-left: clamp(9px, 2.6vw, 13px);
+      padding-right: clamp(9px, 2.6vw, 13px);
+    }
   }
 </style>
 </head>
