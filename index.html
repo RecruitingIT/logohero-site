@@ -41,3 +41,1079 @@
     inset: 0 0 auto;
     z-index: 30;
     background: rgba(238, 240, 243, .97);
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .site-header.is-hidden { transform: translateY(-105%); }
+  .site-header.is-hidden.is-revealed { transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  header img { height: 64px; width: auto; display: block; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+
+  /* Keep the Get in touch button the same height as the other banner controls. */
+  .header-actions > .btn {
+    padding: 11px 18px;
+    font-size: 20px;
+    line-height: 24px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 11px 18px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: border-color .15s, background .15s, transform .15s;
+  }
+  .login-btn:hover { border-color: var(--blue); background: var(--soft); transform: translateY(-1px); }
+  .login-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .login-btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
+  .btn {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 22px;
+    padding: 13px 26px;
+    border-radius: 10px;
+    border: 2px solid var(--blue);
+    transition: background .15s, transform .15s;
+  }
+  .btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); transform: translateY(-1px); }
+  .btn.ghost { background: transparent; color: var(--blue); }
+  .btn.ghost:hover { background: var(--soft); color: var(--blue-dark); }
+
+  /* ---------- Menu button (three lines) + pop-up menu ---------- */
+  .menu-wrap { position: relative; margin-left: 4px; }
+  .menu-btn {
+    width: 48px; height: 48px;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 0;
+    border: 2px solid var(--line); border-radius: 10px;
+    background: #fff; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
+  .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .menu-btn span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: transform .2s ease, opacity .2s ease, background .2s ease;
+  }
+  /* The open-menu cross changes to Logo Hero blue. */
+  .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+  .menu-panel {
+    position: absolute; right: 0; top: calc(100% + 14px);
+    width: 300px; max-width: calc(100vw - 48px);
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(14, 27, 61, .18);
+    padding: 8px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  }
+  .menu-panel.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .menu-group { padding: 4px 0; }
+  .menu-group + .menu-group { border-top: 1px solid var(--line); }
+  .menu-panel a {
+    display: block; padding: 12px 14px; border-radius: 8px;
+    color: var(--ink); text-decoration: none; font-size: 22px; font-weight: 700;
+  }
+  .menu-panel a:hover, .menu-panel a:focus-visible { background: var(--soft); color: var(--blue); outline: none; }
+  @media (prefers-reduced-motion: reduce) { .menu-panel, .menu-btn span { transition: none; } }
+
+  /* The opening scene stays pinned while the large logo travels into its normal hero position. */
+  .opening-stage { position: relative; }
+  .opening-scene { position: relative; background: var(--bg); }
+  .hero { padding: 72px 0 80px; }
+  .hero-logo-flight { display: none; }
+  .js .opening-stage { height: 165vh; }
+  .js .opening-scene {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .js .opening-scene header { opacity: 0; transition: opacity .01s linear; }
+  .js .opening-scene .hero-copy { opacity: 0; }
+  .js .opening-scene .hero { min-height: calc(100% - 105px); display: flex; align-items: center; }
+  .js .hero-logo-target { opacity: 0; }
+  .js .hero-logo-flight {
+    display: block;
+    position: fixed;
+    z-index: 20;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+    object-fit: contain;
+    object-position: center;
+    transform-origin: top left;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  @media (max-width: 760px) {
+    .js .opening-stage { height: 195vh; }
+    .js .opening-scene .hero { min-height: calc(100% - 91px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js .opening-stage { height: auto; }
+    .js .opening-scene { position: relative; height: auto; min-height: 0; overflow: visible; }
+    .js .opening-scene header, .js .opening-scene .hero-copy { opacity: 1; }
+    .js .hero-logo-target { opacity: 1; }
+    .js .hero-logo-flight { display: none; }
+    .js .opening-scene .hero { min-height: 0; }
+  }
+  /* Opening animation finished and the visitor has scrolled back up:
+     the pinned scroll-animation zone is collapsed so the page behaves as a normal page from the top.
+     (Same settled state as reduced motion; added by the script below.) */
+  .opening-done .opening-stage { height: auto !important; }
+  .opening-done .opening-scene { position: relative !important; height: auto !important; min-height: 0 !important; overflow: visible !important; }
+  .opening-done .opening-scene .hero { min-height: 0 !important; }
+  .opening-done .hero-copy,
+  .opening-done .hero-logo-target { opacity: 1 !important; }
+  .opening-done .hero-logo-flight { display: none !important; }
+  /* The top bar is visible at the top of the page in this state, so push the hero content down to clear it */
+  .opening-done .hero { padding-top: 135px; }
+
+  .hero .wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center; }
+  .hero h1 { font-size: clamp(48px, 8vw, 92px); color: var(--ink); }
+  .hero h1 span { color: var(--blue); }
+  .hero p { font-size: 25px; color: var(--muted); max-width: 30em; margin: 0 0 14px; }
+  .hero h1 + p { margin-top: 32px; }
+  .hero p:last-child { margin-bottom: 32px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero img { width: 100%; height: auto; display: block; }
+
+  section { padding: 72px 0; scroll-margin-top: 30px; }
+  section.soft { background: var(--soft); }
+  #how, #contact { background: #DCE6FB; }
+  #about { background-color: transparent; transition: background-color .8s ease; }
+  #about.tinted { background-color: #DCE6FB; }
+  h2 { font-size: clamp(34px, 5vw, 52px); margin-bottom: 36px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .step { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px; }
+  .step .n { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 44px; color: var(--blue); line-height: 1; margin-bottom: 12px; }
+  .step h3 { font-size: 26px; margin-bottom: 8px; }
+  .step p { margin: 0; color: var(--muted); font-size: 24px; }
+
+  /* ---------- Examples: constant right-to-left scroll ---------- */
+  #examples { padding: 94px 0 80px; overflow: hidden; }
+  #examples h2 { margin-bottom: 10px; }
+  .examples-sub { margin: 0 0 24px; font-size: 25px; color: var(--muted); }
+  .marquee {
+    --cardw: 420px;
+    --gap: 80px;
+    position: relative;
+    overflow: hidden;
+    padding: 12px 0 20px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  }
+  .track { display: flex; gap: var(--gap); width: max-content; will-change: transform; }
+  .ex {
+    position: relative;
+    flex: 0 0 var(--cardw);
+    width: var(--cardw);
+    aspect-ratio: 4 / 3;
+  }
+  .ex img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 44px 12px 12px;
+    transition: opacity .55s ease;
+    -webkit-user-drag: none;
+  }
+  .marquee.touch {
+    touch-action: pan-y;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .marquee.touch .ex { -webkit-tap-highlight-color: transparent; cursor: pointer; }
+  .ex .before { opacity: 1; }
+  .ex .after { opacity: 0; }
+  .ex.is-after .before { opacity: 0; }
+  .ex.is-after .after { opacity: 1; }
+  .ex .tag {
+    position: absolute; left: 0; right: 0; top: 8px; text-align: center;
+    font-size: 20px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted);
+    transition: color .2s ease, font-size .2s ease;
+  }
+  .ex .tag::before { content: "Before"; }
+  .ex.is-after .tag { color: var(--blue); font-size: 22px; font-weight: 800; }
+  .ex.is-after .tag::before { content: "After"; }
+
+  .marquee.static { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .marquee.static .ex:hover .before, .marquee.static .ex:focus .before { opacity: 0; }
+  .marquee.static .ex:hover .after, .marquee.static .ex:focus .after { opacity: 1; }
+
+  .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; margin: 0 auto; }
+  .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
+  .price:hover, .price:focus-within { transform: scale(1.02); box-shadow: 0 10px 24px rgba(14, 27, 61, .12); }
+  .price.featured { border-color: var(--blue); }
+  .price h3 { font-size: 28px; margin-bottom: 4px; }
+  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
+  .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
+  .price li { padding: 6px 0 6px 28px; position: relative; }
+  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
+  .price li.plus-item { color: var(--blue); font-weight: 800; }
+  .price li.plus-item::before { content: none; display: none; }
+  .price .btn { margin-top: auto; text-align: center; font-size: 24px; }
+
+  .about { max-width: 760px; }
+  .about p { font-size: 25px; color: var(--muted); margin: 0 0 18px; }
+  .contact { text-align: center; }
+  .contact p { color: var(--muted); max-width: 32em; margin: 0 auto 28px; font-size: 24px; }
+  #contact {
+    min-height: calc(100vh - var(--footer-h, 90px));
+    min-height: calc(100svh - var(--footer-h, 90px));
+    display: flex; align-items: center; justify-content: center;
+  }
+  #contact .wrap { width: 100%; }
+  #pricing .wrap { opacity: var(--pricing-fade, 1); }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 19px; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+  .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .js .in-view { opacity: 1 !important; transform: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
+      opacity: 1; transform: none; transition: none;
+    }
+    #about { transition: none; }
+  }
+  @media (min-width: 761px) {
+    .hero .wrap > div { position: relative; z-index: 1; }
+    .hero img { transform: translateX(-22%); }
+  }
+  @media (max-width: 760px) {
+    .hero { padding: 40px 0 36px; }
+    .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
+    .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
+    .opening-done .hero { padding-top: 120px; }
+    .steps, .prices { grid-template-columns: 1fr; }
+    section { padding: 52px 0; }
+    #examples { padding: 52px 0 52px; }
+    header { padding: 14px 0; }
+    header img { height: 52px; }
+    .header-actions { gap: 8px; }
+    .header-actions .btn {
+      padding: 9px 14px;
+      font-size: 19px;
+      line-height: 20px;
+      height: 42px;
+    }
+    .login-btn { gap: 6px; padding: 9px 10px; font-size: 17px; }
+    .login-btn svg { width: 15px; height: 15px; }
+    .marquee { --cardw: 330px; --gap: 50px; }
+    .menu-wrap { margin-left: 0; }
+    .menu-btn { width: 42px; height: 42px; gap: 5px; }
+    .menu-btn span { width: 20px; }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+    .menu-panel a { font-size: 21px; }
+    @media (max-width: 400px) {
+      .header-actions { gap: 6px; }
+    }
+  }
+
+  /* ================= CHANGES ================= */
+
+  /* Change 1: more space after the hero logo before the blue section starts */
+  #about { margin-top: 90px; }
+  @media (max-width: 760px) { #about { margin-top: 70px; } }
+
+  /* Change 2: banner buttons share one height and one centre line */
+  .header-actions { --ctl-h: 48px; align-items: center; }
+  .header-actions > .btn,
+  .header-actions .login-btn,
+  .header-actions .menu-btn {
+    box-sizing: border-box;
+    height: var(--ctl-h);
+    margin: 0;
+    line-height: 1;
+  }
+  .header-actions > .btn,
+  .header-actions .login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+  }
+  .header-actions .menu-btn { width: var(--ctl-h); }
+  .menu-wrap { display: flex; align-items: center; }
+  .header-actions > .btn { white-space: nowrap; flex: 0 0 auto; }
+  @media (max-width: 760px) {
+    .header-actions { --ctl-h: 40px; gap: 5px; }
+    header .wrap { gap: 8px; padding: 0 16px; }
+    header img { height: 42px; }
+    .header-actions > .btn,
+    .header-actions .login-btn { padding: 0 clamp(7px, 2vw, 11px); }
+    .header-actions > .btn { font-size: clamp(13px, 3.7vw, 16px); }
+    .header-actions .login-btn { font-size: clamp(12px, 3.4vw, 15px); }
+    .header-actions .menu-btn { width: var(--ctl-h); }
+    .header-actions .login-btn { gap: 4px; }
+    .header-actions .login-btn svg { width: 14px; height: 14px; }
+  }
+  /* Footer on phones: two tidy stacked lines instead of a ragged wrap */
+  @media (max-width: 760px) {
+    footer { font-size: 17px; }
+    footer .wrap { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .f-left { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .f-sep { display: none; }
+  }
+  /* Optical centring: the font sits slightly low in its line box, so nudge the text up (~2px) */
+  /* Get in touch: marginally shallower than the other banner controls (2px off top and bottom) */
+  .header-actions > .btn { height: calc(var(--ctl-h) - 4px); padding-bottom: 4px; }
+  .header-actions .login-btn { padding-bottom: 2px; }
+
+  /* Change 3: small grey pulsing "scroll down" arrow on the opening screen.
+     Its opacity is driven by the opening-animation script below, so it fades
+     away as the big logo starts to shrink. */
+  .scroll-cue {
+    display: none;
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    z-index: 25;
+    color: #8A93A6;
+    pointer-events: none;
+    opacity: 1;
+  }
+  .js .scroll-cue { display: block; }
+  .scroll-cue svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: cue-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes cue-pulse {
+    0%, 100% { transform: translateY(0);   opacity: .45; }
+    50%      { transform: translateY(8px); opacity: 1; }
+  }
+  .opening-done .scroll-cue { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue { display: none !important; }
+  }
+
+  /* Change 4: Customer Login text 1pt (~1.33px) larger, button widened to fit */
+  .header-actions .login-btn { font-size: 21.33px; padding-left: 22px; padding-right: 22px; }
+  @media (max-width: 760px) {
+    .header-actions .login-btn {
+      font-size: clamp(13.33px, 3.7vw, 16.33px);
+      padding-left: clamp(9px, 2.6vw, 13px);
+      padding-right: clamp(9px, 2.6vw, 13px);
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 9l7 7 7-7"/>
+  </svg>
+</div>
+
+<div class="opening-stage" id="opening-stage">
+<header class="site-header is-hidden" id="site-header">
+  <div class="wrap">
+    <img src="LOGO%20HERO.png" alt="Logo Hero Icon">
+    <div class="header-actions">
+      <a class="login-btn" href="/client-login" aria-label="Customer login area">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <rect x="4.5" y="10" width="15" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Customer Login
+      </a>
+      <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20Enquiry">Get in touch</a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
+          <div class="menu-group">
+            <a href="#examples">Before/After Examples</a>
+            <a href="#how">Process</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <div class="menu-group"><a href="/client-login">Customer Area</a></div>
+          <div class="menu-group"><a href="/privacy-notice">Privacy Policy</a></div>
+          <div class="menu-group"><a href="#contact">Contact</a></div>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+  <div class="opening-scene" id="opening-scene">
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <h1>Your vision, <span>sharpened.</span></h1>
+        <p>Every brand starts with a vision.</p>
+        <p>Logo Hero simply helps you on your branding journey.</p>
+        <p>We boost the vision you've already created for a fraction of the price of engaging with a design agency.</p>
+      </div>
+      <img id="hero-logo-target" src="LogoHero2.png" alt="Logo Hero logo">
+    </div>
+  </div>
+  <img class="hero-logo-flight" id="hero-logo-flight" src="LogoHero2.png" alt="" aria-hidden="true">
+  </div>
+</div>
+
+<main>
+  <section id="about">
+    <div class="wrap about">
+      <h2>Professionalism your business deserves</h2>
+      <p>You've already done the hard part; you had the idea, you built the business and you created a brand to match.</p>
+      <p>We don't replace your identity, we build on it.</p>
+      <p>Logo Hero sharpens the logo you already have, refining the shapes, balance and finish so it looks as professional as the business behind it. It's a way to take the next step on your branding journey, for a fraction of the price of engaging with a design agency.</p>
+    </div>
+  </section>
+
+  <section id="examples">
+    <div class="wrap">
+      <h2>See the difference</h2>
+      <p class="examples-sub">Hover to see the logo enhanced</p>
+    </div>
+    <div class="marquee" id="marquee" aria-label="Examples of logos before and after Logo Hero">
+      <div class="track" id="track"></div>
+    </div>
+  </section>
+
+  <section class="soft" id="how">
+    <div class="wrap">
+      <h2>Same logo. Sharper result.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <h3>Send us yours</h3>
+          <p>We work from the logo you already use, so it still looks like your business.</p>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <h3>We refine it</h3>
+          <p>Spacing, proportions, alignment, balance and finish are tidied so it holds up on your website, socials and signage.</p>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <h3>You use it</h3>
+          <p>Get print-ready, high-resolution files, plus matching email signatures and LinkedIn banners if you'd like them.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <h2>Simple, fixed prices</h2>
+      <div class="prices">
+        <div class="price">
+          <h3>Logo</h3>
+          <div class="amount">£150</div>
+          <ul>
+            <li>Your logo, refined</li>
+            <li>Available with any background</li>
+            <li>Provided in any or multiple formats</li>
+            <li>High-resolution files, ready to use</li>
+            <li>Yours to keep</li>
+          </ul>
+          <a class="btn ghost" href="/logo-order">Choose Logo</a>
+        </div>
+        <div class="price featured">
+          <h3>Logo+</h3>
+          <div class="amount">£225</div>
+          <ul>
+            <li>Everything in Logo</li>
+            <li class="plus-item">PLUS...</li>
+            <li>Favicon</li>
+            <li>Email signatures for up to 10 employees</li>
+            <li>Covers any new recruits over the next 3 months</li>
+            <li>LinkedIn banners</li>
+            <li>Any other social media profile pictures or headers</li>
+            <li>Yours to keep</li>
+          </ul>
+          <a class="btn" href="/logoplusorder">Choose Logo+</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="soft contact" id="contact">
+    <div class="wrap">
+      <h2>Let's sharpen yours</h2>
+      <p>Send us your current logo, we'll enhance it.</p>
+      <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">branding@logohero.co.uk</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="f-left"><span class="f-copy">© <span id="y">2026</span> Logo Hero</span><span class="f-sep"> · </span><a href="/privacy-notice">Privacy notice</a></div>
+    <div><a href="mailto:branding@logohero.co.uk">branding@logohero.co.uk</a></div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('y').textContent = new Date().getFullYear();
+
+const openingStage = document.getElementById('opening-stage');
+const openingScene = document.getElementById('opening-scene');
+const flightLogo = document.getElementById('hero-logo-flight');
+const targetLogo = document.getElementById('hero-logo-target');
+const openingHeader = document.getElementById('site-header');
+const scrollCue = document.getElementById('scroll-cue');
+let previousScrollY = window.scrollY;
+let scrollingUp = false;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (Math.abs(y - previousScrollY) > 2) {
+    scrollingUp = y < previousScrollY;
+    const hideAtTop = !openingDone;
+    openingHeader.classList.toggle('is-hidden', (hideAtTop && y <= 20) || !scrollingUp && (hideAtTop || y > 20));
+    openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
+    previousScrollY = y;
+  }
+}, { passive: true });
+const openingCopy = openingScene.querySelector('.hero-copy');
+const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
+
+let openingFinished = false;
+let openingDone = false;
+
+function clamp01(value) { return Math.max(0, Math.min(1, value)); }
+function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
+
+const SLOW_START_1 = 0.85;
+const SLOW_START_2 = 0.95;
+const SLOW_SPEED_1 = 0.5;
+const SLOW_SPEED_2 = 0.25;
+function slowEnd(p) {
+  const a = SLOW_START_1, b = SLOW_START_2;
+  const total = a + (b - a) * SLOW_SPEED_1 + (1 - b) * SLOW_SPEED_2;
+  let raw;
+  if (p < a) raw = p;
+  else if (p < b) raw = a + (p - a) * SLOW_SPEED_1;
+  else raw = a + (b - a) * SLOW_SPEED_1 + (p - b) * SLOW_SPEED_2;
+  return raw / total;
+}
+
+let openingMetrics = null;
+function measureOpening() {
+  if (reduceOpeningMotion || openingDone) return;
+  const sceneRect = openingScene.getBoundingClientRect();
+  const stageRect = openingStage.getBoundingClientRect();
+  const targetRect = targetLogo.getBoundingClientRect();
+  const viewWidth = window.innerWidth;
+  const viewHeight = window.innerHeight;
+  const ratio = targetLogo.naturalWidth && targetLogo.naturalHeight
+    ? targetLogo.naturalWidth / targetLogo.naturalHeight
+    : targetRect.width / targetRect.height;
+  const fitWidth = Math.min(viewWidth, viewHeight * ratio);
+  const fitHeight = fitWidth / ratio;
+  const openingScale = mobileOpeningQuery.matches ? 1.75 : 1;
+  const baseWidth = fitWidth * openingScale;
+  const baseHeight = fitHeight * openingScale;
+
+  flightLogo.style.width = baseWidth + 'px';
+  flightLogo.style.height = baseHeight + 'px';
+  openingMetrics = {
+    stageTop: stageRect.top + window.scrollY,
+    travel: Math.max(1, openingStage.offsetHeight - viewHeight - viewHeight * 0.12),
+    startLeft: viewWidth * 0.5 - baseWidth * 0.76,
+    startTop: mobileOpeningQuery.matches
+      ? viewHeight * 0.5 - baseHeight * 0.46
+      : (viewHeight - fitHeight) * 0.5,
+    baseWidth,
+    baseHeight,
+    endLeft: targetRect.left - sceneRect.left,
+    endTop: targetRect.top - sceneRect.top,
+    endScaleX: targetRect.width / baseWidth,
+    endScaleY: targetRect.height / baseHeight
+  };
+}
+
+function endOpening() {
+  openingDone = true;
+  document.documentElement.classList.add('opening-done');
+  flightLogo.style.display = 'none';
+  targetLogo.style.opacity = 1;
+  openingCopy.style.opacity = 1;
+  openingHeader.style.opacity = 1;
+  openingHeader.classList.remove('is-hidden');
+  openingHeader.classList.remove('is-revealed');
+  if (scrollCue) scrollCue.style.opacity = 0;
+  previousScrollY = 0;
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  if (window.__syncSmoothScroll) window.__syncSmoothScroll();
+}
+
+function updateOpening() {
+  if (reduceOpeningMotion || !openingMetrics || openingDone) return;
+  const m = openingMetrics;
+  const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
+  if (progress >= 1) {
+    openingFinished = true;
+  } else if (openingFinished && progress < 0.995) {
+    endOpening();
+    return;
+  }
+
+  // Scroll-down arrow: fully visible at the top, then fades out over the
+  // first ~40% of the opening animation (increase 0.4 to keep it longer).
+  if (scrollCue) scrollCue.style.opacity = 1 - clamp01(progress / 0.4);
+
+  const eased = easeInOut(slowEnd(progress));
+  const mix = (a, b) => a + (b - a) * eased;
+  const x = mix(m.startLeft, m.endLeft);
+  const y = mix(m.startTop, m.endTop);
+  const scaleX = mix(1, m.endScaleX);
+  const scaleY = mix(1, m.endScaleY);
+  flightLogo.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + scaleX + ',' + scaleY + ')';
+
+  const reveal = clamp01((progress - 0.70) / 0.25);
+  openingHeader.style.opacity = window.scrollY <= 20 ? 0 : (scrollingUp ? 1 : reveal);
+  openingCopy.style.opacity = reveal;
+
+  const handoff = clamp01((progress - 0.975) / 0.025);
+  flightLogo.style.opacity = 1 - handoff;
+  targetLogo.style.opacity = handoff;
+}
+
+if (!reduceOpeningMotion) {
+  let openingFrame = 0;
+  const queueOpeningUpdate = () => {
+    if (openingFrame) return;
+    openingFrame = requestAnimationFrame(() => { openingFrame = 0; updateOpening(); });
+  };
+  window.addEventListener('scroll', queueOpeningUpdate, { passive: true });
+  window.addEventListener('resize', () => { measureOpening(); queueOpeningUpdate(); });
+  targetLogo.addEventListener('load', () => { measureOpening(); queueOpeningUpdate(); });
+  measureOpening();
+  updateOpening();
+}
+
+/* ---------- Fixed-speed opening animation ----------
+   While the opening animation is in progress, any scroll gesture (wheel, swipe,
+   keyboard) is intercepted and replaced with a timed scroll, so the logo always
+   shrinks at the same pace no matter how hard or fast the visitor scrolls.
+   Scrolling down plays the whole shrink; scrolling up (before it has finished)
+   plays it back to the start. */
+(function () {
+  if (reduceOpeningMotion) return;
+
+  const FULL_DURATION = 1500;  // ms for the complete shrink (change to taste)
+  const MIN_DURATION = 350;    // ms floor when only a short distance remains
+  const TOUCH_THRESHOLD = 10;  // px of finger travel before a swipe counts
+
+  let animating = false;
+  let animFrame = 0;
+  let touchStartY = null;
+
+  function endY() {
+    return openingMetrics ? Math.ceil(openingMetrics.stageTop + openingMetrics.travel) + 1 : 0;
+  }
+  // True while the page is inside the pinned opening animation.
+  function inZone() {
+    if (openingDone || openingFinished || !openingMetrics) return false;
+    return window.scrollY < endY() - 2;
+  }
+
+  function playTo(targetY) {
+    if (animating) return;
+    const startY = window.scrollY;
+    const dist = targetY - startY;
+    if (Math.abs(dist) < 1) return;
+    const travel = Math.max(1, openingMetrics.travel);
+    const duration = Math.max(MIN_DURATION, FULL_DURATION * Math.abs(dist) / travel);
+    const t0 = performance.now();
+    animating = true;
+    function step(now) {
+      const t = Math.min(1, (now - t0) / duration);
+      window.scrollTo({ top: startY + dist * t, left: 0, behavior: 'instant' });
+      if (t < 1) {
+        animFrame = requestAnimationFrame(step);
+      } else {
+        animating = false;
+      }
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  function go(down) {
+    if (down) playTo(endY());
+    else if (window.scrollY > 0) playTo(0);
+  }
+
+  window.addEventListener('wheel', (e) => {
+    if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (!inZone() && !animating) return;
+    e.preventDefault();
+    if (!animating) go(e.deltaY > 0);
+  }, { passive: false });
+
+  window.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches.length === 1 ? e.touches[0].clientY : null;
+  }, { passive: true });
+  window.addEventListener('touchmove', (e) => {
+    if (!inZone() && !animating) return;
+    if (e.cancelable) e.preventDefault();
+    if (animating || touchStartY === null) return;
+    const dy = touchStartY - e.touches[0].clientY;
+    if (Math.abs(dy) < TOUCH_THRESHOLD) return;
+    touchStartY = null;
+    go(dy > 0);
+  }, { passive: false });
+  window.addEventListener('touchend', () => { touchStartY = null; }, { passive: true });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+    const downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
+    const upKeys = ['ArrowUp', 'PageUp', 'Home'];
+    const isDown = downKeys.indexOf(e.key) !== -1 && !(e.key === ' ' && e.shiftKey);
+    const isUp = upKeys.indexOf(e.key) !== -1 || (e.key === ' ' && e.shiftKey);
+    if (!isDown && !isUp) return;
+    if (!inZone() && !animating) return;
+    e.preventDefault();
+    if (!animating) go(isDown);
+  });
+})();
+
+const revealTargets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
+const revealObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('in-view');
+    observer.unobserve(entry.target);
+  });
+}, { threshold: 0.15 });
+revealTargets.forEach((el) => revealObserver.observe(el));
+
+const aboutSection = document.getElementById('about');
+const aboutTintObserver = new IntersectionObserver((entries, observer) => {
+  if (entries.some((entry) => entry.isIntersecting)) {
+    aboutSection.classList.add('tinted');
+    observer.disconnect();
+  }
+}, { threshold: 0.05 });
+aboutTintObserver.observe(aboutSection);
+
+const EXAMPLES = [
+  { name: 'Example 1', before: 'HEW%20Before.png', after: 'HEW%20After.png' },
+  { name: 'Example 2', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
+  { name: 'Example 3', before: 'TCG-Before.png', after: 'TCG-After.png' },
+  { name: 'Example 1', before: 'Emmasphere-Before.png', after: 'Emmasphere-After.png' },
+  { name: 'Example 2', before: 'ThePlug-Before.png', after: 'ThePlug-After.png' },
+  { name: 'Example 3', before: 'ALRS-Before.png', after: 'ALRS-After.png' }
+];
+
+const SPEED = 58;
+const COAST_MS = 220;
+
+(function () {
+  const marquee = document.getElementById('marquee');
+  const track = document.getElementById('track');
+  if (!marquee || !track || !EXAMPLES.length) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
+  let vel = SPEED, dragging = false, moved = false;
+
+  const touchMode = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const PIN_MS = 4000;
+  let pinned = null, pinTimer;
+  if (touchMode) {
+    const sub = document.querySelector('.examples-sub');
+    if (sub) sub.textContent = 'Tap a logo to see it enhanced';
+    marquee.classList.add('touch');
+  }
+
+  function makeCard(ex, decorative) {
+    const d = document.createElement('div');
+    d.className = 'ex';
+    if (decorative) d.setAttribute('aria-hidden', 'true');
+    else d.tabIndex = 0;
+    d.innerHTML =
+      '<img class="before" src="' + ex.before + '" alt="' + ex.name + ' logo before" loading="eager" draggable="false">' +
+      '<img class="after" src="' + ex.after + '" alt="' + ex.name + ' logo after" loading="eager" draggable="false">' +
+      '<span class="tag"></span>';
+    return d;
+  }
+
+  function build() {
+    track.innerHTML = '';
+    pinned = null;
+    offset = 0;
+    const vw = marquee.clientWidth;
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    const cardW = parseFloat(getComputedStyle(marquee).getPropertyValue('--cardw')) || 280;
+    const unit = cardW + gap;
+    let count = EXAMPLES.length;
+    while (count * unit < vw * 1.2) count += EXAMPLES.length;
+    setWidth = count * unit;
+
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < count; i++) {
+        track.appendChild(makeCard(EXAMPLES[i % EXAMPLES.length], pass === 1));
+      }
+    }
+    items = Array.from(track.children).map(el => ({ el }));
+    track.style.transform = 'translate3d(0,0,0)';
+  }
+
+  function wrap() { offset = ((offset % setWidth) + setWidth) % setWidth; }
+
+  function frame(t) {
+    const dt = Math.min(t - (last || t), 50);
+    last = t;
+    if (!dragging) {
+      vel += (SPEED - vel) * (1 - Math.exp(-dt / COAST_MS));
+      offset += vel * dt / 1000;
+      wrap();
+    }
+    track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
+    items.forEach(it => {
+      const r = it.el.getBoundingClientRect();
+      const over = touchMode
+        ? it.el === pinned
+        : (mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom);
+      it.el.classList.toggle('is-after', over);
+    });
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    cancelAnimationFrame(rafId);
+    build();
+    if (reduce) { marquee.classList.add('static'); return; }
+    marquee.classList.remove('static');
+    last = 0;
+    rafId = requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('mousemove', e => { if (!touchMode) { mx = e.clientX; my = e.clientY; } });
+
+  track.addEventListener('click', e => {
+    if (!touchMode || moved) return;
+    const card = e.target.closest('.ex');
+    if (!card) return;
+    pinned = (pinned === card) ? null : card;
+    clearTimeout(pinTimer);
+    if (pinned) pinTimer = setTimeout(() => { pinned = null; applyPinned(); }, PIN_MS);
+    applyPinned();
+  });
+  function applyPinned() {
+    items.forEach(it => it.el.classList.toggle('is-after', touchMode && it.el === pinned));
+  }
+  document.addEventListener('mouseleave', () => { mx = my = -1; });
+
+  if (touchMode && !reduce) {
+    let pid = null, startX = 0, lastX = 0, samples = [];
+    marquee.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' || dragging) return;
+      pid = e.pointerId; dragging = true; moved = false;
+      startX = lastX = e.clientX;
+      samples = [{ x: e.clientX, t: e.timeStamp }];
+    });
+    marquee.addEventListener('pointermove', e => {
+      if (!dragging || e.pointerId !== pid) return;
+      if (Math.abs(e.clientX - startX) > 8) moved = true;
+      offset -= e.clientX - lastX; lastX = e.clientX;
+      wrap();
+      samples.push({ x: e.clientX, t: e.timeStamp });
+      while (samples.length > 2 && e.timeStamp - samples[0].t > 100) samples.shift();
+    });
+    const release = (e, cancelled) => {
+      if (!dragging || e.pointerId !== pid) return;
+      dragging = false;
+      let v = 0;
+      const n = samples.length;
+      if (!cancelled && n > 1 && e.timeStamp - samples[n - 1].t < 80) {
+        const span = samples[n - 1].t - samples[0].t;
+        if (span > 0) v = -(samples[n - 1].x - samples[0].x) / span * 1000;
+      }
+      vel = Math.max(-2000, Math.min(2000, v));
+    };
+    marquee.addEventListener('pointerup', e => release(e, false));
+    marquee.addEventListener('pointercancel', e => release(e, true));
+  }
+
+  let visible = true;
+  new IntersectionObserver(es => {
+    visible = es[0].isIntersecting;
+    if (reduce) return;
+    if (visible) { last = 0; cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame); }
+    else cancelAnimationFrame(rafId);
+  }).observe(marquee);
+
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
+  start();
+})();
+</script>
+
+<script>
+(function () {
+  const contact = document.getElementById('contact');
+  const footer = document.querySelector('footer');
+  const pricingWrap = document.querySelector('#pricing .wrap');
+  if (!contact || !footer) return;
+
+  function setFooterHeight() {
+    document.documentElement.style.setProperty('--footer-h', footer.offsetHeight + 'px');
+  }
+  setFooterHeight();
+  window.addEventListener('resize', setFooterHeight);
+  window.addEventListener('load', setFooterHeight);
+
+  if (!pricingWrap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const FADE_START = 0.9;
+  const FADE_END = 0.3;
+  let frame = 0;
+  function update() {
+    frame = 0;
+    const vh = window.innerHeight;
+    const top = contact.getBoundingClientRect().top / vh;
+    const t = Math.max(0, Math.min(1, (FADE_START - top) / (FADE_START - FADE_END)));
+    pricingWrap.style.setProperty('--pricing-fade', String(1 - t));
+    pricingWrap.style.pointerEvents = t > 0.6 ? 'none' : '';
+  }
+  function queue() { if (!frame) frame = requestAnimationFrame(update); }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  update();
+})();
+</script>
+
+<script>
+(function () {
+  const btn = document.getElementById('menu-btn');
+  const panel = document.getElementById('menu-panel');
+  if (!btn || !panel) return;
+  function isOpen() { return panel.classList.contains('open'); }
+  function setOpen(open) {
+    panel.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!isOpen()); });
+  panel.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('click', function (e) { if (isOpen() && !panel.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
+  });
+  window.addEventListener('scroll', function () { if (isOpen()) setOpen(false); }, { passive: true });
+})();
+</script>
+
+<script>
+(function () {
+  const EASE = 0.12;
+  const SLOW_ZONE = 0.22;
+  const SLOW_MIN = 0.6;
+
+  const noHover = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (noHover || reduce) return;
+
+  const edges = [];
+  function measureEdges() {
+    edges.length = 0;
+    document.querySelectorAll('main > section, footer').forEach(function (el) {
+      edges.push(el.getBoundingClientRect().top + window.scrollY);
+    });
+  }
+  measureEdges();
+  window.addEventListener('load', measureEdges);
+  window.addEventListener('resize', measureEdges);
+
+  let target = window.scrollY, current = window.scrollY, running = false;
+  const smooth = function (t) { return t * t * (3 - 2 * t); };
+
+  window.__syncSmoothScroll = function () {
+    measureEdges();
+    current = target = window.scrollY;
+  };
+
+  function factor(y) {
+    const zone = window.innerHeight * SLOW_ZONE;
+    let d = Infinity;
+    for (let i = 0; i < edges.length; i++) d = Math.min(d, Math.abs(y - edges[i]));
+    if (d >= zone) return 1;
+    return SLOW_MIN + (1 - SLOW_MIN) * smooth(d / zone);
+  }
+
+  function tick() {
+    const diff = target - current;
+    if (Math.abs(diff) < 0.4) {
+      current = target;
+      window.scrollTo({ top: current, behavior: 'instant' });
+      running = false;
+      return;
+    }
+    current += diff * EASE;
+    window.scrollTo({ top: current, behavior: 'instant' });
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!running || Math.abs(window.scrollY - current) > 2) {
+      current = target = window.scrollY;
+    }
+  }, { passive: true });
+
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.defaultPrevented) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;
+    else if (e.deltaMode === 2) dy *= window.innerHeight;
+    if (!running) current = target = window.scrollY;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    target = Math.max(0, Math.min(max, target + dy * factor(target)));
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  }, { passive: false });
+})();
+</script>
+</body>
+</html>
