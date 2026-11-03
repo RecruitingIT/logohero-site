@@ -346,6 +346,37 @@
       .header-actions { gap: 6px; }
     }
   }
+
+  /* ================= CHANGES ================= */
+
+  /* Change 1: more space after the hero logo before the blue section starts */
+  #about { margin-top: 90px; }
+  @media (max-width: 760px) { #about { margin-top: 70px; } }
+
+  /* Change 2: banner buttons share one height and one centre line */
+  .header-actions { --ctl-h: 48px; align-items: center; }
+  .header-actions > .btn,
+  .header-actions .login-btn,
+  .header-actions .menu-btn {
+    box-sizing: border-box;
+    height: var(--ctl-h);
+    margin: 0;
+    line-height: 1;
+  }
+  .header-actions > .btn,
+  .header-actions .login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+  }
+  .header-actions .menu-btn { width: var(--ctl-h); }
+  .menu-wrap { display: flex; align-items: center; }
+  @media (max-width: 760px) {
+    .header-actions { --ctl-h: 42px; }
+    .header-actions > .btn,
+    .header-actions .login-btn { padding: 0 12px; }
+  }
 </style>
 </head>
 <body>
