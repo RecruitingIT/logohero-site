@@ -1,4 +1,6 @@
-<!doctype html>
+from pathlib import Path
+
+html = r'''<!doctype html>
 <html lang="en-GB">
 <head>
 <script>document.documentElement.classList.add('js');</script>
@@ -49,6 +51,18 @@
   header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   header img { height: 64px; width: auto; display: block; }
   .header-actions { display: flex; align-items: center; gap: 12px; }
+
+  /* Keep the Get in touch button the same height as the other banner controls. */
+  .header-actions > .btn {
+    padding: 11px 18px;
+    font-size: 20px;
+    line-height: 24px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .login-btn {
     display: inline-flex;
     align-items: center;
@@ -96,7 +110,16 @@
   }
   .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
   .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
-  .menu-btn span { display: block; width: 22px; height: 3px; border-radius: 2px; background: var(--ink); transition: transform .2s ease, opacity .2s ease; }
+  .menu-btn span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: transform .2s ease, opacity .2s ease, background .2s ease;
+  }
+  /* The open-menu cross changes to Logo Hero blue. */
+  .menu-btn[aria-expanded="true"] span { background: var(--blue); }
   .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
   .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
   .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
@@ -186,10 +209,9 @@
   .actions { display: flex; flex-wrap: wrap; gap: 12px; }
   .hero img { width: 100%; height: auto; display: block; }
 
-  section { padding: 72px 0; scroll-margin-top: 30px; }  /* keeps menu-link targets clear of the top bar */
+  section { padding: 72px 0; scroll-margin-top: 30px; }
   section.soft { background: var(--soft); }
   #how, #contact { background: #DCE6FB; }
-  /* About section: same colour as #how, but it only fades in once the visitor starts scrolling */
   #about { background-color: transparent; transition: background-color .8s ease; }
   #about.tinted { background-color: #DCE6FB; }
   h2 { font-size: clamp(34px, 5vw, 52px); margin-bottom: 36px; }
@@ -201,7 +223,6 @@
   .step p { margin: 0; color: var(--muted); font-size: 24px; }
 
   /* ---------- Examples: constant right-to-left scroll ---------- */
-  /* Top padding is 94px so the gap above this section matches the gap above the About section (72 + 18 + 94 = 184) */
   #examples { padding: 94px 0 80px; overflow: hidden; }
   #examples h2 { margin-bottom: 10px; }
   .examples-sub { margin: 0 0 24px; font-size: 25px; color: var(--muted); }
@@ -230,7 +251,7 @@
     -webkit-user-drag: none;
   }
   .marquee.touch {
-    touch-action: pan-y;            /* vertical page scroll still works; sideways swipes drive the marquee */
+    touch-action: pan-y;
     -webkit-user-select: none; user-select: none;
     -webkit-touch-callout: none;
   }
@@ -249,7 +270,6 @@
   .ex.is-after .tag { color: var(--blue); font-size: 22px; font-weight: 800; }
   .ex.is-after .tag::before { content: "After"; }
 
-  /* Reduced motion: no auto-scroll, let people swipe/scroll and tap to compare */
   .marquee.static { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
   .marquee.static .ex:hover .before, .marquee.static .ex:focus .before { opacity: 0; }
   .marquee.static .ex:hover .after, .marquee.static .ex:focus .after { opacity: 1; }
@@ -271,39 +291,34 @@
   .about p { font-size: 25px; color: var(--muted); margin: 0 0 18px; }
   .contact { text-align: center; }
   .contact p { color: var(--muted); max-width: 32em; margin: 0 auto 28px; font-size: 24px; }
-  /* At the very bottom of the page the contact section fills the screen above the footer,
-     with its content centred. (--footer-h is measured by the script near the end of the page.) */
   #contact {
     min-height: calc(100vh - var(--footer-h, 90px));
     min-height: calc(100svh - var(--footer-h, 90px));
     display: flex; align-items: center; justify-content: center;
   }
   #contact .wrap { width: 100%; }
-  /* The pricing area fades out as the contact section scrolls up to meet it (opacity set by script) */
   #pricing .wrap { opacity: var(--pricing-fade, 1); }
 
   footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 19px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-.js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity .8s ease, transform .8s ease;
-}
-.js .in-view { opacity: 1 !important; transform: none !important; }
-@media (prefers-reduced-motion: reduce) {
   .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
-    opacity: 1; transform: none; transition: none;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .8s ease, transform .8s ease;
   }
-  #about { transition: none; }
-}
-  /* Desktop only: shift the hero logo left so its shadow tucks behind the text.
-     The text sits above the image. Make the number more negative to move the logo further left. */
+  .js .in-view { opacity: 1 !important; transform: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
+      opacity: 1; transform: none; transition: none;
+    }
+    #about { transition: none; }
+  }
   @media (min-width: 761px) {
     .hero .wrap > div { position: relative; z-index: 1; }
     .hero img { transform: translateX(-22%); }
   }
   @media (max-width: 760px) {
-    .hero { padding: 40px 0 36px; }   /* bottom value = white gap between the logo and the blue section (mobile only) */
+    .hero { padding: 40px 0 36px; }
     .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
     .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
     .opening-done .hero { padding-top: 120px; }
@@ -313,7 +328,12 @@
     header { padding: 14px 0; }
     header img { height: 52px; }
     .header-actions { gap: 8px; }
-    .header-actions .btn { padding: 11px 14px; font-size: 19px; }
+    .header-actions .btn {
+      padding: 9px 14px;
+      font-size: 19px;
+      line-height: 20px;
+      height: 42px;
+    }
     .login-btn { gap: 6px; padding: 9px 10px; font-size: 17px; }
     .login-btn svg { width: 15px; height: 15px; }
     .marquee { --cardw: 330px; --gap: 50px; }
@@ -384,7 +404,7 @@
     <div class="wrap about">
       <h2>Professionalism your business deserves</h2>
       <p>You've already done the hard part; you had the idea, you built the business and you created a brand to match.</p>
-<p>We don't replace your identity, we build on it.</p>
+      <p>We don't replace your identity, we build on it.</p>
       <p>Logo Hero sharpens the logo you already have, refining the shapes, balance and finish so it looks as professional as the business behind it. It's a way to take the next step on your branding journey, for a fraction of the price of engaging with a design agency.</p>
     </div>
   </section>
@@ -476,16 +496,6 @@
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
 
-/* ------------------------------------------------------------
-   Scroll-driven opening logo.
-   The overlay starts viewport-sized and follows the page scroll into
-   the exact box occupied by the regular hero logo. The scene stays pinned
-   until the opening copy and header have fully appeared.
-
-   The animation only plays on the first scroll down. Once the logo has
-   landed, scrolling back up into the animation zone collapses it and
-   drops the visitor at the top of a normal page (see endOpening below).
-   ------------------------------------------------------------ */
 const openingStage = document.getElementById('opening-stage');
 const openingScene = document.getElementById('opening-scene');
 const flightLogo = document.getElementById('hero-logo-flight');
@@ -497,8 +507,6 @@ window.addEventListener('scroll', () => {
   const y = window.scrollY;
   if (Math.abs(y - previousScrollY) > 2) {
     scrollingUp = y < previousScrollY;
-    // During the opening animation the bar stays hidden at the very top. Once the animation
-    // has been skipped/collapsed (openingDone), the bar is always visible at the top of the page.
     const hideAtTop = !openingDone;
     openingHeader.classList.toggle('is-hidden', (hideAtTop && y <= 20) || !scrollingUp && (hideAtTop || y > 20));
     openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
@@ -509,27 +517,23 @@ const openingCopy = openingScene.querySelector('.hero-copy');
 const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
 
-let openingFinished = false;  // true once the logo has fully landed in its resting place
-let openingDone = false;      // true once the animation zone has been collapsed for good
+let openingFinished = false;
+let openingDone = false;
 
 function clamp01(value) { return Math.max(0, Math.min(1, value)); }
 function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
 
-/* Slows the shrink near the end so it settles smoothly into normal scrolling.
-   Final 15% of the journey runs at 50% slower, final 5% at 75% slower.
-   Overall scroll length is unchanged (the rest speeds up very slightly to compensate).
-   Tweak the numbers below to taste. */
-const SLOW_START_1 = 0.85;   // last 15% begins here
-const SLOW_START_2 = 0.95;   // last 5% begins here
-const SLOW_SPEED_1 = 0.5;    // speed multiplier in the last 15% (0.5 = 50% slower)
-const SLOW_SPEED_2 = 0.25;   // speed multiplier in the last 5%  (0.25 = 75% slower)
+const SLOW_START_1 = 0.85;
+const SLOW_START_2 = 0.95;
+const SLOW_SPEED_1 = 0.5;
+const SLOW_SPEED_2 = 0.25;
 function slowEnd(p) {
   const a = SLOW_START_1, b = SLOW_START_2;
   const total = a + (b - a) * SLOW_SPEED_1 + (1 - b) * SLOW_SPEED_2;
   let raw;
-  if (p < a)      raw = p;
+  if (p < a) raw = p;
   else if (p < b) raw = a + (p - a) * SLOW_SPEED_1;
-  else            raw = a + (b - a) * SLOW_SPEED_1 + (p - b) * SLOW_SPEED_2;
+  else raw = a + (b - a) * SLOW_SPEED_1 + (p - b) * SLOW_SPEED_2;
   return raw / total;
 }
 
@@ -554,7 +558,6 @@ function measureOpening() {
   flightLogo.style.height = baseHeight + 'px';
   openingMetrics = {
     stageTop: stageRect.top + window.scrollY,
-    // Reserve a short pinned settle zone after the animation finishes, before normal page flow begins.
     travel: Math.max(1, openingStage.offsetHeight - viewHeight - viewHeight * 0.12),
     startLeft: viewWidth * 0.5 - baseWidth * 0.76,
     startTop: mobileOpeningQuery.matches
@@ -569,23 +572,17 @@ function measureOpening() {
   };
 }
 
-/* Collapse the pinned animation zone and send the visitor to the top of a normal page.
-   Called when someone who has already seen the logo land scrolls back up into the animation. */
 function endOpening() {
   openingDone = true;
   document.documentElement.classList.add('opening-done');
-  // Settled state: logo and copy visible, travelling logo gone, header handled by its normal show/hide logic
   flightLogo.style.display = 'none';
   targetLogo.style.opacity = 1;
   openingCopy.style.opacity = 1;
   openingHeader.style.opacity = 1;
-  // Show the top bar straight away at the top of the page
   openingHeader.classList.remove('is-hidden');
   openingHeader.classList.remove('is-revealed');
   previousScrollY = 0;
-  // 'instant' because the page has scroll-behavior: smooth
   window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  // Let the gentle-scroll script know the layout and scroll position just changed
   if (window.__syncSmoothScroll) window.__syncSmoothScroll();
 }
 
@@ -593,8 +590,6 @@ function updateOpening() {
   if (reduceOpeningMotion || !openingMetrics || openingDone) return;
   const m = openingMetrics;
   const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
-
-  // Logo has landed: remember it. Scrolling back up into the animation afterwards skips it.
   if (progress >= 1) {
     openingFinished = true;
   } else if (openingFinished && progress < 0.995) {
@@ -610,12 +605,10 @@ function updateOpening() {
   const scaleY = mix(1, m.endScaleY);
   flightLogo.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + scaleX + ',' + scaleY + ')';
 
-  // Bring in the top bar and opening copy together, late in the logo's journey.
   const reveal = clamp01((progress - 0.70) / 0.25);
   openingHeader.style.opacity = window.scrollY <= 20 ? 0 : (scrollingUp ? 1 : reveal);
   openingCopy.style.opacity = reveal;
 
-  // Cross-fade the travelling copy of the logo into its normal image at the destination.
   const handoff = clamp01((progress - 0.975) / 0.025);
   flightLogo.style.opacity = 1 - handoff;
   targetLogo.style.opacity = handoff;
@@ -634,7 +627,6 @@ if (!reduceOpeningMotion) {
   updateOpening();
 }
 
-/* Fade headings and supporting content into view as the visitor reaches them. */
 const revealTargets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
 const revealObserver = new IntersectionObserver((entries, observer) => {
   entries.forEach((entry) => {
@@ -654,11 +646,6 @@ const aboutTintObserver = new IntersectionObserver((entries, observer) => {
 }, { threshold: 0.05 });
 aboutTintObserver.observe(aboutSection);
 
-/* ============================================================
-   EXAMPLES MARQUEE
-   1. Add your examples to the list below (before + after image per logo).
-   2. Tweak SPEED to taste. Hover a tile to swap it to its 'after' image.
-   ============================================================ */
 const EXAMPLES = [
   { name: 'Example 1', before: 'HEW%20Before.png', after: 'HEW%20After.png' },
   { name: 'Example 2', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
@@ -668,8 +655,8 @@ const EXAMPLES = [
   { name: 'Example 3', before: 'ALRS-Before.png', after: 'ALRS-After.png' }
 ];
 
-const SPEED = 58;        // px per second, right to left, constant
-const COAST_MS = 220;    // touch only: how long a flick takes to settle back to the normal speed
+const SPEED = 58;
+const COAST_MS = 220;
 
 (function () {
   const marquee = document.getElementById('marquee');
@@ -678,11 +665,10 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
-  let vel = SPEED, dragging = false, moved = false;   // vel: current speed in px/s (positive = right to left)
+  let vel = SPEED, dragging = false, moved = false;
 
-  // Phones/tablets have no hover, so there a tap pins a tile to its 'after' image
   const touchMode = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-  const PIN_MS = 4000;               // a tapped tile flips back by itself after this long
+  const PIN_MS = 4000;
   let pinned = null, pinTimer;
   if (touchMode) {
     const sub = document.querySelector('.examples-sub');
@@ -710,8 +696,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
     const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
     const cardW = parseFloat(getComputedStyle(marquee).getPropertyValue('--cardw')) || 280;
     const unit = cardW + gap;
-
-    // Repeat the list until one "set" is wider than the screen, then clone the set once for a seamless loop
     let count = EXAMPLES.length;
     while (count * unit < vw * 1.2) count += EXAMPLES.length;
     setWidth = count * unit;
@@ -730,18 +714,12 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
   function frame(t) {
     const dt = Math.min(t - (last || t), 50);
     last = t;
-
-    // Constant speed (hover never pauses it). On touch, a swipe sets 'vel' and it eases back to SPEED;
-    // while a finger is down the marquee holds still.
     if (!dragging) {
       vel += (SPEED - vel) * (1 - Math.exp(-dt / COAST_MS));
       offset += vel * dt / 1000;
       wrap();
     }
     track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
-
-    // Hit-test the pointer against the moving tiles every frame, so the
-    // swap still happens when a tile slides under a stationary mouse
     items.forEach(it => {
       const r = it.el.getBoundingClientRect();
       const over = touchMode
@@ -749,7 +727,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
         : (mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom);
       it.el.classList.toggle('is-after', over);
     });
-
     rafId = requestAnimationFrame(frame);
   }
 
@@ -764,7 +741,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 
   window.addEventListener('mousemove', e => { if (!touchMode) { mx = e.clientX; my = e.clientY; } });
 
-  // Tap a tile to flip it; tap again (or wait) to flip back. One tile at a time.
   track.addEventListener('click', e => {
     if (!touchMode || moved) return;
     const card = e.target.closest('.ex');
@@ -774,12 +750,11 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
     if (pinned) pinTimer = setTimeout(() => { pinned = null; applyPinned(); }, PIN_MS);
     applyPinned();
   });
-  function applyPinned() {            // also covers the reduced-motion layout, where the frame loop isn't running
+  function applyPinned() {
     items.forEach(it => it.el.classList.toggle('is-after', touchMode && it.el === pinned));
   }
   document.addEventListener('mouseleave', () => { mx = my = -1; });
 
-  // Touch: drag to scroll either way, hold to pause, flick for momentum. Then it carries on by itself.
   if (touchMode && !reduce) {
     let pid = null, startX = 0, lastX = 0, samples = [];
     marquee.addEventListener('pointerdown', e => {
@@ -799,7 +774,7 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
     const release = (e, cancelled) => {
       if (!dragging || e.pointerId !== pid) return;
       dragging = false;
-      let v = 0;                                   // finger held still before lifting = no momentum
+      let v = 0;
       const n = samples.length;
       if (!cancelled && n > 1 && e.timeStamp - samples[n - 1].t < 80) {
         const span = samples[n - 1].t - samples[0].t;
@@ -811,7 +786,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
     marquee.addEventListener('pointercancel', e => release(e, true));
   }
 
-  // Only run the animation while the section is on screen
   let visible = true;
   new IntersectionObserver(es => {
     visible = es[0].isIntersecting;
@@ -822,20 +796,11 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 
   let rt;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
-
   start();
 })();
 </script>
 
 <script>
-/* ============================================================
-   CONTACT FINALE
-   - Measures the footer so the contact section can fill the screen above it.
-   - Fades the pricing area out as the contact section scrolls up,
-     so at the bottom of the page the contact section is all you see (plus the footer).
-   Tweak FADE_START / FADE_END: they are how far down the screen (as a fraction of its height)
-   the top of the contact section is when the fade begins and when pricing is fully gone.
-   ============================================================ */
 (function () {
   const contact = document.getElementById('contact');
   const footer = document.querySelector('footer');
@@ -870,10 +835,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 </script>
 
 <script>
-/* ============================================================
-   MENU: three-line button opens/closes the pop-up menu.
-   Closes on link tap, tap outside, Escape, or scrolling.
-   ============================================================ */
 (function () {
   const btn = document.getElementById('menu-btn');
   const panel = document.getElementById('menu-panel');
@@ -895,17 +856,10 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 </script>
 
 <script>
-/* ============================================================
-   GENTLE SCROLL EASING (desktop mouse wheel / trackpad only)
-   Scrolling glides to a stop instead of jumping, and slows slightly
-   as each section edge passes the top of the screen.
-   Touch devices and reduced-motion users keep normal native scrolling.
-   Remove this whole <script> block to go back to default scrolling.
-   ============================================================ */
 (function () {
-  const EASE = 0.12;       // glide: lower = floatier (0.06 to 0.2 is a sensible range)
-  const SLOW_ZONE = 0.22;  // size of the slow zone around each section edge, as a fraction of screen height
-  const SLOW_MIN = 0.6;    // wheel speed right at a section edge (1 = no slowing, 0.6 = 40% slower)
+  const EASE = 0.12;
+  const SLOW_ZONE = 0.22;
+  const SLOW_MIN = 0.6;
 
   const noHover = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -925,8 +879,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
   let target = window.scrollY, current = window.scrollY, running = false;
   const smooth = function (t) { return t * t * (3 - 2 * t); };
 
-  // Called by the opening animation when it collapses and jumps to the top:
-  // re-measure the section edges and drop any glide that was in progress.
   window.__syncSmoothScroll = function () {
     measureEdges();
     current = target = window.scrollY;
@@ -953,7 +905,6 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
     requestAnimationFrame(tick);
   }
 
-  // If something else moves the page (keyboard, scrollbar drag, anchor link), stay in sync with it
   window.addEventListener('scroll', function () {
     if (!running || Math.abs(window.scrollY - current) > 2) {
       current = target = window.scrollY;
@@ -961,8 +912,8 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
   }, { passive: true });
 
   window.addEventListener('wheel', function (e) {
-    if (e.ctrlKey || e.defaultPrevented) return;                 // leave pinch/zoom alone
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;         // leave sideways scrolling alone
+    if (e.ctrlKey || e.defaultPrevented) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     e.preventDefault();
     let dy = e.deltaY;
     if (e.deltaMode === 1) dy *= 16;
@@ -976,3 +927,8 @@ const COAST_MS = 220;    // touch only: how long a flick takes to settle back to
 </script>
 </body>
 </html>
+'''
+
+path = Path("/mnt/data/logo-hero-updated.html")
+path.write_text(html, encoding="utf-8")
+print(f"Created {path} ({path.stat().st_size:,} bytes)")
