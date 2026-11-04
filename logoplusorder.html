@@ -273,22 +273,14 @@ const payStatus = document.getElementById('pay-status');
 const detailFields = ['business', 'contact', 'email', 'business-website'].map((id) => document.getElementById(id));
 let stripe = null;
 let leadSent = false;   // so a retry doesn't send the same details to Formspree twice
-
-function showPaid() {
-  form.style.display = 'none';
-  payBox.hidden = true;
-  document.getElementById('package').classList.remove('show');
-  document.querySelector('.lead').classList.add('done');   // <-- new line
-  const done = document.getElementById('success');
-  done.classList.add('show');
-  done.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}  
+ 
 function setLocked(lock) { detailFields.forEach((f) => { f.readOnly = lock; }); }
 
 function showPaid() {
   form.style.display = 'none';
   payBox.hidden = true;
   document.getElementById('package').classList.remove('show');
+  document.querySelector('.lead').classList.add('done'); 
   const done = document.getElementById('success');
   done.classList.add('show');
   done.scrollIntoView({ behavior: 'smooth', block: 'center' });
