@@ -271,6 +271,7 @@ function showPaid() {
   payBox.hidden = true;
   document.getElementById('package').classList.remove('show');
   document.querySelector('.lead').classList.add('done'); 
+  document.querySelector('h1').style.opacity = '.5';
   const done = document.getElementById('success');
   done.classList.add('show');
   done.scrollIntoView({ behavior: 'smooth', block: 'center' });
