@@ -270,6 +270,7 @@ function showPaid() {
   form.style.display = 'none';
   payBox.hidden = true;
   document.getElementById('package').classList.remove('show');
+  document.querySelector('.lead').classList.add('done'); 
   const done = document.getElementById('success');
   done.classList.add('show');
   done.scrollIntoView({ behavior: 'smooth', block: 'center' });
