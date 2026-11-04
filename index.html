@@ -459,6 +459,86 @@
     #how      { padding-top: 104px; padding-bottom: 104px; }
     #pricing  { padding-top: 104px; }
   }
+
+  /* ================= PREMIUM BACKGROUND & ATMOSPHERE ================= */
+
+  /* Premium 1: fine grain overlay. Sits over the whole page; ignores clicks.
+     Tweak opacity between .03 (barely there) and .07 (clearly textured). */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: .05;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Premium 2: faint dot grid on the grey areas (design-grid feel).
+     The hero scene goes transparent so the grid runs unbroken from the top of the page.
+     Tweak the .11 for stronger/fainter dots, and 26px for spacing. */
+  body {
+    background-color: var(--bg);
+    background-image: radial-gradient(circle, rgba(14, 27, 61, .11) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+  }
+  .opening-scene { background: transparent; }
+
+  /* Premium 3: soft spotlight behind the hero logo.
+     --glow is driven by the opening-animation script so the light fades in with the hero copy. */
+  .hero .wrap { position: relative; isolation: isolate; }
+  .hero .wrap::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 58%;
+    top: 50%;
+    width: min(900px, 92vw);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(255, 255, 255, .95) 0%, rgba(255, 255, 255, .55) 45%, rgba(255, 255, 255, 0) 100%);
+    opacity: var(--glow, 1);
+    pointer-events: none;
+  }
+  @media (max-width: 760px) {
+    .hero .wrap::before { left: 42%; top: 72%; width: 130vw; }
+  }
+
+  /* Premium 4: corner marks framing the hero, like a print proof.
+     They fade in with the hero copy, same as the spotlight. */
+  .crop {
+    position: absolute;
+    z-index: 1;
+    width: 22px;
+    height: 22px;
+    border: 0 solid rgba(14, 27, 61, .28);
+    pointer-events: none;
+    opacity: var(--glow, 1);
+  }
+  .crop.tl { top: 118px;  left: 28px;  border-top-width: 1px;    border-left-width: 1px; }
+  .crop.tr { top: 118px;  right: 28px; border-top-width: 1px;    border-right-width: 1px; }
+  .crop.bl { bottom: 28px; left: 28px;  border-bottom-width: 1px; border-left-width: 1px; }
+  .crop.br { bottom: 28px; right: 28px; border-bottom-width: 1px; border-right-width: 1px; }
+  @media (max-width: 760px) {
+    .crop { width: 16px; height: 16px; }
+    .crop.tl, .crop.tr { top: 92px; }
+    .crop.tl, .crop.bl { left: 14px; }
+    .crop.tr, .crop.br { right: 14px; }
+    .crop.bl, .crop.br { bottom: 14px; }
+  }
+
+  /* Premium 5: deep navy contact section (replaces the pale blue block).
+     A soft blue glow at the top stops it feeling flat. */
+  #contact {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 0%, rgba(10, 69, 224, .38), rgba(10, 69, 224, 0) 70%),
+      var(--ink);
+    color: #fff;
+  }
+  #contact h2 { color: #fff; }
+  #contact p { color: rgba(255, 255, 255, .78); }
+  #contact .btn { background: #fff; border-color: #fff; color: var(--ink); }
+  #contact .btn:hover { background: var(--soft); border-color: var(--soft); color: var(--blue); }
 </style>
 </head>
 <body>
@@ -501,6 +581,10 @@
   </div>
 </header>
   <div class="opening-scene" id="opening-scene">
+  <span class="crop tl" aria-hidden="true"></span>
+  <span class="crop tr" aria-hidden="true"></span>
+  <span class="crop bl" aria-hidden="true"></span>
+  <span class="crop br" aria-hidden="true"></span>
   <div class="hero">
     <div class="wrap">
       <div class="hero-copy">
@@ -717,6 +801,7 @@ function endOpening() {
   flightLogo.style.display = 'none';
   targetLogo.style.opacity = 1;
   openingCopy.style.opacity = 1;
+  openingScene.style.setProperty('--glow', 1);
   openingHeader.style.opacity = 1;
   openingHeader.classList.remove('is-hidden');
   openingHeader.classList.remove('is-revealed');
@@ -753,6 +838,8 @@ function updateOpening() {
   const reveal = clamp01((progress - 0.70) / 0.25);
   openingHeader.style.opacity = window.scrollY <= 20 ? 0 : (scrollingUp ? 1 : reveal);
   openingCopy.style.opacity = reveal;
+  // The hero spotlight and corner marks fade in alongside the hero copy.
+  openingScene.style.setProperty('--glow', reveal);
 
   const handoff = clamp01((progress - 0.975) / 0.025);
   flightLogo.style.opacity = 1 - handoff;
