@@ -471,7 +471,7 @@
     inset: 0;
     z-index: 1;           /* above section backgrounds, below content (see "keep content clean" below) */
     pointer-events: none;
-    opacity: .12;
+    opacity: .20;
     background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
@@ -541,7 +541,7 @@
      Push the hero content down so there's a clear gap between the banner and the headline.
      (After the animation settles, the existing .opening-done rule already handles this.) */
   @media (max-width: 760px) {
-    .js:not(.opening-done) .opening-scene .hero { padding-top: 104px; padding-bottom: 0; }
+    .js:not(.opening-done) .opening-scene .hero { padding-top: 104px; padding-bottom: 0; align-items: flex-start; }
   }
 
   /* Keep content clean: the grain only texture the backgrounds. Tiles, text, logos, the
