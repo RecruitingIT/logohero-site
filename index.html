@@ -464,11 +464,12 @@
 
   /* Premium 1: fine grain overlay. Sits over the whole page; ignores clicks.
      Tweak opacity between .03 (barely there) and .07 (clearly textured). */
+  body { position: relative; }
   body::before {
     content: "";
-    position: fixed;
+    position: absolute;   /* spans the whole page and scrolls with it */
     inset: 0;
-    z-index: 100;
+    z-index: 1;           /* above section backgrounds, below content (see "keep content clean" below) */
     pointer-events: none;
     opacity: .20;
     background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -482,7 +483,7 @@
   body { background-color: var(--bg); }
   body::after {
     content: "";
-    position: fixed;
+    position: absolute;   /* spans the whole page and scrolls with it */
     inset: 0;
     z-index: -1;
     pointer-events: none;
@@ -535,6 +536,11 @@
     .crop.tr, .crop.br { right: 14px; }
     .crop.bl, .crop.br { bottom: 14px; }
   }
+
+  /* Keep content clean: the grain only texture the backgrounds. Tiles, text, logos, the
+     marquee and the hero all sit above the grain layer (z-index 2 vs the grain's 1). */
+  main .wrap, footer .wrap, .marquee { position: relative; z-index: 2; }
+  .opening-scene { z-index: 2; }
 
   /* Premium 5: deep navy contact section (replaces the pale blue block).
      A soft blue glow at the top stops it feeling flat. */
