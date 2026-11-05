@@ -96,7 +96,7 @@
   .btn.ghost { background: transparent; color: var(--blue); }
   .btn.ghost:hover { background: var(--soft); color: var(--blue-dark); }
 
-  /* ---------- Menu button (three lines) + pop-up menu ---------- */
+  /* ---------- Menu button (two lines) + pop-up menu ---------- */
   .menu-wrap { position: relative; margin-left: 4px; }
   .menu-btn {
     width: 48px; height: 48px;
@@ -580,6 +580,21 @@
       padding-bottom: 70px;
     }
   }
+
+  /* Change 8: lift the Customer Login text so it sits on the same line as the padlock and Get in touch.
+     Only the text span moves, so the padlock stays put. Adjust -3px to taste (-4px lifts more, -2px less). */
+  .header-actions .login-label { display: block; transform: translateY(-3px); }
+
+  /* Change 9: two-line menu icon. When open, the two lines form the cross.
+     Cross offset = half of (line height 3px + gap). Desktop gap 7px -> 5px; mobile gap 6px -> 4.5px. */
+  .menu-btn { gap: 7px; }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+  @media (max-width: 760px) {
+    .menu-btn { gap: 6px; }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-4.5px) rotate(-45deg); }
+  }
 </style>
 </head>
 <body>
@@ -600,12 +615,12 @@
           <rect x="4.5" y="10" width="15" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
           <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        Customer Login
+        <span class="login-label">Customer Login</span>
       </a>
       <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20Enquiry">Get in touch</a>
       <div class="menu-wrap">
         <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
-          <span></span><span></span><span></span>
+          <span></span><span></span>
         </button>
         <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
           <div class="menu-group">
