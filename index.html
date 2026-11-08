@@ -615,17 +615,19 @@
     .header-actions > .btn { padding-bottom: 2px; }
   }
 
+  /* Change 13: no spotlight/backlight behind the hero logo (the corner marks keep their fade-in). */
+  .hero .wrap::before { display: none; }
+
   /* Change 12: soft section edges instead of hard colour lines.
-     The pale-blue sections (About, How) and the navy Contact section no longer start/stop on a hard edge:
+     The pale-blue sections (About, How) no longer start/stop on a hard edge:
      each has a gradient layer (::before) that fades in from the grey page and fades back out again.
      The layer reaches --g-ext beyond the section so the fade straddles the old boundary.
      --g-len  = how long (px) each fade is. Bigger = softer, more gradual.
      --g-top / --g-bot = where the fades sit; the script at the bottom of the page nudges these as you scroll,
      which is what makes the fades drift slightly against the content. */
-  #about, #how, #contact { position: relative; background: transparent; }
+  #about, #how { position: relative; background: transparent; }
   #about.tinted { background: transparent; }
-  #about, #how { --g-ext: 220px; --g-len: 90px;  --g-top: 100px; --g-bot: 100px; }
-  #contact     { --g-ext: 220px; --g-len: 110px; --g-top: 100px; }
+  #about, #how { --g-ext: 220px; --g-len: 90px; --g-len-bot: 520px; --g-top: 100px; --g-bot: 100px; }
 
   #about::before, #how::before {
     content: "";
@@ -638,32 +640,13 @@
     background: linear-gradient(to bottom,
       rgba(220, 230, 251, 0) var(--g-top),
       #DCE6FB calc(var(--g-top) + var(--g-len)),
-      #DCE6FB calc(100% - var(--g-bot) - var(--g-len)),
+      #DCE6FB calc(100% - var(--g-bot) - var(--g-len-bot)),
       rgba(220, 230, 251, 0) calc(100% - var(--g-bot)));
   }
   /* About keeps its gentle fade-in as it scrolls into view */
   #about::before { opacity: 0; transition: opacity .8s ease; }
   #about.tinted::before { opacity: 1; }
   @media (prefers-reduced-motion: reduce) { #about::before { transition: none; } }
-
-  /* Contact: the navy block (with its blue glow) is masked so it fades in from the grey above
-     and softly back out into the footer, rather than ending on straight lines. */
-  #contact { background: none; }
-  #contact::before {
-    content: "";
-    position: absolute;
-    left: 0; right: 0; bottom: 0;
-    top: calc(var(--g-ext) * -1);
-    z-index: 0;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 70% 55% at 50% 28%, rgba(10, 69, 224, .38), rgba(10, 69, 224, 0) 70%),
-      var(--ink);
-    -webkit-mask-image: linear-gradient(to bottom, transparent var(--g-top), #000 calc(var(--g-top) + var(--g-len)), #000 calc(100% - 90px), transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent var(--g-top), #000 calc(var(--g-top) + var(--g-len)), #000 calc(100% - 90px), transparent 100%);
-  }
-  /* The thin footer rule would show as a stray hairline across the soft fade */
-  footer { border-top: 0; }
 </style>
 </head>
 <body>
@@ -1392,8 +1375,7 @@ const COAST_MS = 220;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const blocks = [
     { el: document.getElementById('about'),   topMax: 120, botMax: 120 },
-    { el: document.getElementById('how'),     topMax: 120, botMax: 120 },
-    { el: document.getElementById('contact'), topMax: 120, botMax: 0 }
+    { el: document.getElementById('how'),     topMax: 120, botMax: 120 }
   ].filter(b => b.el);
 
   let frame = 0;
