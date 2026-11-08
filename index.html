@@ -21,9 +21,12 @@
     --bg: #EEF0F3;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  /* No sideways scrolling anywhere: html is hidden (applies to the viewport), body is clipped
+     (clip does not create a scroll container, so the sticky opening scene keeps working). */
+  html { scroll-behavior: smooth; overflow-x: hidden; overscroll-behavior-x: none; }
   body {
     margin: 0;
+    overflow-x: clip;
     font-family: "Darker Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     font-size: 22px;
     font-weight: 500;
@@ -594,6 +597,22 @@
     .menu-btn { gap: 6px; }
     .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
     .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-4.5px) rotate(-45deg); }
+  }
+
+  /* Change 10: stop sideways scrolling on phones.
+     Cause: the soft spotlight behind the hero logo (.hero .wrap::before) is 130vw wide on phones and
+     poked out past the right edge of the screen, which made the page (and the fixed banner) pannable.
+     The hero now clips anything that pokes out sideways; desktop is unaffected. */
+  .hero { overflow-x: clip; }
+  .site-header { max-width: 100%; }
+
+  /* Change 11: phone-only banner text alignment.
+     The desktop nudges (-3px login text, +4px bottom padding on Get in touch) were tuned for the
+     bigger desktop font, so on phones the text sat slightly high. These smaller nudges centre it. */
+  @media (max-width: 760px) {
+    .header-actions .login-label { transform: translateY(-1px); }
+    .header-actions .login-btn { padding-bottom: 0; }
+    .header-actions > .btn { padding-bottom: 2px; }
   }
 </style>
 </head>
