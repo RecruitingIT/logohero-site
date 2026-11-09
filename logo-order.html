@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
+<script>document.documentElement.classList.add('js');</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Get started | Logo Hero</title>
-<meta name="robots" content="noindex">
+<title>Logo Hero | Your vision, sharpened</title>
+<meta name="description" content="Logo Hero helps you on your branding journey, enhancing the vision you've already created for a fraction of the price of a design agency.">
 <link rel="icon" href="LOGO%20HERO.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Darker+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://js.stripe.com/endive/stripe.js"></script>
 <style>
   :root {
     --blue: #0A45E0;
@@ -19,11 +19,14 @@
     --line: #DDE3F0;
     --soft: #F3F6FC;
     --bg: #EEF0F3;
-    --error: #B3261E;
   }
   * { box-sizing: border-box; }
+  /* No sideways scrolling anywhere: html is hidden (applies to the viewport), body is clipped
+     (clip does not create a scroll container, so the sticky opening scene keeps working). */
+  html { scroll-behavior: smooth; overflow-x: hidden; overscroll-behavior-x: none; }
   body {
     margin: 0;
+    overflow-x: clip;
     font-family: "Darker Grotesque", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     font-size: 22px;
     font-weight: 500;
@@ -36,8 +39,50 @@
   a { color: var(--blue); }
 
   header { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 30;
+    background: rgba(238, 240, 243, .97);
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .site-header.is-hidden { transform: translateY(-105%); }
+  .site-header.is-hidden.is-revealed { transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
   header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   header img { height: 64px; width: auto; display: block; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+
+  /* Keep the Get in touch button the same height as the other banner controls. */
+  .header-actions > .btn {
+    padding: 11px 18px;
+    font-size: 20px;
+    line-height: 24px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 11px 18px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: border-color .15s, background .15s, transform .15s;
+  }
+  .login-btn:hover { border-color: var(--blue); background: var(--soft); transform: translateY(-1px); }
+  .login-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .login-btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
   .btn {
     display: inline-block;
     background: var(--blue);
@@ -45,178 +90,719 @@
     text-decoration: none;
     font-weight: 700;
     font-size: 22px;
-    font-family: inherit;
-    padding: 14px 26px;
+    padding: 13px 26px;
     border-radius: 10px;
     border: 2px solid var(--blue);
-    cursor: pointer;
     transition: background .15s, transform .15s;
   }
   .btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); transform: translateY(-1px); }
-  .btn:disabled { opacity: .6; cursor: default; transform: none; }
+  .btn.ghost { background: transparent; color: var(--blue); }
+  .btn.ghost:hover { background: var(--soft); color: var(--blue-dark); }
 
-  main { padding: 48px 0 72px; }
-  .back { display: inline-block; margin-bottom: 24px; font-weight: 600; text-decoration: none; }
-  .back:hover { text-decoration: underline; }
-  .eyebrow { font-size: 17px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
-  h1 { font-size: clamp(40px, 6vw, 64px); margin-bottom: 12px; }
-  h1 { transition: font-size 1.5s ease, opacity 1.5s ease; }
-  h1.done { font-size: clamp(30px, 4.4vw, 46px); opacity: .5; }
-  .lead { color: var(--muted); font-size: 25px; margin: 0 0 28px; max-width: 34em; }
-  .lead { transition: font-size 1.5s ease, opacity .5s ease; }
-  .lead.done { font-size: 18px; opacity: .5; }
+  /* ---------- Menu button (two lines) + pop-up menu ---------- */
+  .menu-wrap { position: relative; margin-left: 4px; }
+  .menu-btn {
+    width: 48px; height: 48px;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 0;
+    border: 2px solid var(--line); border-radius: 10px;
+    background: #fff; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
+  .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .menu-btn span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: transform .2s ease, opacity .2s ease, background .2s ease;
+  }
+  /* The open-menu cross changes to Logo Hero blue. */
+  .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
+  .menu-panel {
+    position: absolute; right: 0; top: calc(100% + 14px);
+    width: 300px; max-width: calc(100vw - 48px);
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(14, 27, 61, .18);
+    padding: 8px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  }
+  .menu-panel.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .menu-group { padding: 4px 0; }
+  .menu-group + .menu-group { border-top: 1px solid var(--line); }
+  .menu-panel a {
+    display: block; padding: 12px 14px; border-radius: 8px;
+    color: var(--ink); text-decoration: none; font-size: 22px; font-weight: 700;
+  }
+  .menu-panel a:hover, .menu-panel a:focus-visible { background: var(--soft); color: var(--blue); outline: none; }
+  @media (prefers-reduced-motion: reduce) { .menu-panel, .menu-btn span { transition: none; } }
 
-  .price { position: relative; border: 2px solid var(--blue); border-radius: 16px; padding: 32px; background: #fff; max-width: 480px; margin-bottom: 32px; }
-  .price .upgrade { position: absolute; top: 16px; right: 16px; font-size: 18px; font-style: italic; padding: 6px 12px; border-radius: 8px; background: transparent; color: var(--blue); }
-  .price .upgrade:hover { background: var(--soft); color: var(--blue-dark); }
+  /* The opening scene stays pinned while the large logo travels into its normal hero position. */
+  .opening-stage { position: relative; }
+  .opening-scene { position: relative; background: var(--bg); }
+  .hero { padding: 72px 0 80px; }
+  .hero-logo-flight { display: none; }
+  .js .opening-stage { height: 165vh; }
+  .js .opening-scene {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    min-height: 560px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .js .opening-scene header { opacity: 0; transition: opacity .01s linear; }
+  .js .opening-scene .hero-copy { opacity: 0; }
+  .js .opening-scene .hero { min-height: calc(100% - 105px); display: flex; align-items: center; }
+  .js .hero-logo-target { opacity: 0; }
+  .js .hero-logo-flight {
+    display: block;
+    position: fixed;
+    z-index: 20;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100svh;
+    object-fit: contain;
+    object-position: center;
+    transform-origin: top left;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  @media (max-width: 760px) {
+    .js .opening-stage { height: 195vh; }
+    .js .opening-scene .hero { min-height: calc(100% - 91px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js .opening-stage { height: auto; }
+    .js .opening-scene { position: relative; height: auto; min-height: 0; overflow: visible; }
+    .js .opening-scene header, .js .opening-scene .hero-copy { opacity: 1; }
+    .js .hero-logo-target { opacity: 1; }
+    .js .hero-logo-flight { display: none; }
+    .js .opening-scene .hero { min-height: 0; }
+  }
+  /* Opening animation finished and the visitor has scrolled back up:
+     the pinned scroll-animation zone is collapsed so the page behaves as a normal page from the top.
+     (Same settled state as reduced motion; added by the script below.) */
+  .opening-done .opening-stage { height: auto !important; }
+  .opening-done .opening-scene { position: relative !important; height: auto !important; min-height: 0 !important; overflow: visible !important; }
+  .opening-done .opening-scene .hero { min-height: 0 !important; }
+  .opening-done .hero-copy,
+  .opening-done .hero-logo-target { opacity: 1 !important; }
+  .opening-done .hero-logo-flight { display: none !important; }
+  /* The top bar is visible at the top of the page in this state, so push the hero content down to clear it */
+  .opening-done .hero { padding-top: 135px; }
+
+  .hero .wrap { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: center; }
+  .hero h1 { font-size: clamp(48px, 8vw, 92px); color: var(--ink); }
+  .hero h1 span { color: var(--blue); }
+  .hero p { font-size: 25px; color: var(--muted); max-width: 30em; margin: 0 0 14px; }
+  .hero h1 + p { margin-top: 32px; }
+  .hero p:last-child { margin-bottom: 32px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero img { width: 100%; height: auto; display: block; }
+
+  section { padding: 72px 0; scroll-margin-top: 30px; }
+  section.soft { background: var(--soft); }
+  #how, #contact { background: #DCE6FB; }
+  #about { background-color: transparent; transition: background-color .8s ease; }
+  #about.tinted { background-color: #DCE6FB; }
+  h2 { font-size: clamp(34px, 5vw, 52px); margin-bottom: 36px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .step { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 28px; }
+  .step .n { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 44px; color: var(--blue); line-height: 1; margin-bottom: 12px; }
+  .step h3 { font-size: 26px; margin-bottom: 8px; }
+  .step p { margin: 0; color: var(--muted); font-size: 24px; }
+
+  /* ---------- Examples: constant right-to-left scroll ---------- */
+  #examples { padding: 94px 0 80px; overflow: hidden; }
+  #examples h2 { margin-bottom: 10px; }
+  .examples-sub { margin: 0 0 24px; font-size: 25px; color: var(--muted); }
+  .marquee {
+    --cardw: 420px;
+    --gap: 80px;
+    position: relative;
+    overflow: hidden;
+    padding: 12px 0 20px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  }
+  .track { display: flex; gap: var(--gap); width: max-content; will-change: transform; }
+  .ex {
+    position: relative;
+    flex: 0 0 var(--cardw);
+    width: var(--cardw);
+    aspect-ratio: 4 / 3;
+  }
+  .ex img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    padding: 44px 12px 12px;
+    transition: opacity .55s ease;
+    -webkit-user-drag: none;
+  }
+  .marquee.touch {
+    touch-action: pan-y;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .marquee.touch .ex { -webkit-tap-highlight-color: transparent; cursor: pointer; }
+  .ex .before { opacity: 1; }
+  .ex .after { opacity: 0; }
+  .ex.is-after .before { opacity: 0; }
+  .ex.is-after .after { opacity: 1; }
+  .ex .tag {
+    position: absolute; left: 0; right: 0; top: 8px; text-align: center;
+    font-size: 20px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted);
+    transition: color .2s ease, font-size .2s ease;
+  }
+  .ex .tag::before { content: "Before"; }
+  .ex.is-after .tag { color: var(--blue); font-size: 22px; font-weight: 800; }
+  .ex.is-after .tag::before { content: "After"; }
+
+  .marquee.static { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
+  .marquee.static .ex:hover .before, .marquee.static .ex:focus .before { opacity: 0; }
+  .marquee.static .ex:hover .after, .marquee.static .ex:focus .after { opacity: 1; }
+
+  .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; margin: 0 auto; }
+  .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
+  .price:hover, .price:focus-within { transform: scale(1.02); box-shadow: 0 10px 24px rgba(14, 27, 61, .12); }
+  .price.featured { border-color: var(--blue); }
   .price h3 { font-size: 28px; margin-bottom: 4px; }
   .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
-  .price ul { list-style: none; padding: 0; margin: 0; color: var(--muted); }
+  .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
   .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
+  .price li.plus-item { color: var(--blue); font-weight: 800; }
+  .price li.plus-item::before { content: none; display: none; }
+  .price .btn { margin-top: auto; text-align: center; font-size: 24px; }
 
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 32px; max-width: 560px; }
-  .package { display: none; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 24px; }
-  .package.show { display: block; }
-  .package-head { font-weight: 600; }
-  .package-head span { color: var(--blue); }
-  .package ul { list-style: none; padding: 0; margin: 12px 0 0; color: var(--muted); }
-  .package li { padding: 4px 0 4px 28px; position: relative; }
-  .package li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
-  .field { margin-bottom: 20px; }
-  label { display: block; font-weight: 600; margin-bottom: 6px; }
-  input[type="text"], input[type="email"] {
-    width: 100%;
-    font: inherit;
-    padding: 12px 14px;
-    border: 1.5px solid #C5CDDF;
-    border-radius: 10px;
-    background: #fff;
-    color: var(--ink);
+  .about { max-width: 760px; }
+  .about p { font-size: 25px; color: var(--muted); margin: 0 0 18px; }
+  .contact { text-align: center; }
+  .contact p { color: var(--muted); max-width: 32em; margin: 0 auto 28px; font-size: 24px; }
+  #contact {
+    min-height: calc(100vh - var(--footer-h, 90px));
+    min-height: calc(100svh - var(--footer-h, 90px));
+    display: flex; align-items: center; justify-content: center;
   }
-  input:focus { outline: 3px solid rgba(10, 69, 224, .25); border-color: var(--blue); }
-  input[readonly] { background: var(--soft); color: var(--muted); cursor: not-allowed; }
-  input[readonly]:focus { outline: none; border-color: #C5CDDF; }
-  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  .fine { color: var(--muted); font-size: 19px; margin: 16px 0 0; }
-  .status { margin-top: 16px; font-weight: 600; }
-  .status.error { color: var(--error); }
-  .success { display: none; }
-  .success.show { display: block; }
-  .success h2 { font-size: 36px; margin-bottom: 8px; color: var(--blue); }
-  .success p { color: var(--muted); margin: 0; }
+  #contact .wrap { width: 100%; }
+  #pricing .wrap { opacity: var(--pricing-fade, 1); }
 
   footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 19px; }
   footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-
-  .linkbtn { font: inherit; font-weight: 700; background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; cursor: pointer; }
-  .pay-title { font-size: 32px; margin: 8px 0 14px; }
-  #checkout-form { min-height: 120px; }
-  [hidden] { display: none !important; }
-
-  @media (max-width: 760px) {
-    main { padding: 32px 0 48px; }
-    .card { padding: 22px; }
-    .price { padding: 24px; }
-    header img { height: 52px; }
+  .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .8s ease, transform .8s ease;
   }
+  .js .in-view { opacity: 1 !important; transform: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .js h2, .js .about p, .js .examples-sub, .js .step, .js .contact p, .js .contact .btn {
+      opacity: 1; transform: none; transition: none;
+    }
+    #about { transition: none; }
+  }
+  @media (min-width: 761px) {
+    .hero .wrap > div { position: relative; z-index: 1; }
+    .hero img { transform: translateX(-22%); }
+  }
+  @media (max-width: 760px) {
+    .hero { padding: 40px 0 36px; }
+    .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
+    .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
+    .opening-done .hero { padding-top: 120px; }
+    .steps, .prices { grid-template-columns: 1fr; }
+    section { padding: 52px 0; }
+    #examples { padding: 52px 0 52px; }
+    header { padding: 14px 0; }
+    header img { height: 52px; }
+    .header-actions { gap: 8px; }
+    .header-actions .btn {
+      padding: 9px 14px;
+      font-size: 19px;
+      line-height: 20px;
+      height: 42px;
+    }
+    .login-btn { gap: 6px; padding: 9px 10px; font-size: 17px; }
+    .login-btn svg { width: 15px; height: 15px; }
+    .marquee { --cardw: 330px; --gap: 50px; }
+    .menu-wrap { margin-left: 0; }
+    .menu-btn { width: 42px; height: 42px; gap: 5px; }
+    .menu-btn span { width: 20px; }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+    .menu-panel a { font-size: 21px; }
+    @media (max-width: 400px) {
+      .header-actions { gap: 6px; }
+    }
+  }
+
+  /* ================= CHANGES ================= */
+
+  /* Change 1: more space after the hero logo before the blue section starts */
+  #about { margin-top: 90px; }
+  @media (max-width: 760px) { #about { margin-top: 70px; } }
+
+  /* Change 2: banner buttons share one height and one centre line */
+  .header-actions { --ctl-h: 48px; align-items: center; }
+  .header-actions > .btn,
+  .header-actions .login-btn,
+  .header-actions .menu-btn {
+    box-sizing: border-box;
+    height: var(--ctl-h);
+    margin: 0;
+    line-height: 1;
+  }
+  .header-actions > .btn,
+  .header-actions .login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+  }
+  .header-actions .menu-btn { width: var(--ctl-h); }
+  .menu-wrap { display: flex; align-items: center; }
+  .header-actions > .btn { white-space: nowrap; flex: 0 0 auto; }
+  @media (max-width: 760px) {
+    .header-actions { --ctl-h: 40px; gap: 5px; }
+    header .wrap { gap: 8px; padding: 0 16px; }
+    header img { height: 42px; }
+    .header-actions > .btn,
+    .header-actions .login-btn { padding: 0 clamp(7px, 2vw, 11px); }
+    .header-actions > .btn { font-size: clamp(13px, 3.7vw, 16px); }
+    .header-actions .login-btn { font-size: clamp(12px, 3.4vw, 15px); }
+    .header-actions .menu-btn { width: var(--ctl-h); }
+    .header-actions .login-btn { gap: 4px; }
+    .header-actions .login-btn svg { width: 14px; height: 14px; }
+  }
+  /* Footer on phones: two tidy stacked lines instead of a ragged wrap */
+  @media (max-width: 760px) {
+    footer { font-size: 17px; }
+    footer .wrap { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .f-left { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .f-sep { display: none; }
+  }
+  /* Optical centring: the font sits slightly low in its line box, so nudge the text up (~2px) */
+  /* Get in touch: marginally shallower than the other banner controls (2px off top and bottom) */
+  .header-actions > .btn { height: calc(var(--ctl-h) - 4px); padding-bottom: 4px; }
+  .header-actions .login-btn { padding-bottom: 2px; }
+
+  /* Change 3: small grey pulsing "scroll down" arrow on the opening screen.
+     Its opacity is driven by the opening-animation script below, so it fades
+     away as the big logo starts to shrink. */
+  .scroll-cue {
+    display: none;
+    position: fixed;
+    left: 50%;
+    bottom: 26px;
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    z-index: 25;
+    color: #8A93A6;
+    pointer-events: none;
+    opacity: 1;
+  }
+  .js .scroll-cue { display: block; }
+  .scroll-cue svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: cue-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes cue-pulse {
+    0%, 100% { transform: translateY(0);   opacity: .45; }
+    50%      { transform: translateY(8px); opacity: 1; }
+  }
+  .opening-done .scroll-cue { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-cue { display: none !important; }
+  }
+
+  /* Change 4: Customer Login text 1pt (~1.33px) larger, button widened to fit */
+  .header-actions .login-btn { font-size: 21.33px; padding-left: 22px; padding-right: 22px; }
+  @media (max-width: 760px) {
+    .header-actions .login-btn {
+      font-size: clamp(13.33px, 3.7vw, 16.33px);
+      padding-left: clamp(9px, 2.6vw, 13px);
+      padding-right: clamp(9px, 2.6vw, 13px);
+    }
+  }
+
+  /* Change 5: banner fades in (no slide) a moment after the logo animation ends.
+     banner-prep = in place but fully transparent; banner-fade = animate up to opaque. */
+  .site-header.banner-prep { transform: none !important; opacity: 0 !important; transition: none !important; }
+  .site-header.banner-prep.banner-fade { opacity: 1 !important; transition: opacity .9s ease !important; }
+
+  /* Change 6: doubled section padding so content sits further from the grey/blue dividers.
+     About, Examples and How: top and bottom doubled. Pricing: top only. */
+  #about    { padding-top: 144px; padding-bottom: 144px; }
+  #examples { padding-top: 188px; padding-bottom: 160px; }
+  #how      { padding-top: 144px; padding-bottom: 144px; }
+  #pricing  { padding-top: 144px; }
+  /* Bigger gap between the "hover/tap to see the logo enhanced" line and the marquee (section padding unchanged) */
+  .examples-sub { margin-bottom: 64px; }
+  @media (max-width: 760px) {
+    .examples-sub { margin-bottom: 48px; }
+    #about    { padding-top: 104px; padding-bottom: 104px; }
+    #examples { padding-top: 104px; padding-bottom: 104px; }
+    #how      { padding-top: 104px; padding-bottom: 104px; }
+    #pricing  { padding-top: 104px; }
+  }
+
+  /* ================= PREMIUM BACKGROUND & ATMOSPHERE ================= */
+
+  /* Premium 1: fine grain overlay. Sits over the whole page; ignores clicks.
+     Tweak opacity between .03 (barely there) and .07 (clearly textured). */
+  body { position: relative; }
+  body::before {
+    content: "";
+    position: absolute;   /* spans the whole page and scrolls with it */
+    inset: 0;
+    z-index: 1;           /* above section backgrounds, below content (see "keep content clean" below) */
+    pointer-events: none;
+    opacity: .11;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Premium 2: faint dot grid on the grey areas (design-grid feel).
+     The dots live on their own fixed layer behind the page so they can fade in.
+     --dots is driven by the opening-animation script: 0 while the logo is full screen,
+     rising to 1 as it shrinks. Tweak the .09 for stronger/fainter dots, and 26px for spacing. */
+  :root.js { --dots: 0; }
+  body { background-color: var(--bg); }
+  body::after {
+    content: "";
+    position: absolute;   /* spans the whole page and scrolls with it */
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(14, 27, 61, .09) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+    opacity: var(--dots, 1);
+  }
+  @media (prefers-reduced-motion: reduce) { :root.js { --dots: 1; } }
+  .opening-scene { background: transparent; }
+
+  /* Premium 3: soft spotlight behind the hero logo.
+     --glow is driven by the opening-animation script so the light fades in with the hero copy. */
+  .hero .wrap { position: relative; isolation: isolate; }
+  .hero .wrap::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 58%;
+    top: 50%;
+    width: min(900px, 92vw);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(255, 255, 255, .95) 0%, rgba(255, 255, 255, .55) 45%, rgba(255, 255, 255, 0) 100%);
+    opacity: var(--glow, 1);
+    pointer-events: none;
+  }
+  @media (max-width: 760px) {
+    .hero .wrap::before { left: 42%; top: 72%; width: 130vw; }
+  }
+
+  /* Premium 4: corner marks framing the hero, like a print proof.
+     They fade in with the hero copy, same as the spotlight.
+     Bolder L-shaped brackets in Logo Hero blue so they read as a deliberate frame. */
+  .crop {
+    position: absolute;
+    z-index: 1;
+    width: 48px;
+    height: 48px;
+    border: 0 solid rgba(10, 69, 224, .8);
+    pointer-events: none;
+    opacity: var(--glow, 1);
+  }
+  .crop.tl { top: 126px;   left: 40px;  border-top-width: 3px;    border-left-width: 3px; }
+  .crop.tr { top: 126px;   right: 40px; border-top-width: 3px;    border-right-width: 3px; }
+  .crop.bl { bottom: 40px; left: 40px;  border-bottom-width: 3px; border-left-width: 3px; }
+  .crop.br { bottom: 40px; right: 40px; border-bottom-width: 3px; border-right-width: 3px; }
+  @media (max-width: 760px) {
+    .crop { width: 28px; height: 28px; }
+    .crop.tl, .crop.tr { top: 92px; border-top-width: 2px; }
+    .crop.bl, .crop.br { border-bottom-width: 2px; }
+    .crop.tl, .crop.bl { left: 14px; border-left-width: 2px; }
+    .crop.tr, .crop.br { right: 14px; border-right-width: 2px; }
+    .crop.bl, .crop.br { bottom: 14px; }
+  }
+
+  /* Phones: while the opening scene is pinned, the banner fades in over the top of the hero.
+     Push the hero content down so there's a clear gap between the banner and the headline.
+     (After the animation settles, the existing .opening-done rule already handles this.) */
+  @media (max-width: 760px) {
+    .js:not(.opening-done) .opening-scene .hero { padding-top: 114px; padding-bottom: 0; align-items: flex-start; }
+  }
+
+  /* Keep content clean: the grain only texture the backgrounds. Tiles, text, logos, the
+     marquee and the hero all sit above the grain layer (z-index 2 vs the grain's 1). */
+  main .wrap, footer .wrap, .marquee { position: relative; z-index: 2; }
+  .opening-scene { z-index: 2; }
+
+  /* Premium 5: deep navy contact section (replaces the pale blue block).
+     A soft blue glow at the top stops it feeling flat. */
+  #contact {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 0%, rgba(10, 69, 224, .38), rgba(10, 69, 224, 0) 70%),
+      var(--ink);
+    color: #fff;
+  }
+  #contact h2 { color: #fff; }
+  #contact p { color: rgba(255, 255, 255, .78); }
+  #contact .btn { background: #fff; border-color: #fff; color: var(--ink); }
+  #contact .btn:hover { background: var(--soft); border-color: var(--soft); color: var(--blue); }
+
+  /* Change 7 (desktop only): keep the hero headline clear of the banner and inside the frame corners.
+     The pinned opening scene now reserves space at the top for the banner (and the top corner marks),
+     and the hero fills the whole scene, centring its content in what's left.
+     The headline also scales with window height so it always fits inside the frame. */
+  @media (min-width: 761px) {
+    .hero h1 { font-size: clamp(44px, min(8vw, 10.5vh), 92px); }
+    .opening-done .hero { padding-top: 170px; }
+  }
+  @media (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+    .js:not(.opening-done) .opening-scene .hero {
+      min-height: 100%;
+      box-sizing: border-box;
+      padding-top: 170px;
+      padding-bottom: 70px;
+    }
+  }
+
+  /* Change 8: lift the Customer Login text so it sits on the same line as the padlock and Get in touch.
+     Only the text span moves, so the padlock stays put. Adjust -3px to taste (-4px lifts more, -2px less). */
+  .header-actions .login-label { display: block; transform: translateY(-3px); }
+
+  /* Change 9: two-line menu icon. When open, the two lines form the cross.
+     Cross offset = half of (line height 3px + gap). Desktop gap 7px -> 5px; mobile gap 6px -> 4.5px. */
+  .menu-btn { gap: 7px; }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+  @media (max-width: 760px) {
+    .menu-btn { gap: 6px; }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-4.5px) rotate(-45deg); }
+  }
+
+  /* Change 10: stop sideways scrolling on phones.
+     Cause: the soft spotlight behind the hero logo (.hero .wrap::before) is 130vw wide on phones and
+     poked out past the right edge of the screen, which made the page (and the fixed banner) pannable.
+     The hero now clips anything that pokes out sideways; desktop is unaffected. */
+  .hero { overflow-x: clip; }
+  .site-header { max-width: 100%; }
+
+  /* Change 11: phone-only banner text alignment.
+     The desktop nudges (-3px login text, +4px bottom padding on Get in touch) were tuned for the
+     bigger desktop font, so on phones the text sat slightly high. These smaller nudges centre it. */
+  @media (max-width: 760px) {
+    .header-actions .login-label { transform: translateY(-1px); }
+    .header-actions .login-btn { padding-bottom: 0; }
+    .header-actions > .btn { padding-bottom: 2px; }
+  }
+
+  /* Change 13: no spotlight/backlight behind the hero logo (the corner marks keep their fade-in). */
+  .hero .wrap::before { display: none; }
+
+  /* Change 12: soft section edges instead of hard colour lines.
+     The pale-blue sections (About, How) no longer start/stop on a hard edge:
+     each has a gradient layer (::before) that fades in from the grey page and fades back out again.
+     The layer reaches --g-ext beyond the section so the fade straddles the old boundary.
+     --g-len  = how long (px) each fade is. Bigger = softer, more gradual.
+     --g-top / --g-bot = where the fades sit; the script at the bottom of the page nudges these as you scroll,
+     which is what makes the fades drift slightly against the content. */
+  #about, #how { position: relative; background: transparent; }
+  #about.tinted { background: transparent; }
+  #about, #how { --g-ext: 220px; --g-len: 90px; --g-len-bot: 520px; --g-top: 100px; --g-bot: 100px; }
+
+  /* Change 14: the fade-out at the bottom of About (between "Professionalism..." and "See the difference")
+     was starting too high up the section. A shorter fade length makes it begin lower down.
+     Raise this number to move the start back up; lower it to start even lower. */
+  #about { --g-len-bot: 300px; }
+
+  #about::before, #how::before {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(var(--g-ext) * -1);
+    bottom: calc(var(--g-ext) * -1);
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom,
+      rgba(220, 230, 251, 0) var(--g-top),
+      #DCE6FB calc(var(--g-top) + var(--g-len)),
+      #DCE6FB calc(100% - var(--g-bot) - var(--g-len-bot)),
+      rgba(220, 230, 251, 0) calc(100% - var(--g-bot)));
+  }
+  /* About keeps its gentle fade-in as it scrolls into view */
+  #about::before { opacity: 0; transition: opacity .8s ease; }
+  #about.tinted::before { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { #about::before { transition: none; } }
 </style>
 </head>
 <body>
 
-<header>
+<div class="scroll-cue" id="scroll-cue" aria-hidden="true">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 9l7 7 7-7"/>
+  </svg>
+</div>
+
+<div class="opening-stage" id="opening-stage">
+<header class="site-header is-hidden" id="site-header">
   <div class="wrap">
-    <a href="index.html"><img src="LOGO%20HERO.png" alt="Logo Hero"></a>
-    <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">Get in touch</a>
+    <img src="LOGO%20HERO.png" alt="Logo Hero Icon">
+    <div class="header-actions">
+      <a class="login-btn" href="/client-login" aria-label="Customer login area">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+          <rect x="4.5" y="10" width="15" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="login-label">Customer Login</span>
+      </a>
+      <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20Enquiry">Get in touch</a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+          <span></span><span></span>
+        </button>
+        <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
+          <div class="menu-group">
+            <a href="#examples">Before/After Examples</a>
+            <a href="#how">Process</a>
+            <a href="#pricing">Pricing</a>
+          </div>
+          <div class="menu-group"><a href="/client-login">Customer Area</a></div>
+          <div class="menu-group"><a href="/privacy-notice">Privacy Policy</a></div>
+          <div class="menu-group"><a href="#contact">Contact</a></div>
+        </nav>
+      </div>
+    </div>
   </div>
 </header>
-
-<main>
-  <div class="wrap">
-    <a class="back" href="index.html#pricing">&larr; Back to Home Page</a>
-
-    <div class="price">
-      <a class="btn upgrade" href="/logoplusorder">Upgrade to Logo+</a>
-      <h3>Logo</h3>
-      <div class="amount">£150</div>
-      <ul>
-        <li>Your logo, refined</li>
-        <li>Available with any or multiple backgrounds</li>
-        <li>Provided in any or multiple formats</li>
-        <li>High-resolution files, ready to use</li>
-        <li>Full ownership of the design</li>
-        <li>Yours to keep</li>
-      </ul>
-    </div>
-
-    <div class="eyebrow"></div>
-    <h1>Let's get the ball rolling</h1>
-    <p class="lead">Fill in your details and we'll be in touch to get started. 
-      We'll email to ask for a copy of the logo you're using at the moment, even if it's scribbled on a napkin or doodled on Microsoft Paint, it doesn't matter.</p>
-
-    <div class="card">
-      <div class="package" id="package">
-        <div class="package-head">Your choice: <span id="package-name"></span></div>
-        <ul id="package-list"></ul>
+  <div class="opening-scene" id="opening-scene">
+  <span class="crop tl" aria-hidden="true"></span>
+  <span class="crop tr" aria-hidden="true"></span>
+  <span class="crop bl" aria-hidden="true"></span>
+  <span class="crop br" aria-hidden="true"></span>
+  <div class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <h1>Your vision, <span>sharpened.</span></h1>
+        <p>Every brand starts with a vision.</p>
+        <p>Logo Hero simply helps you on your branding journey.</p>
+        <p>We enhance the vision you've already created for a fraction of the price of engaging with a design agency.</p>
       </div>
-
-      <form id="order-form" action="https://formspree.io/f/mljgygzg" method="POST">
-        <input type="hidden" name="package" id="package-field" value="Not specified">
-
-        <div class="field">
-          <label for="package-requested">Package Requested</label>
-          <input type="text" id="package-requested" name="package_requested" value="Logo Only" readonly aria-readonly="true">
-        </div>
-
-        <div class="field">
-          <label for="business">Business Name</label>
-          <input type="text" id="business" name="business_name" autocomplete="organization" required>
-        </div>
-
-        <div class="field">
-          <label for="contact">Contact Name</label>
-          <input type="text" id="contact" name="contact_name" autocomplete="name" required>
-        </div>
-
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email" autocomplete="email" required>
-        </div>
-
-        <div class="field">
-          <label for="business-website">Website</label>
-          <input type="text" id="business-website" name="website" inputmode="url" autocomplete="url" placeholder="e.g. www.yourbusiness.co.uk">
-        </div>
-
-        <!-- Spam trap: real people never see or fill this in -->
-        <div class="hp" aria-hidden="true">
-          <label for="website">Leave this empty</label>
-          <input type="text" id="website" name="_gotcha" tabindex="-1" autocomplete="off">
-        </div>
-
-        <button class="btn" type="submit" id="submit">Continue to payment</button>
-        <div class="status" id="status" role="status" aria-live="polite"></div>
-        <p class="fine">We'll only use your details to process your order and get in touch. See our <a href="/privacy-notice">privacy notice</a>.</p>
-      </form>
-
-      <div id="pay" hidden>
-        <h2 class="pay-title">Payment</h2>
-        <div id="checkout-form"></div>
-        <div class="status error" id="pay-status" role="alert"></div>
-        <p class="fine"><button class="linkbtn" type="button" id="change-details">Change my details</button></p>
-      </div>
-
-      <div class="success" id="success" role="status" aria-live="polite">
-        <h2>Payment received. Thank you!</h2>
-        <p>We've got your payment and your details, and will be in touch shortly to get started. A receipt is on its way to your email.</p>
-      </div>
+      <img id="hero-logo-target" src="LogoHero2.png" alt="Logo Hero logo">
     </div>
   </div>
+  <img class="hero-logo-flight" id="hero-logo-flight" src="LogoHero2.png" alt="" aria-hidden="true">
+  </div>
+</div>
+
+<main>
+  <section id="about">
+    <div class="wrap about">
+      <h2>Professionalism your business deserves</h2>
+      <p>You've already done the hard part; you had the idea, you built the business and you created a brand to match.</p>
+      <p>We don't replace your identity, we build on it.</p>
+      <p>Logo Hero sharpens the logo you already have, refining the shapes, balance and finish so it looks as professional as the business behind it. It's a way to take the next step on your branding journey, for a fraction of the price of engaging with a design agency.</p>
+    </div>
+  </section>
+
+  <section id="examples">
+    <div class="wrap">
+      <h2>See the difference</h2>
+      <p class="examples-sub">Hover to see the logo enhanced</p>
+    </div>
+    <div class="marquee" id="marquee" aria-label="Examples of logos before and after Logo Hero">
+      <div class="track" id="track"></div>
+    </div>
+  </section>
+
+  <section class="soft" id="how">
+    <div class="wrap">
+      <h2>Same logo. Sharper result.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="n">1</div>
+          <h3>Send us yours</h3>
+          <p>We work from the logo you already use, so it still looks like your business.</p>
+        </div>
+        <div class="step">
+          <div class="n">2</div>
+          <h3>We refine it</h3>
+          <p>Spacing, proportions, alignment, balance and finish are tidied so it holds up on your website, socials and signage.</p>
+        </div>
+        <div class="step">
+          <div class="n">3</div>
+          <h3>You use it</h3>
+          <p>Get print-ready, high-resolution files, plus matching email signatures and LinkedIn banners if you'd like them.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing">
+    <div class="wrap">
+      <h2>Simple, fixed prices</h2>
+      <div class="prices">
+        <div class="price">
+          <h3>Logo</h3>
+          <div class="amount">£150</div>
+          <ul>
+            <li>Your logo, refined</li>
+            <li>Available with any background</li>
+            <li>Provided in any or multiple formats</li>
+            <li>High-resolution files, ready to use</li>
+            <li>Yours to keep</li>
+          </ul>
+          <a class="btn ghost" href="/logo-order">Choose Logo</a>
+        </div>
+        <div class="price featured">
+          <h3>Logo+</h3>
+          <div class="amount">£225</div>
+          <ul>
+            <li>Everything in Logo</li>
+            <li class="plus-item">PLUS...</li>
+            <li>Favicon</li>
+            <li>Email signatures for up to 10 employees</li>
+            <li>Covers any new recruits over the next 3 months</li>
+            <li>LinkedIn banners</li>
+            <li>Any other social media profile pictures or headers</li>
+            <li>Yours to keep</li>
+          </ul>
+          <a class="btn" href="/logoplusorder">Choose Logo+</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="soft contact" id="contact">
+    <div class="wrap">
+      <h2>Let's sharpen yours</h2>
+      <p>Send us your current logo, we'll enhance it.</p>
+      <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">branding@logohero.co.uk</a>
+    </div>
+  </section>
 </main>
 
 <footer>
   <div class="wrap">
-    <div>© <span id="y">2026</span> Logo Hero · <a href="/privacy-notice">Privacy notice</a></div>
+    <div class="f-left"><span class="f-copy">© <span id="y">2026</span> Logo Hero</span><span class="f-sep"> · </span><a href="/privacy-notice">Privacy notice</a></div>
     <div><a href="mailto:branding@logohero.co.uk">branding@logohero.co.uk</a></div>
   </div>
 </footer>
@@ -224,157 +810,604 @@
 <script>
 document.getElementById('y').textContent = new Date().getFullYear();
 
-// Show which package was chosen (from the link on the pricing page)
-const packages = {
-  'logo': {
-    label: 'Logo (£150)',
-    items: [
-      'Your logo, refined',
-      'High-resolution files, ready to use',
-      'Yours to keep'
-    ]
-  },
-  'logo-plus': {
-    label: 'Logo+ (£225)',
-    items: [
-      'Everything in Logo',
-      'Email signatures for up to 10 employees',
-      'Covers any new recruits over the next 3 months',
-      'LinkedIn banners',
-      'Yours to keep'
-    ]
+const openingStage = document.getElementById('opening-stage');
+const openingScene = document.getElementById('opening-scene');
+const flightLogo = document.getElementById('hero-logo-flight');
+const targetLogo = document.getElementById('hero-logo-target');
+const openingHeader = document.getElementById('site-header');
+const scrollCue = document.getElementById('scroll-cue');
+let previousScrollY = window.scrollY;
+let scrollingUp = false;
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (Math.abs(y - previousScrollY) > 2) {
+    scrollingUp = y < previousScrollY;
+    // Any real scrolling hands the banner back to its normal show/hide behaviour.
+    openingHeader.classList.remove('banner-prep', 'banner-fade');
+    const hideAtTop = !openingDone;
+    openingHeader.classList.toggle('is-hidden', (hideAtTop && y <= 20) || !scrollingUp && (hideAtTop || y > 20));
+    openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
+    previousScrollY = y;
   }
-};
-const chosen = packages[new URLSearchParams(location.search).get('package')];
-if (chosen) {
-  document.getElementById('package-name').textContent = chosen.label;
-  const list = document.getElementById('package-list');
-  chosen.items.forEach((text) => {
-    const li = document.createElement('li');
-    li.textContent = text;
-    list.appendChild(li);
-  });
-  document.getElementById('package').classList.add('show');
-  document.getElementById('package-field').value = chosen.label;
+}, { passive: true });
+const openingCopy = openingScene.querySelector('.hero-copy');
+const reduceOpeningMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
+
+let openingFinished = false;
+let openingDone = false;
+
+// The top banner fades into view this long after the logo animation finishes.
+const BANNER_DELAY = 750;
+let bannerTimer = 0;
+function scheduleBannerFade() {
+  clearTimeout(bannerTimer);
+  bannerTimer = setTimeout(() => {
+    if (openingDone || !openingMetrics) return;
+    // Only if the visitor is still sitting at the end of the animation.
+    const endY = openingMetrics.stageTop + openingMetrics.travel;
+    if (window.scrollY > endY + 40) return;
+    // Start fully transparent (and in place), then fade up to full opacity.
+    openingHeader.classList.add('banner-prep');
+    void openingHeader.offsetWidth;
+    openingHeader.classList.add('banner-fade');
+  }, BANNER_DELAY);
 }
 
-// ---- Order flow: details (Formspree) -> payment (Stripe embedded form via Cloudflare Worker) ----
-const WORKER_URL = 'https://logohero-checkout.branding-966.workers.dev/';
-const PUBLISHABLE_KEY = 'pk_live_51UVU2wB8ftWaq73yRHBtWZHTdhrSX6aKOrxFCrSpqEbAzpyncDcdTyDvicbFhWtlX7V30gHpPLaSjZyPOcL67Q8z00UsZMMHcJ';
-const PLAN = 'logo';   // 'logo' or 'logoplus', price is set server-side
+function clamp01(value) { return Math.max(0, Math.min(1, value)); }
+function easeInOut(value) { return value < 0.5 ? 4 * value * value * value : 1 - Math.pow(-2 * value + 2, 3) / 2; }
 
-const form = document.getElementById('order-form');
-const statusEl = document.getElementById('status');
-const submitBtn = document.getElementById('submit');
-const payBox = document.getElementById('pay');
-const payStatus = document.getElementById('pay-status');
-const detailFields = ['business', 'contact', 'email', 'business-website'].map((id) => document.getElementById(id));
-let stripe = null;
-let leadSent = false;   // so a retry doesn't send the same details to Formspree twice
-
-function setLocked(lock) { detailFields.forEach((f) => { f.readOnly = lock; }); }
-
-function showPaid() {
-  form.style.display = 'none';
-  payBox.hidden = true;
-  document.getElementById('package').classList.remove('show');
-  document.querySelector('.lead').classList.add('done');   // shrink and fade the intro text
-  document.querySelector('h1').classList.add('done');
-  const done = document.getElementById('success');
-  done.classList.add('show');
-  done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+const SLOW_START_1 = 0.85;
+const SLOW_START_2 = 0.95;
+const SLOW_SPEED_1 = 0.5;
+const SLOW_SPEED_2 = 0.25;
+function slowEnd(p) {
+  const a = SLOW_START_1, b = SLOW_START_2;
+  const total = a + (b - a) * SLOW_SPEED_1 + (1 - b) * SLOW_SPEED_2;
+  let raw;
+  if (p < a) raw = p;
+  else if (p < b) raw = a + (p - a) * SLOW_SPEED_1;
+  else raw = a + (b - a) * SLOW_SPEED_1 + (p - b) * SLOW_SPEED_2;
+  return raw / total;
 }
 
-async function mountPayment(clientSecret) {
-  stripe = stripe || Stripe(PUBLISHABLE_KEY);
-  const checkout = stripe.initCheckoutFormSdk({
-    clientSecret,
-    appearance: { theme: 'flat', variables: { colorPrimary: '#0A45E0' } }
-  });
-  const paymentForm = checkout.createForm({ layout: 'expanded' });
-  paymentForm.mount('#checkout-form');
+let openingMetrics = null;
+function measureOpening() {
+  if (reduceOpeningMotion || openingDone) return;
+  const sceneRect = openingScene.getBoundingClientRect();
+  const stageRect = openingStage.getBoundingClientRect();
+  const targetRect = targetLogo.getBoundingClientRect();
+  const viewWidth = window.innerWidth;
+  const viewHeight = window.innerHeight;
+  const ratio = targetLogo.naturalWidth && targetLogo.naturalHeight
+    ? targetLogo.naturalWidth / targetLogo.naturalHeight
+    : targetRect.width / targetRect.height;
+  const fitWidth = Math.min(viewWidth, viewHeight * ratio);
+  const fitHeight = fitWidth / ratio;
+  // Phones: 1.75 (unchanged). Desktop: 0.82 so the big logo has breathing room above and below it.
+  // Lower the 0.82 for more space around it, raise it (towards 1) for less.
+  const openingScale = mobileOpeningQuery.matches ? 1.75 : 0.82;
+  const baseWidth = fitWidth * openingScale;
+  const baseHeight = fitHeight * openingScale;
 
-  const loaded = await checkout.loadActions();
-  if (loaded.type !== 'success') {
-    payStatus.textContent = 'Sorry, the payment form could not load. Please refresh and try again.';
+  flightLogo.style.width = baseWidth + 'px';
+  flightLogo.style.height = baseHeight + 'px';
+  openingMetrics = {
+    stageTop: stageRect.top + window.scrollY,
+    travel: Math.max(1, openingStage.offsetHeight - viewHeight - viewHeight * 0.12),
+    startLeft: viewWidth * 0.5 - baseWidth * 0.76,
+    startTop: mobileOpeningQuery.matches
+      ? viewHeight * 0.5 - baseHeight * 0.46
+      : (viewHeight - baseHeight) * 0.5,   // centred using the (scaled) logo height, so desktop gets a gap at the top
+    baseWidth,
+    baseHeight,
+    endLeft: targetRect.left - sceneRect.left,
+    endTop: targetRect.top - sceneRect.top,
+    endScaleX: targetRect.width / baseWidth,
+    endScaleY: targetRect.height / baseHeight
+  };
+}
+
+function endOpening() {
+  openingDone = true;
+  clearTimeout(bannerTimer);
+  openingHeader.classList.remove('banner-prep', 'banner-fade');
+  document.documentElement.classList.add('opening-done');
+  flightLogo.style.display = 'none';
+  targetLogo.style.opacity = 1;
+  openingCopy.style.opacity = 1;
+  openingScene.style.setProperty('--glow', 1);
+  document.documentElement.style.setProperty('--dots', 1);
+  openingHeader.style.opacity = 1;
+  openingHeader.classList.remove('is-hidden');
+  openingHeader.classList.remove('is-revealed');
+  if (scrollCue) scrollCue.style.opacity = 0;
+  previousScrollY = 0;
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  if (window.__syncSmoothScroll) window.__syncSmoothScroll();
+}
+
+function updateOpening() {
+  if (reduceOpeningMotion || !openingMetrics || openingDone) return;
+  const m = openingMetrics;
+  const progress = clamp01((window.scrollY - m.stageTop) / m.travel);
+  if (progress >= 1) {
+    if (!openingFinished) scheduleBannerFade();
+    openingFinished = true;
+  } else if (openingFinished && progress < 0.995) {
+    endOpening();
     return;
   }
-  paymentForm.on('confirm', async (event) => {
-    payStatus.textContent = '';
-    try {
-      // 'if_required' keeps card payments on this page; only redirect-based methods leave the site
-      const out = await loaded.actions.confirm({ formConfirmEvent: event, redirect: 'if_required' });
-      if (out && out.type === 'error') {
-        payStatus.textContent = (out.error && out.error.message) || 'Payment did not go through. Please check your details and try again.';
-      } else {
-        showPaid();
-      }
-    } catch (err) {
-      console.error('Payment confirmation error:', err);
-      payStatus.textContent = 'Payment did not go through. Please check your details and try again.';
-    }
-  });
+
+  // Scroll-down arrow: fully visible at the top, then fades out over the
+  // first ~40% of the opening animation (increase 0.4 to keep it longer).
+  if (scrollCue) scrollCue.style.opacity = 1 - clamp01(progress / 0.4);
+
+  const eased = easeInOut(slowEnd(progress));
+  const mix = (a, b) => a + (b - a) * eased;
+  const x = mix(m.startLeft, m.endLeft);
+  const y = mix(m.startTop, m.endTop);
+  const scaleX = mix(1, m.endScaleX);
+  const scaleY = mix(1, m.endScaleY);
+  flightLogo.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) scale(' + scaleX + ',' + scaleY + ')';
+
+  const reveal = clamp01((progress - 0.70) / 0.25);
+  openingHeader.style.opacity = window.scrollY <= 20 ? 0 : (scrollingUp ? 1 : reveal);
+  openingCopy.style.opacity = reveal;
+  // The hero spotlight and corner marks fade in alongside the hero copy.
+  openingScene.style.setProperty('--glow', reveal);
+  // The dot grid stays hidden while the logo is full screen, then fades in as it shrinks.
+  document.documentElement.style.setProperty('--dots', clamp01((progress - 0.1) / 0.5));
+
+  const handoff = clamp01((progress - 0.975) / 0.025);
+  flightLogo.style.opacity = 1 - handoff;
+  targetLogo.style.opacity = handoff;
 }
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  statusEl.textContent = '';
-  statusEl.className = 'status';
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'One moment...';
-  try {
-    // 1. Send the details to Formspree (once per set of details)
-    if (!leadSent) {
-      const res = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!res.ok) throw new Error('Details request failed');
-      leadSent = true;
-    }
-    // 2. Ask the Worker to start a payment, then show the card form
-    const r = await fetch(WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        plan: PLAN,
-        name: document.getElementById('contact').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        business: document.getElementById('business').value.trim()
-      })
-    });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok || !data.client_secret) throw new Error('Payment request failed');
-
-    setLocked(true);
-    submitBtn.hidden = true;
-    payBox.hidden = false;
-    payBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    await mountPayment(data.client_secret);
-  } catch (err) {
-    console.error(err);
-    payBox.hidden = true;
-    setLocked(false);
-    submitBtn.hidden = false;
-    statusEl.textContent = 'Sorry, something happened. Please try again, or email branding@logohero.co.uk.';
-    statusEl.className = 'status error';
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Continue to payment';
+if (!reduceOpeningMotion) {
+  let openingFrame = 0;
+  const queueOpeningUpdate = () => {
+    if (openingFrame) return;
+    openingFrame = requestAnimationFrame(() => { openingFrame = 0; updateOpening(); });
+  };
+  window.addEventListener('scroll', queueOpeningUpdate, { passive: true });
+  window.addEventListener('resize', () => { measureOpening(); queueOpeningUpdate(); });
+  targetLogo.addEventListener('load', () => { measureOpening(); queueOpeningUpdate(); });
+  // Web fonts change the headline height (and so the logo's final position): re-measure once they've loaded.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => { measureOpening(); queueOpeningUpdate(); });
   }
-});
+  measureOpening();
+  updateOpening();
+}
 
-document.getElementById('change-details').addEventListener('click', () => {
-  payBox.hidden = true;
-  document.getElementById('checkout-form').innerHTML = '';
-  payStatus.textContent = '';
-  setLocked(false);
-  leadSent = false;
-  submitBtn.hidden = false;
-  submitBtn.disabled = false;
-  submitBtn.textContent = 'Continue to payment';
-  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-});
+/* ---------- Fixed-speed opening animation ----------
+   While the opening animation is in progress, any scroll gesture (wheel, swipe,
+   keyboard) is intercepted and replaced with a timed scroll, so the logo always
+   shrinks at the same pace no matter how hard or fast the visitor scrolls.
+   Scrolling down plays the whole shrink; scrolling up (before it has finished)
+   plays it back to the start. */
+(function () {
+  if (reduceOpeningMotion) return;
+
+  const FULL_DURATION = 1500;  // ms for the complete shrink (change to taste)
+  const MIN_DURATION = 350;    // ms floor when only a short distance remains
+  const TOUCH_THRESHOLD = 10;  // px of finger travel before a swipe counts
+
+  let animating = false;
+  let animFrame = 0;
+  let touchStartY = null;
+
+  function endY() {
+    return openingMetrics ? Math.ceil(openingMetrics.stageTop + openingMetrics.travel) + 1 : 0;
+  }
+  // True while the page is inside the pinned opening animation.
+  function inZone() {
+    if (openingDone || openingFinished || !openingMetrics) return false;
+    return window.scrollY < endY() - 2;
+  }
+
+  function playTo(targetY) {
+    if (animating) return;
+    const startY = window.scrollY;
+    const dist = targetY - startY;
+    if (Math.abs(dist) < 1) return;
+    const travel = Math.max(1, openingMetrics.travel);
+    const duration = Math.max(MIN_DURATION, FULL_DURATION * Math.abs(dist) / travel);
+    const t0 = performance.now();
+    animating = true;
+    function step(now) {
+      const t = Math.min(1, (now - t0) / duration);
+      window.scrollTo({ top: startY + dist * t, left: 0, behavior: 'instant' });
+      if (t < 1) {
+        animFrame = requestAnimationFrame(step);
+      } else {
+        animating = false;
+      }
+    }
+    animFrame = requestAnimationFrame(step);
+  }
+
+  function go(down) {
+    if (down) playTo(endY());
+    else if (window.scrollY > 0) playTo(0);
+  }
+
+  window.addEventListener('wheel', (e) => {
+    if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (!inZone() && !animating) return;
+    e.preventDefault();
+    if (!animating) go(e.deltaY > 0);
+  }, { passive: false });
+
+  window.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches.length === 1 ? e.touches[0].clientY : null;
+  }, { passive: true });
+  window.addEventListener('touchmove', (e) => {
+    if (!inZone() && !animating) return;
+    if (e.cancelable) e.preventDefault();
+    if (animating || touchStartY === null) return;
+    const dy = touchStartY - e.touches[0].clientY;
+    if (Math.abs(dy) < TOUCH_THRESHOLD) return;
+    touchStartY = null;
+    go(dy > 0);
+  }, { passive: false });
+  window.addEventListener('touchend', () => { touchStartY = null; }, { passive: true });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) return;
+    const downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
+    const upKeys = ['ArrowUp', 'PageUp', 'Home'];
+    const isDown = downKeys.indexOf(e.key) !== -1 && !(e.key === ' ' && e.shiftKey);
+    const isUp = upKeys.indexOf(e.key) !== -1 || (e.key === ' ' && e.shiftKey);
+    if (!isDown && !isUp) return;
+    if (!inZone() && !animating) return;
+    e.preventDefault();
+    if (!animating) go(isDown);
+  });
+})();
+
+const revealTargets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
+const revealObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('in-view');
+    observer.unobserve(entry.target);
+  });
+}, { threshold: 0.15 });
+revealTargets.forEach((el) => revealObserver.observe(el));
+
+const aboutSection = document.getElementById('about');
+const aboutTintObserver = new IntersectionObserver((entries, observer) => {
+  if (entries.some((entry) => entry.isIntersecting)) {
+    aboutSection.classList.add('tinted');
+    observer.disconnect();
+  }
+}, { threshold: 0.05 });
+aboutTintObserver.observe(aboutSection);
+
+const EXAMPLES = [
+  { name: 'Example 1', before: 'HEW%20Before.png', after: 'HEW%20After.png' },
+  { name: 'Example 2', before: 'Knockd-Before.png', after: 'Knockd-After.png' },
+  { name: 'Example 3', before: 'TCG-Before.png', after: 'TCG-After.png' },
+  { name: 'Example 1', before: 'Emmasphere-Before.png', after: 'Emmasphere-After.png' },
+  { name: 'Example 2', before: 'ThePlug-Before.png', after: 'ThePlug-After.png' },
+  { name: 'Example 3', before: 'ALRS-Before.png', after: 'ALRS-After.png' }
+];
+
+const SPEED = 58;
+const COAST_MS = 220;
+
+(function () {
+  const marquee = document.getElementById('marquee');
+  const track = document.getElementById('track');
+  if (!marquee || !track || !EXAMPLES.length) return;
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
+  let vel = SPEED, dragging = false, moved = false;
+
+  const touchMode = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const PIN_MS = 4000;
+  let pinned = null, pinTimer;
+  if (touchMode) {
+    const sub = document.querySelector('.examples-sub');
+    if (sub) sub.textContent = 'Tap a logo to see it enhanced';
+    marquee.classList.add('touch');
+  }
+
+  function makeCard(ex, decorative) {
+    const d = document.createElement('div');
+    d.className = 'ex';
+    if (decorative) d.setAttribute('aria-hidden', 'true');
+    else d.tabIndex = 0;
+    d.innerHTML =
+      '<img class="before" src="' + ex.before + '" alt="' + ex.name + ' logo before" loading="eager" draggable="false">' +
+      '<img class="after" src="' + ex.after + '" alt="' + ex.name + ' logo after" loading="eager" draggable="false">' +
+      '<span class="tag"></span>';
+    return d;
+  }
+
+  function build() {
+    track.innerHTML = '';
+    pinned = null;
+    offset = 0;
+    const vw = marquee.clientWidth;
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    const cardW = parseFloat(getComputedStyle(marquee).getPropertyValue('--cardw')) || 280;
+    const unit = cardW + gap;
+    let count = EXAMPLES.length;
+    while (count * unit < vw * 1.2) count += EXAMPLES.length;
+    setWidth = count * unit;
+
+    for (let pass = 0; pass < 2; pass++) {
+      for (let i = 0; i < count; i++) {
+        track.appendChild(makeCard(EXAMPLES[i % EXAMPLES.length], pass === 1));
+      }
+    }
+    items = Array.from(track.children).map(el => ({ el }));
+    track.style.transform = 'translate3d(0,0,0)';
+  }
+
+  function wrap() { offset = ((offset % setWidth) + setWidth) % setWidth; }
+
+  function frame(t) {
+    const dt = Math.min(t - (last || t), 50);
+    last = t;
+    if (!dragging) {
+      vel += (SPEED - vel) * (1 - Math.exp(-dt / COAST_MS));
+      offset += vel * dt / 1000;
+      wrap();
+    }
+    track.style.transform = 'translate3d(' + (-offset) + 'px,0,0)';
+    items.forEach(it => {
+      const r = it.el.getBoundingClientRect();
+      const over = touchMode
+        ? it.el === pinned
+        : (mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom);
+      it.el.classList.toggle('is-after', over);
+    });
+    rafId = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    cancelAnimationFrame(rafId);
+    build();
+    if (reduce) { marquee.classList.add('static'); return; }
+    marquee.classList.remove('static');
+    last = 0;
+    rafId = requestAnimationFrame(frame);
+  }
+
+  window.addEventListener('mousemove', e => { if (!touchMode) { mx = e.clientX; my = e.clientY; } });
+
+  track.addEventListener('click', e => {
+    if (!touchMode || moved) return;
+    const card = e.target.closest('.ex');
+    if (!card) return;
+    pinned = (pinned === card) ? null : card;
+    clearTimeout(pinTimer);
+    if (pinned) pinTimer = setTimeout(() => { pinned = null; applyPinned(); }, PIN_MS);
+    applyPinned();
+  });
+  function applyPinned() {
+    items.forEach(it => it.el.classList.toggle('is-after', touchMode && it.el === pinned));
+  }
+  document.addEventListener('mouseleave', () => { mx = my = -1; });
+
+  if (touchMode && !reduce) {
+    let pid = null, startX = 0, lastX = 0, samples = [];
+    marquee.addEventListener('pointerdown', e => {
+      if (e.pointerType === 'mouse' || dragging) return;
+      pid = e.pointerId; dragging = true; moved = false;
+      startX = lastX = e.clientX;
+      samples = [{ x: e.clientX, t: e.timeStamp }];
+    });
+    marquee.addEventListener('pointermove', e => {
+      if (!dragging || e.pointerId !== pid) return;
+      if (Math.abs(e.clientX - startX) > 8) moved = true;
+      offset -= e.clientX - lastX; lastX = e.clientX;
+      wrap();
+      samples.push({ x: e.clientX, t: e.timeStamp });
+      while (samples.length > 2 && e.timeStamp - samples[0].t > 100) samples.shift();
+    });
+    const release = (e, cancelled) => {
+      if (!dragging || e.pointerId !== pid) return;
+      dragging = false;
+      let v = 0;
+      const n = samples.length;
+      if (!cancelled && n > 1 && e.timeStamp - samples[n - 1].t < 80) {
+        const span = samples[n - 1].t - samples[0].t;
+        if (span > 0) v = -(samples[n - 1].x - samples[0].x) / span * 1000;
+      }
+      vel = Math.max(-2000, Math.min(2000, v));
+    };
+    marquee.addEventListener('pointerup', e => release(e, false));
+    marquee.addEventListener('pointercancel', e => release(e, true));
+  }
+
+  let visible = true;
+  new IntersectionObserver(es => {
+    visible = es[0].isIntersecting;
+    if (reduce) return;
+    if (visible) { last = 0; cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame); }
+    else cancelAnimationFrame(rafId);
+  }).observe(marquee);
+
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
+  start();
+})();
+</script>
+
+<script>
+(function () {
+  const contact = document.getElementById('contact');
+  const footer = document.querySelector('footer');
+  const pricingWrap = document.querySelector('#pricing .wrap');
+  if (!contact || !footer) return;
+
+  function setFooterHeight() {
+    document.documentElement.style.setProperty('--footer-h', footer.offsetHeight + 'px');
+  }
+  setFooterHeight();
+  window.addEventListener('resize', setFooterHeight);
+  window.addEventListener('load', setFooterHeight);
+
+  if (!pricingWrap || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const FADE_START = 0.9;
+  const FADE_END = 0.3;
+  let frame = 0;
+  function update() {
+    frame = 0;
+    const vh = window.innerHeight;
+    const top = contact.getBoundingClientRect().top / vh;
+    const t = Math.max(0, Math.min(1, (FADE_START - top) / (FADE_START - FADE_END)));
+    pricingWrap.style.setProperty('--pricing-fade', String(1 - t));
+    pricingWrap.style.pointerEvents = t > 0.6 ? 'none' : '';
+  }
+  function queue() { if (!frame) frame = requestAnimationFrame(update); }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  update();
+})();
+</script>
+
+<script>
+(function () {
+  const btn = document.getElementById('menu-btn');
+  const panel = document.getElementById('menu-panel');
+  if (!btn || !panel) return;
+  function isOpen() { return panel.classList.contains('open'); }
+  function setOpen(open) {
+    panel.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!isOpen()); });
+  panel.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('click', function (e) { if (isOpen() && !panel.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
+  });
+  window.addEventListener('scroll', function () { if (isOpen()) setOpen(false); }, { passive: true });
+})();
+</script>
+
+<script>
+(function () {
+  const EASE = 0.12;
+  const SLOW_ZONE = 0.22;
+  const SLOW_MIN = 0.6;
+
+  const noHover = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (noHover || reduce) return;
+
+  const edges = [];
+  function measureEdges() {
+    edges.length = 0;
+    document.querySelectorAll('main > section, footer').forEach(function (el) {
+      edges.push(el.getBoundingClientRect().top + window.scrollY);
+    });
+  }
+  measureEdges();
+  window.addEventListener('load', measureEdges);
+  window.addEventListener('resize', measureEdges);
+
+  let target = window.scrollY, current = window.scrollY, running = false;
+  const smooth = function (t) { return t * t * (3 - 2 * t); };
+
+  window.__syncSmoothScroll = function () {
+    measureEdges();
+    current = target = window.scrollY;
+  };
+
+  function factor(y) {
+    const zone = window.innerHeight * SLOW_ZONE;
+    let d = Infinity;
+    for (let i = 0; i < edges.length; i++) d = Math.min(d, Math.abs(y - edges[i]));
+    if (d >= zone) return 1;
+    return SLOW_MIN + (1 - SLOW_MIN) * smooth(d / zone);
+  }
+
+  function tick() {
+    const diff = target - current;
+    if (Math.abs(diff) < 0.4) {
+      current = target;
+      window.scrollTo({ top: current, behavior: 'instant' });
+      running = false;
+      return;
+    }
+    current += diff * EASE;
+    window.scrollTo({ top: current, behavior: 'instant' });
+    requestAnimationFrame(tick);
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!running || Math.abs(window.scrollY - current) > 2) {
+      current = target = window.scrollY;
+    }
+  }, { passive: true });
+
+  window.addEventListener('wheel', function (e) {
+    if (e.ctrlKey || e.defaultPrevented) return;
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    let dy = e.deltaY;
+    if (e.deltaMode === 1) dy *= 16;
+    else if (e.deltaMode === 2) dy *= window.innerHeight;
+    if (!running) current = target = window.scrollY;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    target = Math.max(0, Math.min(max, target + dy * factor(target)));
+    if (!running) { running = true; requestAnimationFrame(tick); }
+  }, { passive: false });
+})();
+</script>
+
+<script>
+/* Soft section edges that drift with the scroll.
+   Moves the fade positions (--g-top / --g-bot, see "Change 12" in the CSS) a little as each section
+   travels through the screen, so the gradients slide slowly against the content.
+   TRAVEL = the fraction of the screen height a section takes to move its fade from one extreme to the other.
+            Smaller = faster, more obvious drift. Larger = calmer.
+   topMin / topMax = the range (px) the top fade drifts between. Higher numbers = the blue starts LOWER down.
+   botMax = furthest (px) the bottom fade can drift. (Keep topMax at or below 200.)
+   "How" now has topMin 120 / topMax 200, so its blue no longer starts so high up under "See the difference". */
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const TRAVEL = 1.0;
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const blocks = [
+    { el: document.getElementById('about'),   topMin: 120, topMax: 200, botMax: 120 },
+    { el: document.getElementById('how'),     topMin: 120, topMax: 200, botMax: 120 }
+  ].filter(b => b.el);
+
+  let frame = 0;
+  function update() {
+    frame = 0;
+    const vh = window.innerHeight;
+    blocks.forEach(b => {
+      const r = b.el.getBoundingClientRect();
+      if (r.bottom < -400 || r.top > vh + 400) return;   // nowhere near the screen
+      const top = b.topMin + clamp((vh - r.top) / (vh * TRAVEL), 0, 1) * (b.topMax - b.topMin);
+      b.el.style.setProperty('--g-top', top.toFixed(1) + 'px');
+      if (b.botMax) {
+        const bot = b.botMax - clamp((vh - r.bottom) / (vh * TRAVEL), 0, 1) * b.botMax;
+        b.el.style.setProperty('--g-bot', bot.toFixed(1) + 'px');
+      }
+    });
+  }
+  function queue() { if (!frame) frame = requestAnimationFrame(update); }
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  window.addEventListener('load', queue);
+  update();
+})();
 </script>
 </body>
 </html>
