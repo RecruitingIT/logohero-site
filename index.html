@@ -629,6 +629,11 @@
   #about.tinted { background: transparent; }
   #about, #how { --g-ext: 220px; --g-len: 90px; --g-len-bot: 520px; --g-top: 100px; --g-bot: 100px; }
 
+  /* Change 14: the fade-out at the bottom of About (between "Professionalism..." and "See the difference")
+     was starting too high up the section. A shorter fade length makes it begin lower down.
+     Raise this number to move the start back up; lower it to start even lower. */
+  #about { --g-len-bot: 300px; }
+
   #about::before, #how::before {
     content: "";
     position: absolute;
@@ -879,6 +884,8 @@ function measureOpening() {
     : targetRect.width / targetRect.height;
   const fitWidth = Math.min(viewWidth, viewHeight * ratio);
   const fitHeight = fitWidth / ratio;
+  // Phones: 1.75 (unchanged). Desktop: 0.82 so the big logo has breathing room above and below it.
+  // Lower the 0.82 for more space around it, raise it (towards 1) for less.
   const openingScale = mobileOpeningQuery.matches ? 1.75 : 0.82;
   const baseWidth = fitWidth * openingScale;
   const baseHeight = fitHeight * openingScale;
@@ -891,7 +898,7 @@ function measureOpening() {
     startLeft: viewWidth * 0.5 - baseWidth * 0.76,
     startTop: mobileOpeningQuery.matches
       ? viewHeight * 0.5 - baseHeight * 0.46
-      : (viewHeight - fitHeight) * 0.5,
+      : (viewHeight - baseHeight) * 0.5,   // centred using the (scaled) logo height, so desktop gets a gap at the top
     baseWidth,
     baseHeight,
     endLeft: targetRect.left - sceneRect.left,
@@ -1367,15 +1374,17 @@ const COAST_MS = 220;
    travels through the screen, so the gradients slide slowly against the content.
    TRAVEL = the fraction of the screen height a section takes to move its fade from one extreme to the other.
             Smaller = faster, more obvious drift. Larger = calmer.
-   topMax / botMax = furthest (px) a fade can drift. Bigger = more obvious. (Keep at or below 200.) */
+   topMin / topMax = the range (px) the top fade drifts between. Higher numbers = the blue starts LOWER down.
+   botMax = furthest (px) the bottom fade can drift. (Keep topMax at or below 200.)
+   "How" now has topMin 120 / topMax 200, so its blue no longer starts so high up under "See the difference". */
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const TRAVEL = 1.0;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const blocks = [
-    { el: document.getElementById('about'),   topMax: 120, botMax: 120 },
-    { el: document.getElementById('how'),     topMax: 120, botMax: 120 }
+    { el: document.getElementById('about'),   topMin: 0,   topMax: 120, botMax: 120 },
+    { el: document.getElementById('how'),     topMin: 120, topMax: 200, botMax: 120 }
   ].filter(b => b.el);
 
   let frame = 0;
@@ -1385,7 +1394,7 @@ const COAST_MS = 220;
     blocks.forEach(b => {
       const r = b.el.getBoundingClientRect();
       if (r.bottom < -400 || r.top > vh + 400) return;   // nowhere near the screen
-      const top = clamp((vh - r.top) / (vh * TRAVEL), 0, 1) * b.topMax;
+      const top = b.topMin + clamp((vh - r.top) / (vh * TRAVEL), 0, 1) * (b.topMax - b.topMin);
       b.el.style.setProperty('--g-top', top.toFixed(1) + 'px');
       if (b.botMax) {
         const bot = b.botMax - clamp((vh - r.bottom) / (vh * TRAVEL), 0, 1) * b.botMax;
