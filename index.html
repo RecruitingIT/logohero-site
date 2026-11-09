@@ -765,9 +765,10 @@
           <div class="amount">£150</div>
           <ul>
             <li>Your logo, refined</li>
-            <li>Available with any background</li>
+            <li>Available with any or multiple background</li>
             <li>Provided in any or multiple formats</li>
             <li>High-resolution files, ready to use</li>
+            <li>Full ownership of design</li>
             <li>Yours to keep</li>
           </ul>
           <a class="btn ghost" href="/logo-order">Choose Logo</a>
@@ -1383,7 +1384,7 @@ const COAST_MS = 220;
   const TRAVEL = 1.0;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const blocks = [
-    { el: document.getElementById('about'),   topMin: 0,   topMax: 120, botMax: 120 },
+    { el: document.getElementById('about'),   topMin: 120, topMax: 200, botMax: 120 },
     { el: document.getElementById('how'),     topMin: 120, topMax: 200, botMax: 120 }
   ].filter(b => b.el);
 
