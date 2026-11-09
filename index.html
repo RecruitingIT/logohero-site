@@ -879,7 +879,7 @@ function measureOpening() {
     : targetRect.width / targetRect.height;
   const fitWidth = Math.min(viewWidth, viewHeight * ratio);
   const fitHeight = fitWidth / ratio;
-  const openingScale = mobileOpeningQuery.matches ? 1.75 : 1;
+  const openingScale = mobileOpeningQuery.matches ? 1.75 : 0.82;
   const baseWidth = fitWidth * openingScale;
   const baseHeight = fitHeight * openingScale;
 
