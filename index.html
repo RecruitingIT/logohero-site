@@ -627,12 +627,12 @@
      which is what makes the fades drift slightly against the content. */
   #about, #how { position: relative; background: transparent; }
   #about.tinted { background: transparent; }
-  #about, #how { --g-ext: 220px; --g-len: 90px; --g-len-bot: 520px; --g-top: 100px; --g-bot: 100px; }
+  #about, #how { --g-ext: 220px; --g-len: 36px; --g-len-bot: 120px; --g-top: 100px; --g-bot: 100px; }
 
   /* Change 14: the fade-out at the bottom of About (between "Professionalism..." and "See the difference")
      was starting too high up the section. A shorter fade length makes it begin lower down.
      Raise this number to move the start back up; lower it to start even lower. */
-  #about { --g-len-bot: 300px; }
+  #about { --g-len-bot: 120px; }
 
   #about::before, #how::before {
     content: "";
@@ -765,10 +765,9 @@
           <div class="amount">£150</div>
           <ul>
             <li>Your logo, refined</li>
-            <li>Available with any or multiple background</li>
+            <li>Available with any background</li>
             <li>Provided in any or multiple formats</li>
             <li>High-resolution files, ready to use</li>
-            <li>Full ownership of design</li>
             <li>Yours to keep</li>
           </ul>
           <a class="btn ghost" href="/logo-order">Choose Logo</a>
@@ -1384,8 +1383,8 @@ const COAST_MS = 220;
   const TRAVEL = 1.0;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const blocks = [
-    { el: document.getElementById('about'),   topMin: 120, topMax: 200, botMax: 120 },
-    { el: document.getElementById('how'),     topMin: 120, topMax: 200, botMax: 120 }
+    { el: document.getElementById('about'),   topMin: 120, topMax: 200, botMax: 120, botBase: 180 },
+    { el: document.getElementById('how'),     topMin: 120, topMax: 200, botMax: 120, botBase: 200 }
   ].filter(b => b.el);
 
   let frame = 0;
@@ -1398,7 +1397,7 @@ const COAST_MS = 220;
       const top = b.topMin + clamp((vh - r.top) / (vh * TRAVEL), 0, 1) * (b.topMax - b.topMin);
       b.el.style.setProperty('--g-top', top.toFixed(1) + 'px');
       if (b.botMax) {
-        const bot = b.botMax - clamp((vh - r.bottom) / (vh * TRAVEL), 0, 1) * b.botMax;
+        const bot = b.botBase + b.botMax - clamp((vh - r.bottom) / (vh * TRAVEL), 0, 1) * b.botMax;
         b.el.style.setProperty('--g-bot', bot.toFixed(1) + 'px');
       }
     });
