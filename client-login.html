@@ -27,10 +27,57 @@
     label { display: block; margin: 0 0 6px; font-size: 19px; font-weight: 700; }
     input { width: 100%; min-height: 52px; margin: 0 0 20px; padding: 11px 14px; border: 1px solid #BFC9DC; border-radius: 9px; background: #fff; color: var(--ink); font: inherit; }
     input:focus { border-color: var(--blue); outline: 3px solid rgba(10, 69, 224, .16); }
-    button { width: 100%; min-height: 54px; margin-top: 4px; border: 2px solid var(--blue); border-radius: 10px; background: var(--blue); color: #fff; font: 700 21px "Darker Grotesque", sans-serif; cursor: pointer; }
-    button:hover { border-color: var(--blue-dark); background: var(--blue-dark); }
+    button[type="submit"] { width: 100%; min-height: 54px; margin-top: 4px; border: 2px solid var(--blue); border-radius: 10px; background: var(--blue); color: #fff; font: 700 21px "Darker Grotesque", sans-serif; cursor: pointer; }
+    button[type="submit"]:hover { border-color: var(--blue-dark); background: var(--blue-dark); }
     .status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 17px; }
     footer { padding: 20px 24px; color: var(--muted); text-align: center; font-size: 17px; }
+
+    /* ---------- Menu button (two lines) + pop-up menu (same as home page) ---------- */
+    .menu-wrap { position: relative; display: flex; align-items: center; }
+    .menu-btn {
+      width: 48px; height: 48px;
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 7px; padding: 0; margin: 0;
+      border: 2px solid var(--line); border-radius: 10px;
+      background: #fff; cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
+    .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+    .menu-btn span {
+      display: block; width: 22px; height: 3px; border-radius: 2px;
+      background: var(--ink);
+      transition: transform .2s ease, opacity .2s ease, background .2s ease;
+    }
+    .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+    .menu-panel {
+      position: absolute; right: 0; top: calc(100% + 14px); z-index: 50;
+      width: 300px; max-width: calc(100vw - 48px);
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: 0 14px 34px rgba(14, 27, 61, .18);
+      padding: 8px;
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+    }
+    .menu-panel.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+    .menu-group { padding: 4px 0; }
+    .menu-group + .menu-group { border-top: 1px solid var(--line); }
+    .menu-panel a {
+      display: block; padding: 12px 14px; border-radius: 8px;
+      color: var(--ink); text-decoration: none; font-size: 22px; font-weight: 700;
+    }
+    .menu-panel a:hover, .menu-panel a:focus-visible { background: var(--soft); color: var(--blue); outline: none; }
+    @media (prefers-reduced-motion: reduce) { .menu-panel, .menu-btn span { transition: none; } }
+
+    @media (max-width: 760px) {
+      .menu-btn { width: 40px; height: 40px; gap: 6px; }
+      .menu-btn span { width: 20px; }
+      .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+      .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4.5px) rotate(-45deg); }
+      .menu-panel a { font-size: 21px; }
+    }
     @media (max-width: 520px) { header img { height: 48px; } .card { padding: 30px 24px; } h1 { font-size: 36px; } }
   </style>
 </head>
@@ -38,7 +85,21 @@
   <header>
     <div class="bar">
       <a href="/" aria-label="Logo Hero home"><img src="/LOGO%20HERO.png" alt="Logo Hero"></a>
-      <a class="back" href="/">Back to website</a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+          <span></span><span></span>
+        </button>
+        <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
+          <div class="menu-group">
+            <a href="/">Home</a>
+            <a href="/#examples">Before/After Examples</a>
+            <a href="/#how">Process</a>
+            <a href="/#pricing">Pricing</a>
+          </div>
+          <div class="menu-group"><a href="/privacy-notice">Privacy Policy</a></div>
+          <div class="menu-group"><a href="/#contact">Contact</a></div>
+        </nav>
+      </div>
     </div>
   </header>
   <main>
@@ -109,6 +170,26 @@
         ? 'We couldn’t send the email. Please try again or contact Logo Hero.'
         : 'If this email has portal access, password setup instructions are on their way. Check your inbox and junk folder.';
     });
+
+    /* Menu button behaviour (same as home page) */
+    (function () {
+      const btn = document.getElementById('menu-btn');
+      const panel = document.getElementById('menu-panel');
+      if (!btn || !panel) return;
+      function isOpen() { return panel.classList.contains('open'); }
+      function setOpen(open) {
+        panel.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      }
+      btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!isOpen()); });
+      panel.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+      document.addEventListener('click', function (e) { if (isOpen() && !panel.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
+      });
+      window.addEventListener('scroll', function () { if (isOpen()) setOpen(false); }, { passive: true });
+    })();
   </script>
 </body>
 </html>
