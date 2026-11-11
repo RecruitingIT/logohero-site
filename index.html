@@ -627,12 +627,12 @@
      which is what makes the fades drift slightly against the content. */
   #about, #how { position: relative; background: transparent; }
   #about.tinted { background: transparent; }
-  #about, #how { --g-ext: 220px; --g-len: 36px; --g-len-bot: 120px; --g-top: 100px; --g-bot: 100px; }
+  #about, #how { --g-ext: 220px; --g-len: 36px; --g-len-bot: 36px; --g-top: 100px; --g-bot: 100px; }
 
   /* Change 14: the fade-out at the bottom of About (between "Professionalism..." and "See the difference")
      was starting too high up the section. A shorter fade length makes it begin lower down.
      Raise this number to move the start back up; lower it to start even lower. */
-  #about { --g-len-bot: 120px; }
+  #about { --g-len-bot: 36px; }
 
   #about::before, #how::before {
     content: "";
