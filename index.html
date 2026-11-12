@@ -18,7 +18,7 @@
     --muted: #55607A;
     --line: #DDE3F0;
     --soft: #F3F6FC;
-    --bg: #EEF0F3;
+    --bg: #FFFFFF;
   }
   * { box-sizing: border-box; }
   /* No sideways scrolling anywhere: html is hidden (applies to the viewport), body is clipped
@@ -824,7 +824,7 @@ let openingFinished = false;
 let openingDone = false;
 
 // The top banner fades into view this long after the logo animation finishes.
-const BANNER_DELAY = 750;
+const BANNER_DELAY = 500;
 let bannerTimer = 0;
 function scheduleBannerFade() {
   clearTimeout(bannerTimer);
