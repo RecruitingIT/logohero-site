@@ -1381,11 +1381,11 @@ const COAST_MS = 220;
 (function () {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const TRAVEL = 1.0;
+  const TRAVEL = 0.9;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const blocks = [
-    { el: document.getElementById('about'),   topMin: 158, topMax: 238, botMax: 120, botBase: 142 },
-    { el: document.getElementById('how'),     topMin: 158, topMax: 238, botMax: 120, botBase: 162 }
+    { el: document.getElementById('about'),   topMin: 158, topMax: 263, botMax: 150, botBase: 142 },
+    { el: document.getElementById('how'),     topMin: 158, topMax: 263, botMax: 150, botBase: 162 }
   ].filter(b => b.el);
 
   let frame = 0;
