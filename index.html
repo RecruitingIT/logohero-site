@@ -478,23 +478,8 @@
     background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* Premium 2: faint dot grid on the grey areas (design-grid feel).
-     The dots live on their own fixed layer behind the page so they can fade in.
-     --dots is driven by the opening-animation script: 0 while the logo is full screen,
-     rising to 1 as it shrinks. Tweak the .09 for stronger/fainter dots, and 26px for spacing. */
-  :root.js { --dots: 0; }
+  /* Premium 2 (dot grid) removed. */
   body { background-color: var(--bg); }
-  body::after {
-    content: "";
-    position: absolute;   /* spans the whole page and scrolls with it */
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background-image: radial-gradient(circle, rgba(14, 27, 61, .09) 1px, transparent 1.4px);
-    background-size: 26px 26px;
-    opacity: var(--dots, 1);
-  }
-  @media (prefers-reduced-motion: reduce) { :root.js { --dots: 1; } }
   .opening-scene { background: transparent; }
 
   /* Premium 3: soft spotlight behind the hero logo.
@@ -918,7 +903,6 @@ function endOpening() {
   targetLogo.style.opacity = 1;
   openingCopy.style.opacity = 1;
   openingScene.style.setProperty('--glow', 1);
-  document.documentElement.style.setProperty('--dots', 1);
   openingHeader.style.opacity = 1;
   openingHeader.classList.remove('is-hidden');
   openingHeader.classList.remove('is-revealed');
@@ -957,8 +941,6 @@ function updateOpening() {
   openingCopy.style.opacity = reveal;
   // The hero spotlight and corner marks fade in alongside the hero copy.
   openingScene.style.setProperty('--glow', reveal);
-  // The dot grid stays hidden while the logo is full screen, then fades in as it shrinks.
-  document.documentElement.style.setProperty('--dots', clamp01((progress - 0.1) / 0.5));
 
   const handoff = clamp01((progress - 0.975) / 0.025);
   flightLogo.style.opacity = 1 - handoff;
