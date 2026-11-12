@@ -130,6 +130,7 @@
       --hero-pad: clamp(1.25rem, 3vw, 3rem);
       position: relative;
       overflow: hidden;
+      isolation: isolate;
       background: var(--charcoal);
       color: var(--white);
     }
@@ -141,14 +142,24 @@
       gap: 1.25rem;
       min-height: clamp(15rem, 19.7vw, 22rem);
       padding: clamp(1.5rem, 2.6vw, 2.5rem) var(--hero-pad) clamp(1.5rem, 2.2vw, 2.25rem);
+      min-height: clamp(30rem, 42vw, 32rem);
+      padding: clamp(1.5rem, 3vw, 2.5rem) var(--hero-pad);
     }
     .hero h1 {
+      position: absolute;
+      top: clamp(1.5rem, 3vw, 2.5rem);
+      left: var(--hero-pad);
+      width: 36%;
       font-size: clamp(1.75rem, 3.4vw, 3.4rem);
       font-weight: 700;
       max-width: 12em;
     }
     .hero p {
       justify-self: end;
+      position: absolute;
+      right: var(--hero-pad);
+      bottom: clamp(1.5rem, 3vw, 2.5rem);
+      width: 36%;
       text-align: right;
       max-width: 19em;
       font-size: clamp(0.85rem, 1.3vw, 1rem);
@@ -158,12 +169,18 @@
       position: absolute;
       right: 0;
       bottom: 0;
+      top: 50%;
+      left: 50%;
       z-index: 0;
       height: 100%;
       width: auto;
+      height: 88%;
       max-width: 65%;
+      max-width: 26%;
       object-fit: contain;
       object-position: right bottom;
+      object-position: center;
+      transform: translate(-50%, -50%);
       pointer-events: none;
     }
 
@@ -277,6 +294,10 @@
       /* text sits in the left ~56% so the gold line owns the right */
       .hero__inner { grid-template-columns: minmax(0, 56%); }
       .hero__line { max-width: 46%; }
+      .hero__inner { min-height: clamp(22rem, 30vw, 30rem); }
+      .hero h1 { width: 36%; }
+      .hero p { width: 36%; }
+      .hero__line { max-width: 26%; }
 
       .band .wrap { grid-template-columns: 1fr 1fr; }
       .band h2 { font-size: 1.35rem; }
@@ -404,6 +425,7 @@
 
   <script>
     // Fade each section in as it enters the viewport and out as it leaves, in either direction.
+    // Fade each background section in on entry and out on exit, in either scroll direction.
     (function () {
       var sections = document.querySelectorAll('main section, .site-footer');
       if (!sections.length || !('IntersectionObserver' in window)) return;
@@ -433,4 +455,5 @@
   </script>
 
 </body>
+</html>
 </html>
