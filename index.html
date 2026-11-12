@@ -627,12 +627,12 @@
      which is what makes the fades drift slightly against the content. */
   #about, #how { position: relative; background: transparent; }
   #about.tinted { background: transparent; }
-  #about, #how { --g-ext: 220px; --g-len: 36px; --g-len-bot: 36px; --g-top: 138px; --g-bot: 62px; }
+  #about, #how { --g-ext: 220px; --g-len: 16px; --g-len-bot: 16px; --g-top: 158px; --g-bot: 62px; }
 
   /* Change 14: the fade-out at the bottom of About (between "Professionalism..." and "See the difference")
      was starting too high up the section. A shorter fade length makes it begin lower down.
      Raise this number to move the start back up; lower it to start even lower. */
-  #about { --g-len-bot: 36px; }
+  #about { --g-len-bot: 16px; }
 
   #about::before, #how::before {
     content: "";
@@ -1384,8 +1384,8 @@ const COAST_MS = 220;
   const TRAVEL = 0.9;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const blocks = [
-    { el: document.getElementById('about'),   topMin: 158, topMax: 263, botMax: 150, botBase: 142 },
-    { el: document.getElementById('how'),     topMin: 158, topMax: 263, botMax: 150, botBase: 162 }
+    { el: document.getElementById('about'),   topMin: 178, topMax: 283, botMax: 150, botBase: 142 },
+    { el: document.getElementById('how'),     topMin: 178, topMax: 283, botMax: 150, botBase: 162 }
   ].filter(b => b.el);
 
   let frame = 0;
