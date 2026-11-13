@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600&family=Commissioner:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <script>document.documentElement.classList.add('js');</script>
+  <script>document.documentElement.classList.add('js', 'opening-intro');</script>
 
   <style>
     /* ---------- Tokens ---------- */
@@ -99,6 +99,31 @@
       min-height: 5.5rem;
     }
     .logo img { height: 3.25rem; width: auto; }
+
+    /* Opening view: show only the enlarged identity, banner and hero. */
+    .site-header .wrap { transition: min-height 0.75s cubic-bezier(.22,.7,.2,1); }
+    .site-header .logo img { transition: height 0.75s cubic-bezier(.22,.7,.2,1); }
+    .hero { transition: min-height 0.75s cubic-bezier(.22,.7,.2,1); }
+    .hero__art { transition: width 0.75s cubic-bezier(.22,.7,.2,1); }
+    .opening-intro .site-header .wrap { min-height: 11rem; }
+    .opening-intro .site-header .logo img { height: 6.5rem; }
+    .opening-intro .hero {
+      min-height: max(28rem, calc(100svh - 11rem - var(--topbar-h)));
+      display: grid;
+      align-items: center;
+    }
+    .opening-intro .hero__art {
+      width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
+    }
+    @media (max-width: 35.99rem) {
+      .opening-intro .site-header .wrap { min-height: 8rem; }
+      .opening-intro .site-header .logo img { height: 5rem; }
+      .opening-intro .hero { min-height: max(32rem, calc(100svh - 8rem - var(--topbar-h))); }
+      .opening-intro .hero__art { width: min(calc((100svh - 8rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .site-header .wrap, .site-header .logo img, .hero, .hero__art { transition-duration: 0.01ms; }
+    }
 
     /* ---------- Sticky beige banner (small logo left, nav right) ---------- */
     .topbar {
@@ -435,12 +460,10 @@
   </footer>
 
   <script>
-    // Fade each section continuously as its centre moves through the viewport:
-    // fully visible while its centre is on screen, fading out as the centre moves off
-    // (and back in as it returns), whichever way the visitor scrolls.
+    // Fade sections in after they pass halfway into view, and out after they pass halfway out.
     (function () {
       var sections = Array.prototype.slice.call(
-        document.querySelectorAll('main section, .site-footer')
+        document.querySelectorAll('main section:not(.hero), .site-footer')
       );
       if (!sections.length) return;
       sections.forEach(function (section) { section.classList.add('fade-section'); });
@@ -449,15 +472,14 @@
       function updateFades() {
         framePending = false;
         var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-        var fadeRange = Math.max(viewportHeight * 0.5, 1);
+        var half = Math.max(viewportHeight * 0.5, 1);
         sections.forEach(function (section) {
           var bounds = section.getBoundingClientRect();
-          var center = bounds.top + bounds.height / 2;
-          var distance = Math.abs(center - viewportHeight / 2);
-          var beyondViewport = Math.max(0, distance - viewportHeight / 2);
-          var opacity = Math.max(0, Math.min(1, 1 - beyondViewport / fadeRange));
+          var entering = Math.max(0, Math.min(1, (half - bounds.top) / half));
+          var leaving = Math.max(0, Math.min(1, (bounds.bottom - half) / half));
+          var opacity = Math.min(entering, leaving);
           section.style.setProperty('--fade-opacity', opacity.toFixed(3));
-          section.style.setProperty('--fade-y', ((1 - opacity) * 2).toFixed(2) + 'rem');
+          section.style.setProperty('--fade-y', ((1 - opacity) * 1.25).toFixed(2) + 'rem');
         });
       }
       function requestUpdate() {
@@ -465,7 +487,6 @@
         framePending = true;
         window.requestAnimationFrame(updateFades);
       }
-
       window.addEventListener('scroll', requestUpdate, { passive: true });
       window.addEventListener('resize', requestUpdate);
       updateFades();
@@ -481,6 +502,66 @@
       new IntersectionObserver(function (entries) {
         bar.classList.toggle('is-stuck', !entries[0].isIntersecting);
       }).observe(header);
+    })();
+  </script>
+
+  <script>
+    // The first downward gesture plays the opening shrink before continuing the scroll.
+    (function () {
+      var root = document.documentElement;
+      if (!root.classList.contains('opening-intro')) return;
+      var settling = false;
+      var queuedScroll = 0;
+      var finishTimer;
+      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 800;
+
+      function begin(scrollAmount) {
+        if (settling || !root.classList.contains('opening-intro')) return;
+        settling = true;
+        queuedScroll = scrollAmount;
+        root.classList.remove('opening-intro');
+        window.clearTimeout(finishTimer);
+        finishTimer = window.setTimeout(function () {
+          settling = false;
+          if (queuedScroll > 0) window.scrollBy({ top: queuedScroll, left: 0, behavior: 'instant' });
+        }, duration);
+      }
+
+      window.addEventListener('wheel', function (event) {
+        if (event.ctrlKey) return;
+        if (settling) { event.preventDefault(); return; }
+        if (!root.classList.contains('opening-intro') || event.deltaY <= 0) return;
+        event.preventDefault();
+        var amount = event.deltaY;
+        if (event.deltaMode === 1) amount *= 16;
+        else if (event.deltaMode === 2) amount *= window.innerHeight;
+        begin(amount);
+      }, { passive: false });
+
+      var touchStart = null;
+      window.addEventListener('touchstart', function (event) {
+        touchStart = event.touches.length === 1 ? event.touches[0].clientY : null;
+      }, { passive: true });
+      window.addEventListener('touchmove', function (event) {
+        if (settling) { if (event.cancelable) event.preventDefault(); return; }
+        if (!root.classList.contains('opening-intro') || touchStart === null) return;
+        var distance = touchStart - event.touches[0].clientY;
+        if (distance <= 8) return;
+        if (event.cancelable) event.preventDefault();
+        touchStart = null;
+        begin(distance);
+      }, { passive: false });
+      window.addEventListener('touchend', function () { touchStart = null; }, { passive: true });
+
+      window.addEventListener('keydown', function (event) {
+        if (event.altKey || event.ctrlKey || event.metaKey) return;
+        var downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
+        if (downKeys.indexOf(event.key) === -1) return;
+        if (settling) { event.preventDefault(); return; }
+        if (!root.classList.contains('opening-intro')) return;
+        event.preventDefault();
+        begin(Math.max(160, Math.round(window.innerHeight * 0.65)));
+      });
     })();
   </script>
 
