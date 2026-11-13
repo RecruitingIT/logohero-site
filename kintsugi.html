@@ -219,16 +219,18 @@
       width: max-content;
       max-width: min(19em, calc(var(--line-end-x) * 100%));
       text-align: right;
-      font-size: clamp(0.8rem, 1.6cqw, 1rem);
-      line-height: 1.45;
+      font-size: clamp(1.2rem, 2cqw, 1.35rem);
+      line-height: 1.4;
     }
     .hero .br-m { display: none; }
+    @media (min-width: 36rem) { .hero h1 { transform: translateX(36px); } }
 
     /* Phones: heading goes onto three lines, so it reaches lower and must stay clear of more of the line */
     @media (max-width: 35.99rem) {
       .hero { --line-start-x: 0.02; --line-end-x: 0.955; }
       .hero .br-m { display: inline; }
       .hero h1 { font-size: clamp(0.8rem, 4cqw, 3.2rem); }
+      .hero p { font-size: clamp(1.6rem, 4cqw, 1.8rem); }
       .hero .br-d { display: none; }
     }
 
@@ -472,13 +474,15 @@
       function updateFades() {
         framePending = false;
         var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-        var half = Math.max(viewportHeight * 0.5, 1);
+        var halfViewport = Math.max(viewportHeight * 0.5, 1);
         sections.forEach(function (section) {
           var bounds = section.getBoundingClientRect();
+          /* Short sections use their own halfway-visible threshold; long sections use half a viewport. */
+          var threshold = Math.min(bounds.height * 0.5, halfViewport);
           /* One-third-length ramps leave a much longer fully visible stretch. */
-          var fadeDistance = Math.max(1, Math.min(half / 3, bounds.height / 6));
-          var entering = Math.max(0, Math.min(1, (half - bounds.top) / fadeDistance));
-          var leaving = Math.max(0, Math.min(1, (bounds.bottom - half) / fadeDistance));
+          var fadeDistance = Math.max(1, Math.min(halfViewport / 3, bounds.height / 6));
+          var entering = Math.max(0, Math.min(1, (viewportHeight - threshold - bounds.top) / fadeDistance));
+          var leaving = Math.max(0, Math.min(1, (bounds.bottom - threshold) / fadeDistance));
           var opacity = Math.min(entering, leaving);
           section.style.setProperty('--fade-opacity', opacity.toFixed(3));
           section.style.setProperty('--fade-y', ((1 - opacity) * 1.25).toFixed(2) + 'rem');
@@ -515,7 +519,7 @@
       var settling = false;
       var queuedScroll = 0;
       var finishTimer;
-      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 800;
+      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 1600;
 
       function begin(scrollAmount) {
         if (settling || !root.classList.contains('opening-intro')) return;
