@@ -152,9 +152,9 @@
       --hero-extra: clamp(0px, calc((700px - 100vw) * 0.2), 6rem);
       /* free space to the right of the line on very wide screens */
       --hero-slack: max(0px, calc((100vw - 2 * var(--hero-pad) - var(--art-max)) / 2));
-      /* Outer text edges align with the visible line's two endpoints. */
-      --line-start-x: 0.09;
-      --line-end-x: 0.87;
+      /* Screenshot guides: heading shifts left and paragraph shifts right. */
+      --line-start-x: -0.026;
+      --line-end-x: 0.955;
       overflow: hidden;
       background: var(--charcoal);
       color: var(--white);
@@ -201,7 +201,7 @@
 
     /* Phones: heading goes onto three lines, so it reaches lower and must stay clear of more of the line */
     @media (max-width: 35.99rem) {
-      .hero { --line-start-x: 0.09; --line-end-x: 0.87; }
+      .hero { --line-start-x: 0.02; --line-end-x: 0.955; }
       .hero .br-m { display: inline; }
       .hero h1 { font-size: clamp(0.8rem, 4cqw, 3.2rem); }
       .hero .br-d { display: none; }
