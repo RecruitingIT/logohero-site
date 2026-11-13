@@ -127,61 +127,51 @@
 
     /* ---------- Hero ---------- */
     .hero {
+      --hero-h: clamp(22rem, 30vw, 30rem);    /* panel height = image height */
       --hero-pad: clamp(1.25rem, 3vw, 3rem);
-      position: relative;
+      --hero-gap: clamp(1rem, 2.5vw, 2.5rem); /* breathing room either side of the line */
+      --hero-vpad: clamp(1.5rem, 3vw, 2.5rem);
       overflow: hidden;
-      isolation: isolate;
       background: var(--charcoal);
       color: var(--white);
     }
     .hero__inner {
-      position: relative;
-      z-index: 1;
       display: grid;
-      align-content: space-between;
-      gap: 1.25rem;
-      min-height: clamp(15rem, 19.7vw, 22rem);
-      padding: clamp(1.5rem, 2.6vw, 2.5rem) var(--hero-pad) clamp(1.5rem, 2.2vw, 2.25rem);
-      min-height: clamp(30rem, 42vw, 32rem);
-      padding: clamp(1.5rem, 3vw, 2.5rem) var(--hero-pad);
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      column-gap: var(--hero-gap);
+      height: var(--hero-h);
+      padding-inline: var(--hero-pad);
+    }
+    .hero__line {
+      grid-column: 2;
+      grid-row: 1;
+      display: block;
+      height: var(--hero-h);   /* top touches top, bottom touches bottom */
+      width: auto;             /* keeps the aspect ratio */
+      max-width: none;
+      pointer-events: none;
     }
     .hero h1 {
-      position: absolute;
-      top: clamp(1.5rem, 3vw, 2.5rem);
-      left: var(--hero-pad);
-      width: 36%;
-      font-size: clamp(1.75rem, 3.4vw, 3.4rem);
-      font-weight: 700;
+      grid-column: 1;
+      grid-row: 1;
+      align-self: start;
+      justify-self: end;       /* pushes the text right up to the line */
+      text-align: right;
+      padding-top: var(--hero-vpad);
       max-width: 12em;
+      font-size: clamp(1.5rem, 3.4vw, 3.4rem);
+      font-weight: 700;
     }
     .hero p {
-      justify-self: end;
-      position: absolute;
-      right: var(--hero-pad);
-      bottom: clamp(1.5rem, 3vw, 2.5rem);
-      width: 36%;
-      text-align: right;
+      grid-column: 3;
+      grid-row: 1;
+      align-self: end;
+      justify-self: start;     /* sits right up against the line on the other side */
+      text-align: left;
+      padding-bottom: var(--hero-vpad);
       max-width: 19em;
       font-size: clamp(0.85rem, 1.3vw, 1rem);
       line-height: 1.45;
-    }
-    .hero__line {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      inset-block: 0;
-      left: 50%;
-      z-index: 0;
-      height: 100%;
-      width: auto;
-      height: 100%;
-      max-width: 65%;
-      max-width: none;
-      object-fit: contain;
-      object-position: right bottom;
-      object-position: center;
-      transform: translateX(-50%);
-      pointer-events: none;
     }
 
     /* ---------- Two-up band ---------- */
@@ -290,13 +280,6 @@
     @media (min-width: 48rem) {
       .btn { font-size: 0.75rem; padding: 0.6rem 1.1rem; }
 
-      /* text sits in the left ~56% so the gold line owns the right */
-      .hero__inner { grid-template-columns: minmax(0, 56%); }
-      .hero__line { max-width: 46%; }
-      .hero__inner { min-height: clamp(22rem, 30vw, 30rem); }
-      .hero h1 { width: 36%; }
-      .hero p { width: 36%; }
-
       .band .wrap { grid-template-columns: 1fr 1fr; }
       .band h2 { font-size: 1.35rem; }
       .band p, .pillar p, .intro p { font-size: 1rem; }
@@ -342,9 +325,9 @@
   <main id="top">
 
     <section class="hero" aria-labelledby="hero-title">
-      <img class="hero__line" src="Intersect.png" alt="" aria-hidden="true">
       <div class="hero__inner">
         <h1 id="hero-title">Business Consulting for Intelligent Growth</h1>
+        <img class="hero__line" src="Intersect.png" alt="" aria-hidden="true">
         <p>Kintsugi delivers targeted strategies that target workforce costs, enhance profitability and accelerate commercial growth.</p>
       </div>
     </section>
@@ -479,5 +462,4 @@
   </script>
 
 </body>
-</html>
 </html>
