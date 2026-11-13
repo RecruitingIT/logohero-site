@@ -125,53 +125,86 @@
     .js .topbar.is-stuck .logo { opacity: 1; visibility: visible; }
     .topbar.is-stuck { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08), 0 4px 14px rgba(0, 0, 0, 0.06); }
 
-    /* ---------- Hero ---------- */
+    /* ---------- Hero ----------
+       The gold line (Intersect.png) is centred. The heading sits to its upper left and the
+       body text to its lower right. Both are positioned against the LINE ITSELF, not the
+       image box: the image is mostly transparent, so the text is allowed to overlap the
+       empty corners of the image and is stopped a set gap short of the nearest part of the line.
+
+       The two --line-* numbers below were measured from the pixels of Intersect.png.
+       If you swap in a different line image, re-measure them:
+         --line-head-x : how far across the image (0 = left edge, 1 = right edge) the line's
+                         leftmost point is, over the rows the heading occupies (top ~8%-32%).
+         --line-body-x : how far across the image the line's rightmost point is, over the rows
+                         the body text occupies (bottom ~66%-92%).                              */
     .hero {
-      --hero-h: clamp(22rem, 30vw, 30rem);    /* panel height = image height */
+      --hero-h: clamp(22rem, 30vw, 30rem);     /* panel height = image height */
       --hero-pad: clamp(1.25rem, 3vw, 3rem);
-      --hero-gap: clamp(1rem, 2.5vw, 2.5rem); /* breathing room either side of the line */
+      --hero-gap: clamp(1rem, 2.5vw, 2.5rem);  /* clear space between text and the line */
       --hero-vpad: clamp(1.5rem, 3vw, 2.5rem);
+      --line-ar: 2.0797;                       /* image width / height (7310 x 3515) */
+      --line-head-x: 0.676;
+      --line-body-x: 0.402;
       overflow: hidden;
       background: var(--charcoal);
       color: var(--white);
     }
     .hero__inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      column-gap: var(--hero-gap);
-      height: var(--hero-h);
       padding-inline: var(--hero-pad);
     }
+    .hero__art {
+      position: relative;
+      margin-inline: auto;
+      height: var(--hero-h);                   /* top touches top, bottom touches bottom */
+      width: calc(var(--hero-h) * var(--line-ar));
+    }
     .hero__line {
-      grid-column: 2;
-      grid-row: 1;
       display: block;
-      height: var(--hero-h);   /* top touches top, bottom touches bottom */
-      width: auto;             /* keeps the aspect ratio */
+      height: 100%;
+      width: 100%;
       max-width: none;
       pointer-events: none;
     }
     .hero h1 {
-      grid-column: 1;
-      grid-row: 1;
-      align-self: start;
-      justify-self: end;       /* pushes the text right up to the line */
-      text-align: right;
-      padding-top: var(--hero-vpad);
-      max-width: 12em;
-      font-size: clamp(1.5rem, 3.4vw, 3.4rem);
+      position: absolute;
+      top: var(--hero-vpad);
+      /* right edge of the heading = leftmost point of the line (over its rows) minus the gap */
+      right: calc((1 - var(--line-head-x)) * 100% + var(--hero-gap));
+      width: max-content;
+      text-align: left;                        /* left-aligned text */
+      font-size: clamp(1.5rem, 3.1vw, 3.2rem);
       font-weight: 700;
     }
     .hero p {
-      grid-column: 3;
-      grid-row: 1;
-      align-self: end;
-      justify-self: start;     /* sits right up against the line on the other side */
-      text-align: left;
-      padding-bottom: var(--hero-vpad);
+      position: absolute;
+      bottom: var(--hero-vpad);
+      /* left edge of the body = rightmost point of the line (over its rows) plus the gap */
+      left: calc(var(--line-body-x) * 100% + var(--hero-gap));
+      width: max-content;
       max-width: 19em;
+      text-align: left;
       font-size: clamp(0.85rem, 1.3vw, 1rem);
       line-height: 1.45;
+    }
+
+    /* Narrow screens: no room to tuck text beside the line, so stack it. */
+    @media (max-width: 51.99rem) {
+      .hero__inner { padding-block: 2rem; }
+      .hero__art {
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .hero__line { width: 100%; max-width: 32rem; height: auto; margin-inline: auto; }
+      .hero h1, .hero p {
+        position: static;
+        width: auto;
+        max-width: none;
+      }
+      .hero h1 { font-size: clamp(1.6rem, 7vw, 2.4rem); }
+      .hero p { font-size: 1rem; max-width: 30em; }
     }
 
     /* ---------- Two-up band ---------- */
@@ -326,9 +359,11 @@
 
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__inner">
-        <h1 id="hero-title">Business Consulting for Intelligent Growth</h1>
-        <img class="hero__line" src="Intersect.png" alt="" aria-hidden="true">
-        <p>Kintsugi delivers targeted strategies that target workforce costs, enhance profitability and accelerate commercial growth.</p>
+        <div class="hero__art">
+          <h1 id="hero-title">Business Consulting for<br> Intelligent Growth</h1>
+          <img class="hero__line" src="Intersect.png" alt="" aria-hidden="true" width="7310" height="3515">
+          <p>Kintsugi delivers targeted strategies that target workforce costs, enhance profitability and accelerate commercial growth.</p>
+        </div>
       </div>
     </section>
 
