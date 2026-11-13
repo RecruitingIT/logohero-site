@@ -152,8 +152,9 @@
       --hero-extra: clamp(0px, calc((700px - 100vw) * 0.2), 6rem);
       /* free space to the right of the line on very wide screens */
       --hero-slack: max(0px, calc((100vw - 2 * var(--hero-pad) - var(--art-max)) / 2));
-      --line-head-x: 0.717;   /* heading on 2 lines */
-      --line-body-x: 0.412;
+      /* Outer text edges align with the visible line's two endpoints. */
+      --line-start-x: 0.09;
+      --line-end-x: 0.87;
       overflow: hidden;
       background: var(--charcoal);
       color: var(--white);
@@ -177,8 +178,8 @@
     .hero h1 {
       position: absolute;
       top: var(--hero-vpad);
-      /* right edge of the heading = leftmost point of the line (over its rows) minus the gap */
-      right: calc((1 - var(--line-head-x)) * 100% + var(--hero-gap));
+      /* Align the heading's left edge with the lower-left endpoint of the line. */
+      left: calc(var(--line-start-x) * 100%);
       width: max-content;
       white-space: nowrap;
       text-align: left;
@@ -188,10 +189,10 @@
     .hero p {
       position: absolute;
       bottom: var(--hero-vpad);
-      /* left edge of the body = rightmost point of the line (over its rows) plus the gap */
-      left: calc(var(--line-body-x) * 100% + var(--hero-gap));
+      /* Align the paragraph's right edge with the upper-right endpoint of the line. */
+      right: calc((1 - var(--line-end-x)) * 100%);
       width: max-content;
-      max-width: min(19em, calc((1 - var(--line-body-x)) * 100% - var(--hero-gap) + var(--hero-slack)));
+      max-width: min(19em, calc(var(--line-end-x) * 100%));
       text-align: right;
       font-size: clamp(0.8rem, 1.6cqw, 1rem);
       line-height: 1.45;
@@ -200,7 +201,7 @@
 
     /* Phones: heading goes onto three lines, so it reaches lower and must stay clear of more of the line */
     @media (max-width: 35.99rem) {
-      .hero { --line-head-x: 0.46; --line-body-x: 0.438; }
+      .hero { --line-start-x: 0.09; --line-end-x: 0.87; }
       .hero .br-m { display: inline; }
       .hero h1 { font-size: clamp(0.8rem, 4cqw, 3.2rem); }
       .hero .br-d { display: none; }
