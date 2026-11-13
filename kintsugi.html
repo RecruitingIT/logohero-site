@@ -475,8 +475,10 @@
         var half = Math.max(viewportHeight * 0.5, 1);
         sections.forEach(function (section) {
           var bounds = section.getBoundingClientRect();
-          var entering = Math.max(0, Math.min(1, (half - bounds.top) / half));
-          var leaving = Math.max(0, Math.min(1, (bounds.bottom - half) / half));
+          /* One-third-length ramps leave a much longer fully visible stretch. */
+          var fadeDistance = Math.max(1, Math.min(half / 3, bounds.height / 6));
+          var entering = Math.max(0, Math.min(1, (half - bounds.top) / fadeDistance));
+          var leaving = Math.max(0, Math.min(1, (bounds.bottom - half) / fadeDistance));
           var opacity = Math.min(entering, leaving);
           section.style.setProperty('--fade-opacity', opacity.toFixed(3));
           section.style.setProperty('--fade-y', ((1 - opacity) * 1.25).toFixed(2) + 'rem');
