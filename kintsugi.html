@@ -98,15 +98,15 @@
       justify-content: center;
       min-height: 5.5rem;
     }
-    .site-header .logo { display: block; width: 10.37rem; transition: width 0.75s cubic-bezier(.22,.7,.2,1); }
-    .site-header .logo img { width: 100%; height: auto; }
+    .logo img { height: 3.25rem; width: auto; }
 
     /* Opening view: show only the enlarged identity, banner and hero. */
     .site-header .wrap { transition: min-height 0.75s cubic-bezier(.22,.7,.2,1); }
+    .site-header .logo img { transition: height 0.75s cubic-bezier(.22,.7,.2,1); }
     .hero { transition: min-height 0.75s cubic-bezier(.22,.7,.2,1); }
     .hero__art { transition: width 0.75s cubic-bezier(.22,.7,.2,1); }
     .opening-intro .site-header .wrap { min-height: 11rem; }
-    .opening-intro .site-header .logo { width: 20.74rem; }
+    .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
       min-height: max(28rem, calc(100svh - 11rem - var(--topbar-h)));
       display: grid;
@@ -116,13 +116,16 @@
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
     }
     @media (max-width: 35.99rem) {
+      .site-header .logo { display: block; width: min(10.37rem, calc(100vw - 2 * var(--pad-x))); transition: width 0.75s cubic-bezier(.22,.7,.2,1); }
+      .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
-      .opening-intro .site-header .logo { width: min(15.95rem, calc(100vw - 2 * var(--pad-x))); }
+      .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
+      .opening-intro .site-header .logo img { height: auto; }
       .opening-intro .hero { min-height: max(32rem, calc(100svh - 8rem - var(--topbar-h))); }
       .opening-intro .hero__art { width: min(calc((100svh - 8rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%); }
     }
     @media (prefers-reduced-motion: reduce) {
-      .site-header .wrap, .site-header .logo, .hero, .hero__art { transition-duration: 0.01ms; }
+      .site-header .wrap, .site-header .logo, .site-header .logo img, .hero, .hero__art { transition-duration: 0.01ms; }
     }
 
     /* ---------- Sticky beige banner (small logo left, nav right) ---------- */
