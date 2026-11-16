@@ -536,7 +536,7 @@
         var limit = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         return Math.max(0, Math.min(limit, target));
       }
-      function moveTo(index) {
+      function moveTo(index, moveDuration) {
         if (animating || index < 0 || index >= sections.length) return;
         var fromIndex = nearestSection();
         var start = window.scrollY;
@@ -545,7 +545,9 @@
         animating = true;
         var current = {
           from: fromIndex,
-          direction: index === fromIndex ? 0 : (index > fromIndex ? 1 : -1),
+          target: index,
+          direction: end > start ? 1 : -1,
+          duration: typeof moveDuration === 'number' ? moveDuration : duration,
           frame: 0
         };
         animation = current;
@@ -553,7 +555,7 @@
         function draw(now) {
           if (animation !== current) return;
           if (!started) started = now;
-          var t = duration ? Math.min(1, (now - started) / duration) : 1;
+          var t = current.duration ? Math.min(1, (now - started) / current.duration) : 1;
           var eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
           window.scrollTo(0, start + (end - start) * eased);
           if (t < 1) current.frame = window.requestAnimationFrame(draw);
@@ -576,11 +578,16 @@
         if (animating && animation) {
           if (animation.direction && direction === -animation.direction) {
             var origin = animation.from;
+            var originY = targetY(origin);
+            var destinationY = targetY(animation.target);
+            var fullDistance = Math.abs(destinationY - originY);
+            var remainingDistance = Math.abs(window.scrollY - originY);
+            var reverseDuration = Math.max(120, duration * remainingDistance / Math.max(1, fullDistance));
             pendingDirection = 0;
             window.cancelAnimationFrame(animation.frame);
             animation = null;
             animating = false;
-            moveTo(origin);
+            moveTo(origin, reverseDuration);
           } else pendingDirection = direction;
           return;
         }
