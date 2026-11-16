@@ -310,7 +310,7 @@
     .cta p { max-width: 28rem; font-size: 1.05rem; line-height: 1.5; }
 
     /* ---------- Footer ---------- */
-    .site-footer { text-align: center; }
+    .site-footer { background: var(--cream); color: var(--ink); text-align: center; }
     .site-footer .wrap {
       padding-block: var(--pad-y);
       display: grid;
@@ -585,9 +585,6 @@
             activeIndex = index;
             animation = null;
             root.classList.add('snap-ready');
-            window.clearTimeout(wheelTimer);
-            wheelGestureActive = false;
-            lastWheelDirection = 0;
           }
         }
         current.frame = window.requestAnimationFrame(draw);
@@ -604,7 +601,7 @@
         wheelTimer = window.setTimeout(function () {
           wheelGestureActive = false;
           lastWheelDirection = 0;
-        }, 180);
+        }, 250);
       }
 
       document.addEventListener('wheel', function (event) {
