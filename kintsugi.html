@@ -603,8 +603,7 @@
       requestFadeUpdate();
 
       window.addEventListener('wheel', function (event) {
-        if (event.ctrlKey || event.defaultPrevented || openingTransitionActive()) return;
-        if (Math.abs(event.deltaY) < Math.abs(event.deltaX)) return;
+        if (event.ctrlKey || openingTransitionActive()) return;
         var direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
         if (!direction) return;
         event.preventDefault();
@@ -632,7 +631,7 @@
         wheelGestureActive = true;
         lastWheelDirection = direction;
         handleDirection(direction);
-      }, { passive: false });
+      }, { passive: false, capture: true });
 
       var touchStartY = null;
       window.addEventListener('touchstart', function (event) {
@@ -707,13 +706,12 @@
   </script>
 
   <script>
-    // The first downward gesture plays the opening shrink before continuing the scroll.
+    // The first downward gesture plays the opening shrink and stops at the top of the page.
     (function () {
       var root = document.documentElement;
       if (!root.classList.contains('opening-intro')) return;
       var settling = false;
       window.kintsugiOpeningSettling = false;
-      var queuedScroll = 0;
       var finishTimer;
       var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 1500;
 
@@ -721,16 +719,11 @@
         if (settling || !root.classList.contains('opening-intro')) return;
         settling = true;
         window.kintsugiOpeningSettling = true;
-        queuedScroll = scrollAmount;
         root.classList.remove('opening-intro');
         window.clearTimeout(finishTimer);
         finishTimer = window.setTimeout(function () {
           settling = false;
           window.kintsugiOpeningSettling = false;
-          if (queuedScroll > 0) {
-            if (typeof window.kintsugiSectionStep === 'function') window.kintsugiSectionStep(1);
-            else window.scrollBy({ top: queuedScroll, left: 0, behavior: 'instant' });
-          }
         }, duration);
       }
 
