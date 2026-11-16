@@ -393,7 +393,7 @@
       <div class="wrap">
         <article>
           <h2>Operational Streamlining</h2>
-          <p>Having the benefit of an impartial view of our business enables us to identify hidden inefficiencies, optimise role design and implement cost-saving strategies that reduce overheads whilst strengthening operational output.</p>
+          <p>Having the benefit of an impartial view of your business enables us to identify hidden inefficiencies, optimise role design and implement cost-saving strategies that reduce overheads whilst strengthening operational output.</p>
         </article>
         <article>
           <h2>Revenue Review</h2>
@@ -498,15 +498,15 @@
   </script>
 
   <script>
-    // Move one section per gesture with a predictable, deliberately slow transition.
+    // Move one section per gesture, tracking the intended destination while motion is underway.
     (function () {
       var sections = Array.prototype.slice.call(document.querySelectorAll('main section, .site-footer'));
       if (!sections.length) return;
       var root = document.documentElement;
       var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1000;
-      var animating = false;
+      var activeIndex = 0;
+      var desiredIndex = 0;
       var animation = null;
-      var pendingDirection = 0;
       var wheelGestureActive = false;
       var lastWheelDirection = 0;
       var wheelTimer = 0;
@@ -536,18 +536,34 @@
         var limit = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         return Math.max(0, Math.min(limit, target));
       }
-      function moveTo(index, moveDuration) {
-        if (animating || index < 0 || index >= sections.length) return;
-        var fromIndex = nearestSection();
+
+      activeIndex = nearestSection();
+      desiredIndex = activeIndex;
+
+      function animateTo(index) {
+        if (index < 0 || index >= sections.length) return;
+        var previous = animation;
+        if (previous) {
+          window.cancelAnimationFrame(previous.frame);
+          animation = null;
+        }
         var start = window.scrollY;
         var end = targetY(index);
-        if (Math.abs(end - start) < 2) return;
-        animating = true;
+        if (Math.abs(end - start) < 2) {
+          activeIndex = index;
+          desiredIndex = index;
+          return;
+        }
+        var moveDuration = duration;
+        if (previous && duration) {
+          var remaining = Math.abs(end - start);
+          var whole = previous.wholeDistance || remaining;
+          moveDuration = Math.max(160, Math.min(duration, duration * remaining / Math.max(1, whole)));
+        }
         var current = {
-          from: fromIndex,
           target: index,
           direction: end > start ? 1 : -1,
-          duration: typeof moveDuration === 'number' ? moveDuration : duration,
+          wholeDistance: previous ? previous.wholeDistance : Math.abs(end - start),
           frame: 0
         };
         animation = current;
@@ -555,50 +571,32 @@
         function draw(now) {
           if (animation !== current) return;
           if (!started) started = now;
-          var t = current.duration ? Math.min(1, (now - started) / current.duration) : 1;
+          var t = moveDuration ? Math.min(1, (now - started) / moveDuration) : 1;
           var eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
           window.scrollTo(0, start + (end - start) * eased);
           if (t < 1) current.frame = window.requestAnimationFrame(draw);
           else {
             window.scrollTo(0, end);
+            activeIndex = index;
             animation = null;
-            animating = false;
-            if (!openingActive()) root.classList.add('snap-ready');
-            if (pendingDirection) {
-              var next = pendingDirection;
-              pendingDirection = 0;
-              window.setTimeout(function () { handleDirection(next); }, 0);
-            }
+            root.classList.add('snap-ready');
           }
         }
         current.frame = window.requestAnimationFrame(draw);
       }
+
       function handleDirection(direction) {
         if (openingActive()) return;
-        if (animating && animation) {
-          if (animation.direction && direction === -animation.direction) {
-            var origin = animation.from;
-            var originY = targetY(origin);
-            var destinationY = targetY(animation.target);
-            var fullDistance = Math.abs(destinationY - originY);
-            var remainingDistance = Math.abs(window.scrollY - originY);
-            var reverseDuration = Math.max(120, duration * remainingDistance / Math.max(1, fullDistance));
-            pendingDirection = 0;
-            window.cancelAnimationFrame(animation.frame);
-            animation = null;
-            animating = false;
-            moveTo(origin, reverseDuration);
-          } else pendingDirection = direction;
-          return;
-        }
-        moveTo(nearestSection() + (direction > 0 ? 1 : -1));
+        desiredIndex = Math.max(0, Math.min(sections.length - 1, desiredIndex + (direction > 0 ? 1 : -1)));
+        if (animation) animateTo(desiredIndex);
+        else if (desiredIndex !== activeIndex) animateTo(desiredIndex);
       }
       function noteWheel() {
         window.clearTimeout(wheelTimer);
         wheelTimer = window.setTimeout(function () {
           wheelGestureActive = false;
           lastWheelDirection = 0;
-        }, 220);
+        }, 180);
       }
 
       document.addEventListener('wheel', function (event) {
@@ -607,20 +605,7 @@
         if (!direction) return;
         event.preventDefault();
         noteWheel();
-        if (wheelGestureActive && direction !== lastWheelDirection) wheelGestureActive = false;
-        if (animating) {
-          if (animation && direction === -animation.direction) {
-            wheelGestureActive = true;
-            lastWheelDirection = direction;
-            handleDirection(direction);
-          } else if (!wheelGestureActive) {
-            wheelGestureActive = true;
-            lastWheelDirection = direction;
-            handleDirection(direction);
-          }
-          return;
-        }
-        if (wheelGestureActive) return;
+        if (wheelGestureActive && direction === lastWheelDirection) return;
         wheelGestureActive = true;
         lastWheelDirection = direction;
         handleDirection(direction);
@@ -648,8 +633,8 @@
         var up = ['ArrowUp', 'PageUp'];
         if (down.indexOf(event.key) !== -1) { event.preventDefault(); handleDirection(1); }
         else if (up.indexOf(event.key) !== -1) { event.preventDefault(); handleDirection(-1); }
-        else if (event.key === 'Home') { event.preventDefault(); moveTo(0); }
-        else if (event.key === 'End') { event.preventDefault(); moveTo(sections.length - 1); }
+        else if (event.key === 'Home') { event.preventDefault(); desiredIndex = 0; animateTo(0); }
+        else if (event.key === 'End') { event.preventDefault(); desiredIndex = sections.length - 1; animateTo(desiredIndex); }
       }, true);
 
       document.addEventListener('click', function (event) {
@@ -662,7 +647,8 @@
         if (index < 0) return;
         event.preventDefault();
         history.pushState(null, '', '#' + encodeURIComponent(id));
-        moveTo(index);
+        desiredIndex = index;
+        animateTo(index);
       });
     })();
   </script>
