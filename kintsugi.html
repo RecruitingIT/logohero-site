@@ -47,14 +47,8 @@
       -webkit-text-size-adjust: 100%;
       scroll-behavior: smooth;
       scroll-padding-top: var(--topbar-h);
-      scroll-padding-bottom: 0;
     }
     .js { scroll-behavior: auto; }
-    html.snap-ready { scroll-snap-type: y mandatory; }
-    html.snap-ready main section, html.snap-ready .site-footer {
-      scroll-snap-align: center;
-      scroll-snap-stop: always;
-    }
     body {
       margin: 0;
       font-family: var(--font-body);
@@ -330,15 +324,11 @@
     /* ---------- Section focus ---------- */
     .js .fade-section {
       opacity: var(--fade-opacity, 1);
-      transform: translateY(var(--fade-y, 0rem));
       transition: none;
-      will-change: opacity, transform;
+      will-change: opacity;
     }
     @media (prefers-reduced-motion: reduce) {
-      .js .fade-section {
-        transform: none;
-        will-change: auto;
-      }
+      .js .fade-section { will-change: auto; }
     }
 
     /* ---------- Larger screens ---------- */
@@ -403,7 +393,7 @@
       <div class="wrap">
         <article>
           <h2>Operational Streamlining</h2>
-          <p>Having the benefit of an impartial view of your business enables us to identify hidden inefficiencies, optimise role design and implement cost-saving strategies that reduce overheads whilst strengthening operational output.</p>
+          <p>Having the benefit of an impartial view of our business enables us to identify hidden inefficiencies, optimise role design and implement cost-saving strategies that reduce overheads whilst strengthening operational output.</p>
         </article>
         <article>
           <h2>Revenue Review</h2>
@@ -493,7 +483,6 @@
           var visibility = Math.max(0, 1 - distance / fadeRange);
           var opacity = Math.max(0.025, visibility * visibility);
           section.style.setProperty('--fade-opacity', opacity.toFixed(3));
-          section.style.setProperty('--fade-y', ((1 - visibility) * 0.55).toFixed(2) + 'rem');
         });
       }
 
@@ -553,7 +542,6 @@
         var start = window.scrollY;
         var end = targetY(index);
         if (Math.abs(end - start) < 2) return;
-        root.classList.remove('snap-ready');
         animating = true;
         var current = {
           from: fromIndex,
