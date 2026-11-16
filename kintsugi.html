@@ -443,29 +443,29 @@
         <p>Talk to us about how Kintsugi can reduce your overhead, strengthen your partnerships and unlock smarter, sustainable growth.</p>
         <a class="btn btn--light" href="mailto:contact@kintsugiservices.com">Book a consultation</a>
       </div>
+
+      <footer class="site-footer" id="contact">
+        <div class="wrap">
+          <h2>Contact</h2>
+          <p>
+            KINTSUGI LTD. registered in England and Wales, company number 15302529<br>
+            Registered office: 17 Fordham Street, London, E1 1HS<br>
+            <a href="mailto:contact@kintsugiservices.com">contact@kintsugiservices.com</a>
+          </p>
+          <a class="logo" href="#top" aria-label="Back to top">
+            <img src="KintsugiShadow.png" alt="Kintsugi" width="284" height="89" loading="lazy">
+          </a>
+        </div>
+      </footer>
     </section>
 
   </main>
-
-  <footer class="site-footer" id="contact">
-    <div class="wrap">
-      <h2>Contact</h2>
-      <p>
-        KINTSUGI LTD. registered in England and Wales, company number 15302529<br>
-        Registered office: 17 Fordham Street, London, E1 1HS<br>
-        <a href="mailto:contact@kintsugiservices.com">contact@kintsugiservices.com</a>
-      </p>
-      <a class="logo" href="#top" aria-label="Back to top">
-        <img src="KintsugiShadow.png" alt="Kintsugi" width="284" height="89" loading="lazy">
-      </a>
-    </div>
-  </footer>
 
   <script>
     // Fade sections according to their distance from the center of the visible area.
     (function () {
       var sections = Array.prototype.slice.call(
-        document.querySelectorAll('main section, .site-footer')
+        document.querySelectorAll('main section')
       );
       if (!sections.length) return;
       sections.forEach(function (section) { section.classList.add('fade-section'); });
@@ -476,13 +476,18 @@
         var bar = document.getElementById('topbar');
         var top = bar ? bar.getBoundingClientRect().height : 0;
         var center = top + (window.innerHeight - top) / 2;
+        if (window.scrollY <= 1) {
+          sections.forEach(function (section, index) {
+            section.style.setProperty('--fade-opacity', index === 0 ? '1' : '0');
+          });
+          return;
+        }
         var fadeRange = Math.max(1, (window.innerHeight - top) * 0.68);
         sections.forEach(function (section) {
           var rect = section.getBoundingClientRect();
           var distance = Math.abs(rect.top + rect.height / 2 - center);
           var visibility = Math.max(0, 1 - distance / fadeRange);
-          var opacity = Math.max(0.025, visibility * visibility);
-          section.style.setProperty('--fade-opacity', opacity.toFixed(3));
+          section.style.setProperty('--fade-opacity', (visibility * visibility).toFixed(3));
         });
       }
 
@@ -500,7 +505,7 @@
   <script>
     // Move one section per gesture, tracking the intended destination while motion is underway.
     (function () {
-      var sections = Array.prototype.slice.call(document.querySelectorAll('main section, .site-footer'));
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main section'));
       if (!sections.length) return;
       var root = document.documentElement;
       var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1000;
@@ -580,6 +585,9 @@
             activeIndex = index;
             animation = null;
             root.classList.add('snap-ready');
+            window.clearTimeout(wheelTimer);
+            wheelGestureActive = false;
+            lastWheelDirection = 0;
           }
         }
         current.frame = window.requestAnimationFrame(draw);
@@ -642,7 +650,7 @@
         if (!link || openingActive() || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         var id = decodeURIComponent(link.getAttribute('href').slice(1));
         var target = id && document.getElementById(id);
-        var section = target && target.closest('section, .site-footer');
+        var section = target && target.closest('main section');
         var index = section ? sections.indexOf(section) : -1;
         if (index < 0) return;
         event.preventDefault();
