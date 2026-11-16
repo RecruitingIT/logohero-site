@@ -102,10 +102,10 @@
     .logo img { height: 3.25rem; width: auto; }
 
     /* Opening view: show only the enlarged identity, banner and hero. */
-    .site-header .wrap { transition: min-height 0.75s cubic-bezier(.22,.7,.2,1); }
-    .site-header .logo img { transition: height 0.75s cubic-bezier(.22,.7,.2,1); }
-    .hero { transition: min-height 0.75s cubic-bezier(.22,.7,.2,1); }
-    .hero__art { transition: width 0.75s cubic-bezier(.22,.7,.2,1); }
+    .site-header .wrap { transition: min-height 1.5s cubic-bezier(.22,.7,.2,1); }
+    .site-header .logo img { transition: height 1.5s cubic-bezier(.22,.7,.2,1); }
+    .hero { transition: min-height 1.5s cubic-bezier(.22,.7,.2,1); }
+    .hero__art { transition: width 1.5s cubic-bezier(.22,.7,.2,1); }
     .opening-intro .site-header .wrap { min-height: 11rem; }
     .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
@@ -117,7 +117,7 @@
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
     }
     @media (max-width: 35.99rem) {
-      .site-header .logo { display: block; width: min(10.37rem, calc(100vw - 2 * var(--pad-x))); transition: width 0.75s cubic-bezier(.22,.7,.2,1); }
+      .site-header .logo { display: block; width: min(10.37rem, calc(100vw - 2 * var(--pad-x))); transition: width 1.5s cubic-bezier(.22,.7,.2,1); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
       .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
@@ -474,8 +474,11 @@
       var duration = reducedMotion ? 0 : 850;
       var animating = false;
       var wheelGestureActive = false;
+      var lastWheelDirection = 0;
       var wheelEndTimer = 0;
       var frameId = 0;
+      var activeAnimation = null;
+      var pendingDirection = 0;
 
       function topbarHeight() {
         var bar = document.getElementById('topbar');
@@ -530,12 +533,21 @@
 
       function moveTo(index) {
         if (animating || index < 0 || index >= sections.length) return;
+        var fromIndex = currentIndex();
         var start = window.scrollY;
         var end = targetScroll(index);
         if (Math.abs(end - start) < 2) return;
         animating = true;
+        var animation = {
+          fromIndex: fromIndex,
+          targetIndex: index,
+          direction: index === fromIndex ? 0 : (index > fromIndex ? 1 : -1),
+          frameId: 0
+        };
+        activeAnimation = animation;
         var startedAt = 0;
         function frame(now) {
+          if (activeAnimation !== animation) return;
           if (!startedAt) startedAt = now;
           var progress = duration ? Math.min(1, (now - startedAt) / duration) : 1;
           var eased = progress < 0.5
@@ -543,18 +555,42 @@
             : 1 - Math.pow(-2 * progress + 2, 3) / 2;
           window.scrollTo(0, start + (end - start) * eased);
           requestFadeUpdate();
-          if (progress < 1) window.requestAnimationFrame(frame);
+          if (progress < 1) animation.frameId = window.requestAnimationFrame(frame);
           else {
             window.scrollTo(0, end);
+            activeAnimation = null;
             animating = false;
             requestFadeUpdate();
+            if (pendingDirection) {
+              var queuedDirection = pendingDirection;
+              pendingDirection = 0;
+              window.setTimeout(function () { handleDirection(queuedDirection); }, 0);
+            }
           }
         }
-        window.requestAnimationFrame(frame);
+        animation.frameId = window.requestAnimationFrame(frame);
       }
 
       function step(direction) {
         moveTo(currentIndex() + (direction > 0 ? 1 : -1));
+      }
+
+      function handleDirection(direction) {
+        if (animating && activeAnimation) {
+          // An opposite gesture reverses the current transition back to its source section.
+          if (activeAnimation.direction && direction === -activeAnimation.direction) {
+            var returnTo = activeAnimation.fromIndex;
+            pendingDirection = 0;
+            window.cancelAnimationFrame(activeAnimation.frameId);
+            activeAnimation = null;
+            animating = false;
+            moveTo(returnTo);
+          } else {
+            pendingDirection = direction;
+          }
+          return;
+        }
+        step(direction);
       }
       function openingTransitionActive() {
         return document.documentElement.classList.contains('opening-intro') ||
@@ -573,10 +609,29 @@
         if (!direction) return;
         event.preventDefault();
         window.clearTimeout(wheelEndTimer);
-        wheelEndTimer = window.setTimeout(function () { wheelGestureActive = false; }, 320);
-        if (animating || wheelGestureActive) return;
+        wheelEndTimer = window.setTimeout(function () {
+          wheelGestureActive = false;
+          lastWheelDirection = 0;
+        }, 320);
+        // A direction change is a new deliberate gesture, even if the previous
+        // trackpad or wheel stream has not fully gone quiet yet.
+        if (wheelGestureActive && direction !== lastWheelDirection) wheelGestureActive = false;
+        if (animating) {
+          if (activeAnimation && direction === -activeAnimation.direction) {
+            wheelGestureActive = true;
+            lastWheelDirection = direction;
+            handleDirection(direction);
+          } else if (!wheelGestureActive) {
+            wheelGestureActive = true;
+            lastWheelDirection = direction;
+            handleDirection(direction);
+          }
+          return;
+        }
+        if (wheelGestureActive) return;
         wheelGestureActive = true;
-        step(direction);
+        lastWheelDirection = direction;
+        handleDirection(direction);
       }, { passive: false });
 
       var touchStartY = null;
@@ -593,7 +648,7 @@
         }
         var distance = touchStartY - event.changedTouches[0].clientY;
         touchStartY = null;
-        if (Math.abs(distance) >= 24) step(distance > 0 ? 1 : -1);
+        if (Math.abs(distance) >= 24) handleDirection(distance > 0 ? 1 : -1);
       }, { passive: true });
       window.addEventListener('touchcancel', function () { touchStartY = null; }, { passive: true });
 
@@ -604,10 +659,10 @@
         var upKeys = ['ArrowUp', 'PageUp'];
         if (downKeys.indexOf(event.key) !== -1) {
           event.preventDefault();
-          step(1);
+          handleDirection(1);
         } else if (upKeys.indexOf(event.key) !== -1) {
           event.preventDefault();
-          step(-1);
+          handleDirection(-1);
         } else if (event.key === 'Home') {
           event.preventDefault();
           moveTo(0);
@@ -660,7 +715,7 @@
       window.kintsugiOpeningSettling = false;
       var queuedScroll = 0;
       var finishTimer;
-      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 1600;
+      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 1500;
 
       function begin(scrollAmount) {
         if (settling || !root.classList.contains('opening-intro')) return;
