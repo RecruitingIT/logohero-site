@@ -15,7 +15,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600&family=Commissioner:wght@500;600;700&display=swap" rel="stylesheet">
 
-  <script>document.documentElement.classList.add('js', 'opening-intro');</script>
+  <script>
+    document.documentElement.classList.add('js', 'opening-intro');
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.addEventListener('load', function () { window.scrollTo(0, 0); }, { once: true });
+  </script>
 
   <style>
     /* ---------- Tokens ---------- */
@@ -42,11 +46,12 @@
     html {
       -webkit-text-size-adjust: 100%;
       scroll-behavior: smooth;
-      scroll-snap-type: y mandatory;
       scroll-padding-top: var(--topbar-h);
       scroll-padding-bottom: 0;
     }
-    main section, .site-footer {
+    .js { scroll-behavior: auto; }
+    html.snap-ready { scroll-snap-type: y mandatory; }
+    html.snap-ready main section, html.snap-ready .site-footer {
       scroll-snap-align: center;
       scroll-snap-stop: always;
     }
@@ -504,6 +509,170 @@
   </script>
 
   <script>
+    // Move one section per gesture with a predictable, deliberately slow transition.
+    (function () {
+      var sections = Array.prototype.slice.call(document.querySelectorAll('main section, .site-footer'));
+      if (!sections.length) return;
+      var root = document.documentElement;
+      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1400;
+      var animating = false;
+      var animation = null;
+      var pendingDirection = 0;
+      var wheelGestureActive = false;
+      var lastWheelDirection = 0;
+      var wheelTimer = 0;
+
+      function openingActive() {
+        return root.classList.contains('opening-intro') || window.kintsugiOpeningSettling === true;
+      }
+      function centerY() {
+        var bar = document.getElementById('topbar');
+        var top = bar ? bar.getBoundingClientRect().height : 0;
+        return top + (window.innerHeight - top) / 2;
+      }
+      function nearestSection() {
+        var center = centerY();
+        var index = 0;
+        var nearest = Infinity;
+        sections.forEach(function (section, i) {
+          var rect = section.getBoundingClientRect();
+          var distance = Math.abs(rect.top + rect.height / 2 - center);
+          if (distance < nearest) { nearest = distance; index = i; }
+        });
+        return index;
+      }
+      function targetY(index) {
+        var rect = sections[index].getBoundingClientRect();
+        var target = window.scrollY + rect.top + rect.height / 2 - centerY();
+        var limit = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        return Math.max(0, Math.min(limit, target));
+      }
+      function moveTo(index) {
+        if (animating || index < 0 || index >= sections.length) return;
+        var fromIndex = nearestSection();
+        var start = window.scrollY;
+        var end = targetY(index);
+        if (Math.abs(end - start) < 2) return;
+        root.classList.remove('snap-ready');
+        animating = true;
+        var current = {
+          from: fromIndex,
+          direction: index === fromIndex ? 0 : (index > fromIndex ? 1 : -1),
+          frame: 0
+        };
+        animation = current;
+        var started = 0;
+        function draw(now) {
+          if (animation !== current) return;
+          if (!started) started = now;
+          var t = duration ? Math.min(1, (now - started) / duration) : 1;
+          var eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          window.scrollTo(0, start + (end - start) * eased);
+          if (t < 1) current.frame = window.requestAnimationFrame(draw);
+          else {
+            window.scrollTo(0, end);
+            animation = null;
+            animating = false;
+            if (!openingActive()) root.classList.add('snap-ready');
+            if (pendingDirection) {
+              var next = pendingDirection;
+              pendingDirection = 0;
+              window.setTimeout(function () { handleDirection(next); }, 0);
+            }
+          }
+        }
+        current.frame = window.requestAnimationFrame(draw);
+      }
+      function handleDirection(direction) {
+        if (openingActive()) return;
+        if (animating && animation) {
+          if (animation.direction && direction === -animation.direction) {
+            var origin = animation.from;
+            pendingDirection = 0;
+            window.cancelAnimationFrame(animation.frame);
+            animation = null;
+            animating = false;
+            moveTo(origin);
+          } else pendingDirection = direction;
+          return;
+        }
+        moveTo(nearestSection() + (direction > 0 ? 1 : -1));
+      }
+      function noteWheel() {
+        window.clearTimeout(wheelTimer);
+        wheelTimer = window.setTimeout(function () {
+          wheelGestureActive = false;
+          lastWheelDirection = 0;
+        }, 220);
+      }
+
+      document.addEventListener('wheel', function (event) {
+        if (event.ctrlKey || openingActive() || !root.classList.contains('snap-ready')) return;
+        var direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
+        if (!direction) return;
+        event.preventDefault();
+        noteWheel();
+        if (wheelGestureActive && direction !== lastWheelDirection) wheelGestureActive = false;
+        if (animating) {
+          if (animation && direction === -animation.direction) {
+            wheelGestureActive = true;
+            lastWheelDirection = direction;
+            handleDirection(direction);
+          } else if (!wheelGestureActive) {
+            wheelGestureActive = true;
+            lastWheelDirection = direction;
+            handleDirection(direction);
+          }
+          return;
+        }
+        if (wheelGestureActive) return;
+        wheelGestureActive = true;
+        lastWheelDirection = direction;
+        handleDirection(direction);
+      }, { capture: true, passive: false });
+
+      var touchStartY = null;
+      document.addEventListener('touchstart', function (event) {
+        touchStartY = event.touches.length === 1 ? event.touches[0].clientY : null;
+      }, { passive: true });
+      document.addEventListener('touchmove', function (event) {
+        if (openingActive() || touchStartY === null) return;
+        if (event.cancelable) event.preventDefault();
+      }, { capture: true, passive: false });
+      document.addEventListener('touchend', function (event) {
+        if (openingActive() || touchStartY === null || !event.changedTouches.length) { touchStartY = null; return; }
+        var distance = touchStartY - event.changedTouches[0].clientY;
+        touchStartY = null;
+        if (Math.abs(distance) >= 24) handleDirection(distance > 0 ? 1 : -1);
+      }, { passive: true });
+      document.addEventListener('touchcancel', function () { touchStartY = null; }, { passive: true });
+
+      document.addEventListener('keydown', function (event) {
+        if (openingActive() || event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+        var down = ['ArrowDown', 'PageDown', ' ', 'Spacebar'];
+        var up = ['ArrowUp', 'PageUp'];
+        if (down.indexOf(event.key) !== -1) { event.preventDefault(); handleDirection(1); }
+        else if (up.indexOf(event.key) !== -1) { event.preventDefault(); handleDirection(-1); }
+        else if (event.key === 'Home') { event.preventDefault(); moveTo(0); }
+        else if (event.key === 'End') { event.preventDefault(); moveTo(sections.length - 1); }
+      }, true);
+
+      document.addEventListener('click', function (event) {
+        var link = event.target.closest('a[href^="#"]');
+        if (!link || openingActive() || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        var id = decodeURIComponent(link.getAttribute('href').slice(1));
+        var target = id && document.getElementById(id);
+        var section = target && target.closest('section, .site-footer');
+        var index = section ? sections.indexOf(section) : -1;
+        if (index < 0) return;
+        event.preventDefault();
+        history.pushState(null, '', '#' + encodeURIComponent(id));
+        moveTo(index);
+      });
+    })();
+  </script>
+
+  <script>
     // Reveal the small banner logo once the main header has scrolled out of view.
     (function () {
       var header = document.querySelector('.site-header');
@@ -522,83 +691,89 @@
   </script>
 
   <script>
-    // The first downward gesture plays the opening shrink and stays at the top.
+    // The opening gesture shrinks the header and hero, then waits at the top for a new gesture.
     (function () {
       var root = document.documentElement;
       if (!root.classList.contains('opening-intro')) return;
       var settling = false;
       var wheelGestureActive = false;
-      var wheelEndTimer = 0;
-      var touchStart = null;
+      var wheelTimer = 0;
+      var touchStartY = null;
       var touchGestureActive = false;
-      var openingKeyActive = false;
+      var keyGestureActive = false;
       var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 1500;
+      window.kintsugiOpeningSettling = false;
 
-      function noteWheelInput() {
-        wheelGestureActive = true;
-        window.clearTimeout(wheelEndTimer);
-        wheelEndTimer = window.setTimeout(function () { wheelGestureActive = false; }, 250);
+      function readyIfIdle() {
+        if (!settling && !wheelGestureActive && !touchGestureActive && !keyGestureActive &&
+            !root.classList.contains('opening-intro')) root.classList.add('snap-ready');
       }
-
+      function noteWheel() {
+        wheelGestureActive = true;
+        window.clearTimeout(wheelTimer);
+        wheelTimer = window.setTimeout(function () { wheelGestureActive = false; readyIfIdle(); }, 220);
+      }
       function begin() {
         if (settling || !root.classList.contains('opening-intro')) return;
         settling = true;
+        window.kintsugiOpeningSettling = true;
         root.classList.remove('opening-intro');
-        window.setTimeout(function () { settling = false; }, duration);
+        window.setTimeout(function () {
+          settling = false;
+          window.kintsugiOpeningSettling = false;
+          readyIfIdle();
+        }, duration);
       }
-
-      window.addEventListener('wheel', function (event) {
+      document.addEventListener('wheel', function (event) {
         if (event.ctrlKey) return;
         if (root.classList.contains('opening-intro') && event.deltaY > 0) {
           event.preventDefault();
-          noteWheelInput();
+          noteWheel();
           begin();
-          return;
-        }
-        if (settling || wheelGestureActive) {
+        } else if (settling || wheelGestureActive) {
           event.preventDefault();
-          noteWheelInput();
+          noteWheel();
         }
-      }, { passive: false, capture: true });
-
-      window.addEventListener('touchstart', function (event) {
-        touchStart = event.touches.length === 1 ? event.touches[0].clientY : null;
+      }, { capture: true, passive: false });
+      document.addEventListener('touchstart', function (event) {
+        touchStartY = event.touches.length === 1 ? event.touches[0].clientY : null;
         touchGestureActive = false;
       }, { passive: true });
-      window.addEventListener('touchmove', function (event) {
+      document.addEventListener('touchmove', function (event) {
         if (settling || touchGestureActive) {
           touchGestureActive = true;
           if (event.cancelable) event.preventDefault();
           return;
         }
-        if (!root.classList.contains('opening-intro') || touchStart === null) return;
-        var distance = touchStart - event.touches[0].clientY;
+        if (!root.classList.contains('opening-intro') || touchStartY === null) return;
+        var distance = touchStartY - event.touches[0].clientY;
         if (distance <= 8) return;
         if (event.cancelable) event.preventDefault();
         touchGestureActive = true;
-        touchStart = null;
+        touchStartY = null;
         begin();
-      }, { passive: false });
-      window.addEventListener('touchend', function () {
-        touchStart = null;
+      }, { capture: true, passive: false });
+      function releaseTouch() {
+        touchStartY = null;
         touchGestureActive = false;
-      }, { passive: true });
-      window.addEventListener('touchcancel', function () {
-        touchStart = null;
-        touchGestureActive = false;
-      }, { passive: true });
-
-      window.addEventListener('keydown', function (event) {
+        readyIfIdle();
+      }
+      document.addEventListener('touchend', releaseTouch, { passive: true });
+      document.addEventListener('touchcancel', releaseTouch, { passive: true });
+      document.addEventListener('keydown', function (event) {
         if (event.altKey || event.ctrlKey || event.metaKey) return;
-        var downKeys = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
-        if (downKeys.indexOf(event.key) === -1) return;
-        if (settling || openingKeyActive || root.classList.contains('opening-intro')) {
+        var down = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
+        if (down.indexOf(event.key) === -1) return;
+        if (settling || keyGestureActive || root.classList.contains('opening-intro')) {
           event.preventDefault();
-          openingKeyActive = true;
+          keyGestureActive = true;
           begin();
         }
-      });
-      window.addEventListener('keyup', function () { openingKeyActive = false; });
+      }, true);
+      document.addEventListener('keyup', function () {
+        keyGestureActive = false;
+        readyIfIdle();
+      }, true);
     })();
   </script>
 
