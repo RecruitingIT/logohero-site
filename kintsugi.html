@@ -514,7 +514,7 @@
       var sections = Array.prototype.slice.call(document.querySelectorAll('main section, .site-footer'));
       if (!sections.length) return;
       var root = document.documentElement;
-      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1400;
+      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1000;
       var animating = false;
       var animation = null;
       var pendingDirection = 0;
