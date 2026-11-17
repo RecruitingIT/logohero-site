@@ -121,7 +121,9 @@
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
     }
     @media (max-width: 35.99rem) {
-      .site-header .logo { display: block; width: min(10.37rem, calc(100vw - 2 * var(--pad-x))); transition: width 1.5s cubic-bezier(.22,.7,.2,1); }
+      /* Settled (post-animation) logo on phones: larger than before, with a little more room in the header. */
+      .site-header .wrap { min-height: 6.5rem; }
+      .site-header .logo { display: block; width: min(15rem, calc(100vw - 2 * var(--pad-x))); transition: width 1.5s cubic-bezier(.22,.7,.2,1); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
       .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
@@ -236,9 +238,12 @@
 
     /* Phones: heading goes onto three lines, so it reaches lower and must stay clear of more of the line */
     @media (max-width: 35.99rem) {
-      .hero { --line-start-x: 0.02; --line-end-x: 0.955; }
+      /* --hero-extra: room under the line so the paragraph (now smaller) sits clear of it. */
+      .hero { --line-start-x: 0.02; --line-end-x: 0.955; --hero-extra: 28vw; }
       .hero .br-m { display: inline; }
-      .hero h1 { font-size: clamp(0.8rem, 4cqw, 3.2rem); }
+      /* Phone type: heading larger, body smaller (both still scale with the width of the line). */
+      .hero h1 { font-size: clamp(0.9rem, 5.6cqw, 3.2rem); }
+      .hero p { font-size: clamp(0.85rem, 4cqw, 1.1rem); line-height: 1.4; }
       .hero .br-d { display: none; }
     }
 
