@@ -124,10 +124,12 @@
     @media (max-width: 35.99rem) {
       :root { --open-dur: 2.4s; }  /* slower opening animation on phones */
       /* Always-set min-height + grid so the hero can glide (min-height can't animate to/from 'auto') */
-      .hero { display: grid; align-items: center; min-height: 0; }
+      /* Resting min-height = the hero's natural height (line width / aspect ratio + extra room), so the
+         shrink animates over the whole duration instead of finishing early while easing down to 0. */
+      .hero { display: grid; align-items: center; min-height: calc((100vw - 2 * var(--hero-pad)) / var(--line-ar) + var(--hero-extra)); }
       /* Settled (post-animation) logo on phones: larger than before, with a little more room in the header. */
-      .site-header .wrap { min-height: 6.5rem; }
-      .site-header .logo { display: block; width: min(15rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) cubic-bezier(.22,.7,.2,1); }
+      .site-header .wrap { min-height: 7.5rem; }
+      .site-header .logo { display: block; width: min(18.75rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) cubic-bezier(.22,.7,.2,1); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
       .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
