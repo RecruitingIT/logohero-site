@@ -39,6 +39,7 @@
       --pad-y: clamp(2.5rem, 6vw, 5rem);
       --max: 72rem;
       --topbar-h: 3.25rem;
+      --open-dur: 1.5s; /* length of the opening shrink animation (JS reads this too) */
     }
 
     /* ---------- Base ---------- */
@@ -106,10 +107,10 @@
     .logo img { height: 3.25rem; width: auto; }
 
     /* Opening view: show only the enlarged identity, banner and hero. */
-    .site-header .wrap { transition: min-height 1.5s cubic-bezier(.22,.7,.2,1); }
-    .site-header .logo img { transition: height 1.5s cubic-bezier(.22,.7,.2,1); }
-    .hero { transition: min-height 1.5s cubic-bezier(.22,.7,.2,1); }
-    .hero__art { transition: width 1.5s cubic-bezier(.22,.7,.2,1); }
+    .site-header .wrap { transition: min-height var(--open-dur) cubic-bezier(.22,.7,.2,1); }
+    .site-header .logo img { transition: height var(--open-dur) cubic-bezier(.22,.7,.2,1); }
+    .hero { transition: min-height var(--open-dur) cubic-bezier(.22,.7,.2,1); }
+    .hero__art { transition: width var(--open-dur) cubic-bezier(.22,.7,.2,1); }
     .opening-intro .site-header .wrap { min-height: 11rem; }
     .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
@@ -121,9 +122,12 @@
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
     }
     @media (max-width: 35.99rem) {
+      :root { --open-dur: 2.4s; }  /* slower opening animation on phones */
+      /* Always-set min-height + grid so the hero can glide (min-height can't animate to/from 'auto') */
+      .hero { display: grid; align-items: center; min-height: 0; }
       /* Settled (post-animation) logo on phones: larger than before, with a little more room in the header. */
       .site-header .wrap { min-height: 6.5rem; }
-      .site-header .logo { display: block; width: min(15rem, calc(100vw - 2 * var(--pad-x))); transition: width 1.5s cubic-bezier(.22,.7,.2,1); }
+      .site-header .logo { display: block; width: min(15rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) cubic-bezier(.22,.7,.2,1); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
       .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
@@ -333,7 +337,7 @@
       will-change: opacity;
     }
     /* Only while the opening animation settles: the faint preview of the next section eases in as the header finishes shrinking. */
-    .js.fade-ease .fade-section { transition: opacity 0.9s ease 0.5s; }
+    .js.fade-ease .fade-section { transition: opacity calc(var(--open-dur) * 0.6) ease calc(var(--open-dur) * 0.33); }
     @media (prefers-reduced-motion: reduce) {
       .js .fade-section { will-change: auto; }
       .js.fade-ease .fade-section { transition: none; }
@@ -715,7 +719,9 @@
       var touchStartY = null;
       var touchGestureActive = false;
       var keyGestureActive = false;
-      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : 1500;
+      var raw = getComputedStyle(root).getPropertyValue('--open-dur').trim();
+      var cssMs = raw.slice(-2) === 'ms' ? parseFloat(raw) : parseFloat(raw) * 1000;
+      var duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 20 : (cssMs || 1500);
       window.kintsugiOpeningSettling = false;
 
       function readyIfIdle() {
