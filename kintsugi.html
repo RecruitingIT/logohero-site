@@ -124,6 +124,10 @@
     }
     @media (max-width: 35.99rem) {
       :root { --open-dur: 2.4s; --open-ease: cubic-bezier(.45,.05,.25,1); }  /* slower, more even opening animation on phones */
+      /* The hero is also a .fade-section, whose `transition: none` was silently cancelling the hero's own
+         min-height transition. Re-assert it here (with higher specificity) so the shrink actually animates. */
+      .js .hero.fade-section,
+      .js.fade-ease .hero.fade-section { transition: min-height var(--open-dur) var(--open-ease); }
       /* Always-set min-height + grid so the hero can glide (min-height can't animate to/from 'auto') */
       /* Resting min-height = the hero's natural height (line width / aspect ratio + extra room), so the
          shrink animates over the whole duration instead of finishing early while easing down to 0. */
@@ -133,7 +137,7 @@
       .site-header .logo { display: block; width: min(18.75rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) var(--open-ease); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
-      .opening-intro .site-header .logo { width: min(26rem, calc(100vw - 2 * var(--pad-x))); }
+      .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
       .opening-intro .site-header .logo img { height: auto; }
       .opening-intro .hero { min-height: max(32rem, calc(100svh - 8rem - var(--topbar-h))); }
       .opening-intro .hero__art { width: min(calc((100svh - 8rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%); }
