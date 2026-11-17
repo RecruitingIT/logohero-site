@@ -115,7 +115,7 @@
     .opening-intro .site-header .wrap { min-height: 11rem; }
     .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
-      min-height: max(28rem, calc(100svh - 11rem - var(--topbar-h)));
+      min-height: max(32rem, calc(100svh - 11rem - var(--topbar-h)));
       display: grid;
       align-items: center;
     }
@@ -133,7 +133,7 @@
          shrink animates over the whole duration instead of finishing early while easing down to 0. */
       .hero { display: grid; align-items: center; min-height: calc((100vw - 2 * var(--hero-pad)) / var(--line-ar) + var(--hero-extra)); }
       /* Settled (post-animation) logo on phones: larger than before, with a little more room in the header. */
-      .site-header .wrap { min-height: 7.5rem; }
+      .site-header .wrap { min-height: 4.1rem; }  /* resting logo (~38px tall) : band (~66px) ≈ desktop ratio */
       .site-header .logo { display: block; width: min(18.75rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) var(--open-ease); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
@@ -250,11 +250,23 @@
     /* Phones: heading goes onto three lines, so it reaches lower and must stay clear of more of the line */
     @media (max-width: 35.99rem) {
       /* --hero-extra: room under the line so the paragraph (now smaller) sits clear of it. */
-      .hero { --line-start-x: 0.02; --line-end-x: 0.955; --hero-extra: 28vw; }
+      .hero { --line-start-x: 0.02; --line-end-x: 0.955; --hero-extra: 0px; }
+      .opening-intro .hero { --hero-extra: 28vw; }
+      .hero__art { transition: width var(--open-dur) var(--open-ease), padding-bottom var(--open-dur) var(--open-ease); }
       .hero .br-m { display: inline; }
       /* Phone type: heading larger, body smaller (both still scale with the width of the line). */
       .hero h1 { font-size: clamp(0.9rem, 5.6cqw, 3.2rem); }
-      .hero p { font-size: clamp(0.85rem, 4cqw, 1.1rem); line-height: 1.4; }
+      /* Resting layout mirrors desktop: the line spans the full black panel, with the paragraph tucked
+         small into the empty lower-right corner beside it. */
+      .hero p {
+        font-size: clamp(0.6rem, 2.9cqw, 0.9rem);
+        line-height: 1.4;
+        max-width: 50cqw;
+        bottom: 0.55rem;
+        transition: font-size var(--open-dur) var(--open-ease), max-width var(--open-dur) var(--open-ease), bottom var(--open-dur) var(--open-ease);
+      }
+      /* Opening view keeps the original (larger) phone paragraph. */
+      .opening-intro .hero p { font-size: clamp(0.85rem, 4cqw, 1.1rem); max-width: min(19em, calc(var(--line-end-x) * 100%)); bottom: var(--hero-vpad); }
       .hero .br-d { display: none; }
     }
 
