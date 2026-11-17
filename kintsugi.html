@@ -481,20 +481,22 @@
         var bar = document.getElementById('topbar');
         var top = bar ? bar.getBoundingClientRect().height : 0;
         var center = top + (window.innerHeight - top) / 2;
-        if (window.scrollY <= 1) {
-          // At the very top: hero fully visible; the second section peeks in faintly
-          // once the opening animation has played (and stays that way when you scroll back up).
-          var opening = root.classList.contains('opening-intro');
+        if (root.classList.contains('opening-intro')) {
+          // Opening view: only the hero is shown.
           sections.forEach(function (section, index) {
-            var o = index === 0 ? 1 : (index === 1 && !opening ? PEEK : 0);
-            section.style.setProperty('--fade-opacity', String(o));
+            section.style.setProperty('--fade-opacity', index === 0 ? '1' : '0');
           });
           return;
         }
         var fadeRange = Math.max(1, (window.innerHeight - top) * 0.68);
-        var opacities = sections.map(function (section) {
+        var opacities = sections.map(function (section, index) {
           var rect = section.getBoundingClientRect();
-          var distance = Math.abs(rect.top + rect.height / 2 - center);
+          // The hero rests at the top of the page rather than at the viewport centre, so measure
+          // its distance as "how far we've scrolled from the top". That gives exactly 100% at the
+          // top and a smooth, continuous fade from there (no jump at the 1px mark).
+          var distance = index === 0
+            ? Math.max(0, window.scrollY)
+            : Math.abs(rect.top + rect.height / 2 - center);
           var visibility = Math.max(0, 1 - distance / fadeRange);
           return visibility * visibility;
         });
