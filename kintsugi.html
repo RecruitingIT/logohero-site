@@ -40,6 +40,7 @@
       --max: 72rem;
       --topbar-h: 3.25rem;
       --open-dur: 1.5s; /* length of the opening shrink animation (JS reads this too) */
+      --open-ease: cubic-bezier(.22,.7,.2,1);
     }
 
     /* ---------- Base ---------- */
@@ -107,10 +108,10 @@
     .logo img { height: 3.25rem; width: auto; }
 
     /* Opening view: show only the enlarged identity, banner and hero. */
-    .site-header .wrap { transition: min-height var(--open-dur) cubic-bezier(.22,.7,.2,1); }
-    .site-header .logo img { transition: height var(--open-dur) cubic-bezier(.22,.7,.2,1); }
-    .hero { transition: min-height var(--open-dur) cubic-bezier(.22,.7,.2,1); }
-    .hero__art { transition: width var(--open-dur) cubic-bezier(.22,.7,.2,1); }
+    .site-header .wrap { transition: min-height var(--open-dur) var(--open-ease); }
+    .site-header .logo img { transition: height var(--open-dur) var(--open-ease); }
+    .hero { transition: min-height var(--open-dur) var(--open-ease); }
+    .hero__art { transition: width var(--open-dur) var(--open-ease); }
     .opening-intro .site-header .wrap { min-height: 11rem; }
     .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
@@ -122,17 +123,17 @@
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
     }
     @media (max-width: 35.99rem) {
-      :root { --open-dur: 2.4s; }  /* slower opening animation on phones */
+      :root { --open-dur: 2.4s; --open-ease: cubic-bezier(.45,.05,.25,1); }  /* slower, more even opening animation on phones */
       /* Always-set min-height + grid so the hero can glide (min-height can't animate to/from 'auto') */
       /* Resting min-height = the hero's natural height (line width / aspect ratio + extra room), so the
          shrink animates over the whole duration instead of finishing early while easing down to 0. */
       .hero { display: grid; align-items: center; min-height: calc((100vw - 2 * var(--hero-pad)) / var(--line-ar) + var(--hero-extra)); }
       /* Settled (post-animation) logo on phones: larger than before, with a little more room in the header. */
       .site-header .wrap { min-height: 7.5rem; }
-      .site-header .logo { display: block; width: min(18.75rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) cubic-bezier(.22,.7,.2,1); }
+      .site-header .logo { display: block; width: min(18.75rem, calc(100vw - 2 * var(--pad-x))); transition: width var(--open-dur) var(--open-ease); }
       .site-header .logo img { width: 100%; height: auto; }
       .opening-intro .site-header .wrap { min-height: 8rem; }
-      .opening-intro .site-header .logo { width: min(20.74rem, calc(100vw - 2 * var(--pad-x))); }
+      .opening-intro .site-header .logo { width: min(26rem, calc(100vw - 2 * var(--pad-x))); }
       .opening-intro .site-header .logo img { height: auto; }
       .opening-intro .hero { min-height: max(32rem, calc(100svh - 8rem - var(--topbar-h))); }
       .opening-intro .hero__art { width: min(calc((100svh - 8rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%); }
@@ -739,10 +740,33 @@
         if (settling || !root.classList.contains('opening-intro')) return;
         settling = true;
         window.kintsugiOpeningSettling = true;
+        // Phones: animate the hero between two explicit pixel heights. Browsers (notably iOS Safari)
+        // can snap instead of animating between max()/calc() min-heights, so we measure both ends.
+        var hero = document.querySelector('.hero');
+        var phone = !!hero && window.matchMedia('(max-width: 35.99rem)').matches;
+        var from = 0, to = 0;
+        if (phone) {
+          from = hero.getBoundingClientRect().height;
+          hero.style.transition = 'none';
+        }
         root.classList.add('fade-ease');
         root.classList.remove('opening-intro');
+        if (phone) {
+          hero.style.minHeight = '0px';
+          to = hero.getBoundingClientRect().height;   // natural (resting) height
+          hero.style.minHeight = from + 'px';
+          void hero.offsetHeight;
+          hero.style.transition = '';
+          hero.style.minHeight = to + 'px';
+        }
         if (window.kintsugiUpdateFades) window.kintsugiUpdateFades();
         window.setTimeout(function () {
+          if (phone) {
+            hero.style.transition = 'none';
+            hero.style.minHeight = '';
+            void hero.offsetHeight;
+            hero.style.transition = '';
+          }
           root.classList.remove('fade-ease');
           settling = false;
           window.kintsugiOpeningSettling = false;
