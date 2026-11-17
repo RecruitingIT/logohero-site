@@ -327,8 +327,11 @@
       transition: none;
       will-change: opacity;
     }
+    /* Only while the opening animation settles: the faint preview of the next section eases in as the header finishes shrinking. */
+    .js.fade-ease .fade-section { transition: opacity 0.9s ease 0.5s; }
     @media (prefers-reduced-motion: reduce) {
       .js .fade-section { will-change: auto; }
+      .js.fade-ease .fade-section { transition: none; }
     }
 
     /* ---------- Larger screens ---------- */
@@ -470,6 +473,8 @@
       if (!sections.length) return;
       sections.forEach(function (section) { section.classList.add('fade-section'); });
       var framePending = false;
+      var root = document.documentElement;
+      var PEEK = 0.22; // how faintly the second section shows while the hero is in focus
 
       function updateFades() {
         framePending = false;
@@ -477,17 +482,26 @@
         var top = bar ? bar.getBoundingClientRect().height : 0;
         var center = top + (window.innerHeight - top) / 2;
         if (window.scrollY <= 1) {
+          // At the very top: hero fully visible; the second section peeks in faintly
+          // once the opening animation has played (and stays that way when you scroll back up).
+          var opening = root.classList.contains('opening-intro');
           sections.forEach(function (section, index) {
-            section.style.setProperty('--fade-opacity', index === 0 ? '1' : '0');
+            var o = index === 0 ? 1 : (index === 1 && !opening ? PEEK : 0);
+            section.style.setProperty('--fade-opacity', String(o));
           });
           return;
         }
         var fadeRange = Math.max(1, (window.innerHeight - top) * 0.68);
-        sections.forEach(function (section) {
+        var opacities = sections.map(function (section) {
           var rect = section.getBoundingClientRect();
           var distance = Math.abs(rect.top + rect.height / 2 - center);
           var visibility = Math.max(0, 1 - distance / fadeRange);
-          section.style.setProperty('--fade-opacity', (visibility * visibility).toFixed(3));
+          return visibility * visibility;
+        });
+        // Keep the second section faintly visible in proportion to how much the hero is in focus.
+        if (opacities.length > 1) opacities[1] = Math.max(opacities[1], PEEK * opacities[0]);
+        sections.forEach(function (section, i) {
+          section.style.setProperty('--fade-opacity', opacities[i].toFixed(3));
         });
       }
 
@@ -496,6 +510,7 @@
         framePending = true;
         window.requestAnimationFrame(updateFades);
       }
+      window.kintsugiUpdateFades = requestUpdate;
       window.addEventListener('scroll', requestUpdate, { passive: true });
       window.addEventListener('resize', requestUpdate);
       updateFades();
@@ -512,9 +527,10 @@
       var activeIndex = 0;
       var desiredIndex = 0;
       var animation = null;
-      var wheelGestureActive = false;
+      var lastWheelTime = 0;
+      var lastWheelAbs = 0;
       var lastWheelDirection = 0;
-      var wheelTimer = 0;
+      var lastAcceptedTime = -1e9;
 
       function openingActive() {
         return root.classList.contains('opening-intro') || window.kintsugiOpeningSettling === true;
@@ -596,23 +612,28 @@
         if (animation) animateTo(desiredIndex);
         else if (desiredIndex !== activeIndex) animateTo(desiredIndex);
       }
-      function noteWheel() {
-        window.clearTimeout(wheelTimer);
-        wheelTimer = window.setTimeout(function () {
-          wheelGestureActive = false;
-          lastWheelDirection = 0;
-        }, 250);
-      }
-
+      // A wheel/trackpad event starts a NEW gesture (and so can interrupt a running animation) when:
+      //  - the direction changes, or
+      //  - there was a pause in the events (> 90ms), or
+      //  - the delta jumps back up after trackpad momentum has been decaying (a fresh swipe).
+      // Decaying inertia events from the previous swipe are ignored, so one swipe = one section.
       document.addEventListener('wheel', function (event) {
         if (event.ctrlKey || openingActive() || !root.classList.contains('snap-ready')) return;
         var direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
         if (!direction) return;
         event.preventDefault();
-        noteWheel();
-        if (wheelGestureActive && direction === lastWheelDirection) return;
-        wheelGestureActive = true;
+        var now = event.timeStamp || performance.now();
+        var abs = Math.abs(event.deltaY);
+        var gap = now - lastWheelTime;
+        var fresh =
+          direction !== lastWheelDirection ||
+          gap > 90 ||
+          (abs > lastWheelAbs * 1.5 + 2 && now - lastAcceptedTime > 200);
+        lastWheelTime = now;
+        lastWheelAbs = abs;
         lastWheelDirection = direction;
+        if (!fresh) return;
+        lastAcceptedTime = now;
         handleDirection(direction);
       }, { capture: true, passive: false });
 
@@ -703,8 +724,11 @@
         if (settling || !root.classList.contains('opening-intro')) return;
         settling = true;
         window.kintsugiOpeningSettling = true;
+        root.classList.add('fade-ease');
         root.classList.remove('opening-intro');
+        if (window.kintsugiUpdateFades) window.kintsugiUpdateFades();
         window.setTimeout(function () {
+          root.classList.remove('fade-ease');
           settling = false;
           window.kintsugiOpeningSettling = false;
           readyIfIdle();
