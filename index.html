@@ -15,6 +15,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
 <style>
   :root {
     --blue: #0A45E0;
+    --orange: #FF6A00;
     --blue-dark: #0A2A8F;
     --ink: #0E1B3D;
     --muted: #55607A;
@@ -286,7 +287,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
   .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
-  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
+  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--orange); border-bottom: 3px solid var(--orange); transform: rotate(-45deg); }
   .price li.plus-item { color: var(--blue); font-weight: 800; }
   .price li.plus-item::before { content: none; display: none; }
   .price .btn { margin-top: auto; text-align: center; font-size: 24px; }
@@ -517,7 +518,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     z-index: 1;
     width: 48px;
     height: 48px;
-    border: 0 solid rgba(10, 69, 224, .8);
+    border: 0 solid var(--orange);
     pointer-events: none;
     opacity: var(--glow, 1);
   }
