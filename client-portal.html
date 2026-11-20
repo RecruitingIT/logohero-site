@@ -156,12 +156,14 @@
           </button>
           <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
             <div class="menu-group">
-              <a href="/">Home</a>
+              <a href="/#top">Home</a>
             </div>
             <div class="menu-group"><a href="/privacy-notice">Privacy Policy</a></div>
-            <div class="menu-group" id="account-group" hidden>
-              <a href="#" id="signout">Sign out</a>
+            <div class="menu-group account-group" hidden>
               <a href="/set-password.html" id="password-link">Change password</a>
+            </div>
+            <div class="menu-group account-group" hidden>
+              <a href="#" id="signout">Sign out</a>
             </div>
           </nav>
         </div>
@@ -214,7 +216,7 @@
 
       document.getElementById('portal-title').textContent = page.page_title;
       statusEl.textContent = page.welcome_message;
-      document.getElementById('account-group').hidden = false;
+      document.querySelectorAll('.account-group').forEach(function (g) { g.hidden = false; });
       loadLogos(session.user.id, page.logo_summary);
     }
 

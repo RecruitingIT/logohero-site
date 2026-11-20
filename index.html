@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en-GB">
 <head>
-<script>document.documentElement.classList.add('js');</script>
+<script>document.documentElement.classList.add('js');
+/* Arriving via the menu's Home link (/#top): skip the opening animation and show the settled page from the top. */
+if (location.hash === '#top') document.documentElement.classList.add('opening-done');</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Logo Hero | Your vision, sharpened</title>
@@ -1053,6 +1055,8 @@ function updateOpening() {
   flightLogo.style.opacity = 1 - handoff;
   targetLogo.style.opacity = handoff;
 }
+
+if (location.hash === '#top') endOpening();
 
 if (!reduceOpeningMotion) {
   let openingFrame = 0;
