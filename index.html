@@ -748,6 +748,35 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4px) rotate(-45deg); }
   }
   @media (prefers-reduced-motion: reduce) { .header-actions .menu-btn span { transition: none; } }
+
+  /* ================= MOBILE LAYOUT: PROPORTIONAL (iPhone / Pixel / any phone) =================
+     The hero used fixed pixel sizes, tuned on a tall Pixel screen. iPhones show a shorter page area
+     (Safari's toolbars), so the pinned hero was taller than the screen and its bottom (the logo) was
+     clipped. Everything vertical in the hero is now a % of the screen height (svh) and widths use vw / %,
+     so the whole hero scales to fit any phone. Values match the Pixel look (915px tall) at that size. */
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  @media (max-width: 760px) {
+    .js .opening-stage { height: 195vh; height: 195svh; }
+    .js .opening-scene { min-height: 0; }
+    .js .hero-logo-flight { width: 100%; }
+
+    .hero .wrap { padding: 0 6%; gap: 5.25svh; }
+    .hero-copy { padding: 0 5.5%; }
+    .hero h1 { font-size: max(30px, min(11.7vw, 5.25svh)); }
+    .hero p { font-size: max(13px, min(6.1vw, 2.73svh)); margin-bottom: 1.53svh; }
+    .hero h1 + p { margin-top: 3.5svh; }
+    .hero p:last-child { margin-bottom: 3.5svh; }
+    .hero #hero-logo-target { width: min(100%, 39.8svh); }
+
+    .js:not(.opening-done) .opening-scene .hero { padding-top: max(12.5svh, 84px); }
+    .opening-done .hero { padding-top: max(13svh, 84px); }
+
+    .crop { width: 6.8vw; height: 6.8vw; }
+    .crop.tl, .crop.tr { top: max(78px, 10svh); }   /* never under the fixed banner */
+    .crop.bl, .crop.br { bottom: 4.8svh; }
+    .crop.tl, .crop.bl { left: 3.4vw; }
+    .crop.tr, .crop.br { right: 3.4vw; }
+  }
 </style>
 <link rel="stylesheet" href="/menu-anim.css">
 <script src="/menu-anim.js" defer></script>
@@ -979,8 +1008,10 @@ function measureOpening() {
   const sceneRect = openingScene.getBoundingClientRect();
   const stageRect = openingStage.getBoundingClientRect();
   const targetRect = targetLogo.getBoundingClientRect();
-  const viewWidth = window.innerWidth;
-  const viewHeight = window.innerHeight;
+  // Use the pinned scene's own size (it is 100svh tall) rather than window.innerHeight: on iPhones
+  // innerHeight changes as Safari's toolbars slide in and out, which made the logo land in the wrong place.
+  const viewWidth = openingScene.clientWidth || window.innerWidth;
+  const viewHeight = openingScene.clientHeight || window.innerHeight;
   const ratio = targetLogo.naturalWidth && targetLogo.naturalHeight
     ? targetLogo.naturalWidth / targetLogo.naturalHeight
     : targetRect.width / targetRect.height;
