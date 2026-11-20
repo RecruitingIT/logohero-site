@@ -26,6 +26,15 @@
     .reference { margin: 20px 0 0; color: var(--muted); }
     .reference strong { color: var(--ink); }
     .status { min-height: 1.5em; margin: 18px 0 0; color: var(--muted); }
+    .showcase { margin-top: 28px; padding: 40px; }
+    .showcase h2 { margin: 0 0 22px; font: 700 clamp(28px, 5vw, 38px)/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .pair figure { margin: 0; }
+    .pair .frame { display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .pair img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+    .pair figcaption { margin-top: 12px; color: var(--muted); font-weight: 800; font-size: 16px; letter-spacing: 1.7px; text-transform: uppercase; text-align: center; }
+    .pair figure.after figcaption { color: var(--blue); }
+    @media (max-width: 700px) { .pair { grid-template-columns: 1fr; } .showcase { padding: 30px 24px; } }
     footer { padding: 20px 24px; color: var(--muted); text-align: center; font-size: 17px; }
     @media (max-width: 520px) { header img { height: 48px; } main { padding: 36px 16px; } .card { padding: 30px 24px; } }
   </style>
@@ -45,6 +54,10 @@
       <h1 id="portal-title">Your Logo Hero portal</h1>
       <p class="status" id="portal-status" role="status" aria-live="polite">Checking your sign-in…</p>
       <p class="reference" id="reference" hidden>Customer reference: <strong></strong></p>
+    </section>
+    <section class="card showcase" id="showcase" aria-labelledby="showcase-title" hidden>
+      <h2 id="showcase-title">Before &amp; after</h2>
+      <div class="pair" id="pair"></div>
     </section>
   </main>
   <footer>© <span id="year"></span> Logo Hero</footer>
@@ -87,6 +100,42 @@
       referenceEl.hidden = false;
       signoutButton.hidden = false;
       document.getElementById('password-link').hidden = false;
+      loadLogos(session.user.id);
+    }
+
+
+    // Before / after logos: every customer has a private folder in the storage bucket named after their user id.
+    // Files with "before" / "after" in the name are shown side by side (private bucket, so short-lived signed links).
+    async function loadLogos(userId) {
+      const { data: files, error } = await supabaseClient.storage.from('customer-portal-images').list(userId);
+      if (error || !files) return;
+      const pick = function (word) {
+        return files.find(function (f) { return f.name.toLowerCase().includes(word) && /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name); });
+      };
+      const items = [['Before', pick('before')], ['After', pick('after')]].filter(function (i) { return i[1]; });
+      if (!items.length) return;
+      const { data: signed, error: signError } = await supabaseClient.storage
+        .from('customer-portal-images')
+        .createSignedUrls(items.map(function (i) { return userId + '/' + i[1].name; }), 3600);
+      if (signError || !signed) return;
+      const pair = document.getElementById('pair');
+      items.forEach(function (item, idx) {
+        if (!signed[idx] || !signed[idx].signedUrl) return;
+        const fig = document.createElement('figure');
+        fig.className = item[0].toLowerCase();
+        const frame = document.createElement('div');
+        frame.className = 'frame';
+        const img = document.createElement('img');
+        img.src = signed[idx].signedUrl;
+        img.alt = item[0] + ' logo';
+        frame.appendChild(img);
+        const cap = document.createElement('figcaption');
+        cap.textContent = item[0];
+        fig.appendChild(frame);
+        fig.appendChild(cap);
+        pair.appendChild(fig);
+      });
+      if (pair.children.length) document.getElementById('showcase').hidden = false;
     }
 
     signoutButton.addEventListener('click', async function () {
