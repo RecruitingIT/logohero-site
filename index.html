@@ -326,6 +326,10 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     .hero .wrap { grid-template-columns: 1fr; gap: 48px; }
     .hero img { max-width: 420px; margin: 0 auto; transform: translateX(-28%); }
     .opening-done .hero { padding-top: 120px; }
+    /* Settled page on phones: the hero fills the first screen, so there's extra space under the logo
+       (and the bottom blue frame corners sit at the bottom of that screen). That keeps the start of the
+       gradient background below the fold until the visitor scrolls. */
+    .opening-done .opening-scene { min-height: 100vh !important; min-height: 100svh !important; }
     .steps, .prices { grid-template-columns: 1fr; }
     section { padding: 52px 0; }
     #examples { padding: 52px 0 52px; }
