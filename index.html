@@ -524,6 +524,10 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     pointer-events: none;
     opacity: var(--glow, 1);
   }
+  /* Bottom corners fade out smoothly once the hero logo has scrolled off the top of the screen
+     (the script near the end of the page toggles .crops-bottom-off on the opening scene). */
+  .crop.bl, .crop.br { transition: opacity .35s ease; }
+  .crops-bottom-off .crop.bl, .crops-bottom-off .crop.br { opacity: 0; }
   .crop.tl { top: 126px;   left: 40px;  border-top-width: 4.5px;    border-left-width: 4.5px; }
   .crop.tr { top: 126px;   right: 40px; border-top-width: 4.5px;    border-right-width: 4.5px; }
   .crop.bl { bottom: 40px; left: 40px;  border-bottom-width: 4.5px; border-left-width: 4.5px; }
@@ -1095,6 +1099,19 @@ function updateOpening() {
 }
 
 if (location.hash === '#top') endOpening();
+
+// Fade the bottom frame corners away as soon as the hero logo is completely off the top of the screen.
+(function () {
+  let ticking = false;
+  function update() {
+    ticking = false;
+    openingScene.classList.toggle('crops-bottom-off', targetLogo.getBoundingClientRect().bottom <= 0);
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+})();
 
 if (!reduceOpeningMotion) {
   let openingFrame = 0;
