@@ -29,4 +29,24 @@
   }, true);
   window.addEventListener('resize', measure);
   window.addEventListener('load', measure);
+  /* When a menu link goes to another page, let the menu finish closing first, then navigate.
+     The page's own handler closes the menu on click; this runs after it (bubbling phase) and holds
+     the navigation back for the length of the close animation. Same-page links (#anchors), new-tab
+     links, modifier-clicks and links a page handles itself (e.g. Sign out) are left alone. */
+  var navigating = false;
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('#menu-panel a');
+    if (!a || e.defaultPrevented || navigating) return;
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (a.target && a.target !== '_self') return;
+    if (a.hasAttribute('download')) return;
+    var url;
+    try { url = new URL(a.href, location.href); } catch (err) { return; }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return;   /* mailto:, tel: etc. */
+    if (url.origin === location.origin && url.pathname === location.pathname && url.search === location.search) return;   /* same page */
+    e.preventDefault();
+    navigating = true;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(function () { location.href = url.href; }, reduce ? 0 : TOTAL + 30);
+  });
 })();
