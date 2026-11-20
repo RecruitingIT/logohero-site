@@ -20,6 +20,7 @@
       background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
     header, main, footer { position: relative; z-index: 2; }
+    header { z-index: 10; } /* keeps the drop-down menu above the login card */
     header { padding: 18px 24px; border-bottom: 1px solid var(--line); }
     header .bar { max-width: 1040px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     header img { display: block; width: auto; height: 58px; }
@@ -100,6 +101,8 @@
     }
     @media (max-width: 520px) { header img { height: 48px; } .card { padding: 30px 24px; } h1 { font-size: 36px; } }
   </style>
+<link rel="stylesheet" href="/menu-anim.css">
+<script src="/menu-anim.js" defer></script>
 </head>
 <body>
   <header>
