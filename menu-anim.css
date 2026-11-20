@@ -1,5 +1,5 @@
 /* Shared drop-down menu animation (loaded by every page that has the menu).
-   The panel grows top to bottom over 0.75s; menu-anim.js sets --menu-h and the per-item delays
+   The panel grows top to bottom over 0.5s; menu-anim.js sets --menu-h and the per-item delays
    so each item pops in once the panel is tall enough to hold it, and shrinks away just before
    the bottom edge passes it on the way back up. */
 .menu-panel {
@@ -10,7 +10,7 @@
   opacity: 0;
   transform: none;
   visibility: hidden;
-  transition: height .75s linear, opacity .12s linear .63s, visibility 0s linear .75s;
+  transition: height .5s linear, opacity .12s linear .38s, visibility 0s linear .5s;
 }
 .menu-panel::before, .menu-panel::after { content: ""; display: block; height: 8px; }
 .menu-panel .menu-group { margin: 0 8px; }
@@ -19,7 +19,7 @@
   opacity: 1;
   transform: none;
   visibility: visible;
-  transition: height .75s linear, opacity .12s linear 0s, visibility 0s linear 0s;
+  transition: height .5s linear, opacity .12s linear 0s, visibility 0s linear 0s;
 }
 .menu-panel a {
   opacity: 0;

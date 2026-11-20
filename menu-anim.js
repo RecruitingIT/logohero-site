@@ -2,7 +2,7 @@
    menu item from the panel's real layout. The page's own script still opens and closes the
    menu by toggling the "open" class; this only prepares the numbers just before it does. */
 (function () {
-  var TOTAL = 750;   /* ms for the panel to grow / shrink */
+  var TOTAL = 500;   /* ms for the panel to grow / shrink */
   var IN_LEAD = 0;   /* ms: item starts popping in as soon as the panel is tall enough for it */
   var OUT_DUR = 180; /* ms: how long an item takes to shrink away */
 
