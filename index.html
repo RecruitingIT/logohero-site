@@ -51,6 +51,7 @@
   @media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
   header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
   header img { height: 64px; width: auto; display: block; }
+  header .logo-link { display: block; line-height: 0; }
   .header-actions { display: flex; align-items: center; gap: 12px; }
 
   /* Keep the Get in touch button the same height as the other banner controls. */
@@ -667,7 +668,7 @@
 <div class="opening-stage" id="opening-stage">
 <header class="site-header is-hidden" id="site-header">
   <div class="wrap">
-    <img src="LOGO%20HERO.png" alt="Logo Hero Icon">
+    <a class="logo-link" href="/" aria-label="Logo Hero home"><img src="LOGO%20HERO.png" alt="Logo Hero Icon"></a>
     <div class="header-actions">
       <a class="login-btn icon-btn" href="/client-login" aria-label="Customer login area" title="Customer login">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
