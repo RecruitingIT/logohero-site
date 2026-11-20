@@ -28,6 +28,7 @@
     .status { min-height: 1.5em; margin: 18px 0 0; color: var(--muted); }
     .showcase { margin-top: 28px; padding: 40px; }
     .showcase h2 { margin: 0 0 22px; font: 700 clamp(28px, 5vw, 38px)/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    .summary { margin: 0 0 28px; max-width: 70ch; color: var(--muted); }
     .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     .pair figure { margin: 0; }
     .pair .frame { display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
@@ -57,6 +58,7 @@
     </section>
     <section class="card showcase" id="showcase" aria-labelledby="showcase-title" hidden>
       <h2 id="showcase-title">Before &amp; after</h2>
+      <p class="summary" id="showcase-summary" hidden></p>
       <div class="pair" id="pair"></div>
     </section>
   </main>
@@ -80,7 +82,7 @@
 
       const { data: page, error } = await supabaseClient
         .from('customer_pages')
-        .select('customer_reference, page_title, welcome_message')
+        .select('customer_reference, page_title, welcome_message, logo_summary')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
@@ -100,13 +102,13 @@
       referenceEl.hidden = false;
       signoutButton.hidden = false;
       document.getElementById('password-link').hidden = false;
-      loadLogos(session.user.id);
+      loadLogos(session.user.id, page.logo_summary);
     }
 
 
     // Before / after logos: every customer has a private folder in the storage bucket named after their user id.
     // Files with "before" / "after" in the name are shown side by side (private bucket, so short-lived signed links).
-    async function loadLogos(userId) {
+    async function loadLogos(userId, summary) {
       const { data: files, error } = await supabaseClient.storage.from('customer-portal-images').list(userId);
       if (error || !files) return;
       const pick = function (word) {
@@ -135,7 +137,14 @@
         fig.appendChild(cap);
         pair.appendChild(fig);
       });
-      if (pair.children.length) document.getElementById('showcase').hidden = false;
+      if (pair.children.length) {
+        if (summary) {
+          const summaryEl = document.getElementById('showcase-summary');
+          summaryEl.textContent = summary;
+          summaryEl.hidden = false;
+        }
+        document.getElementById('showcase').hidden = false;
+      }
     }
 
     signoutButton.addEventListener('click', async function () {
