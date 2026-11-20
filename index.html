@@ -712,10 +712,33 @@
       0 1px 2px rgba(10, 42, 143, .2);
   }
   /* Icons catch the same light: a tiny highlight just below each glyph gives an embossed feel. */
-  .header-actions .login-btn.icon-btn svg,
-  .header-actions .menu-btn span { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .9)); }
+  .header-actions .login-btn.icon-btn svg { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .9)); }
   .header-actions > .btn.icon-btn svg { filter: drop-shadow(0 -1px 0 rgba(5, 20, 80, .45)); }
-  .header-actions .menu-btn span { box-shadow: 0 1px 0 rgba(255, 255, 255, .9); filter: none; }
+
+  /* Change 16: menu icon, even lines and a clean cross.
+     - The top line looked heavier because it sits against the brightest part of the button, so the bottom
+       line is a touch thicker (4px v 3px) to balance it. Sizes add up to an even number so both lines sit on
+       whole pixels.
+     - Open state: both lines go back to the same 3px and cross exactly at the button's centre, so the four
+       ends sit on the corners of an imaginary square. No highlight/shadow on the lines, which is what used
+       to cut a break through the cross. */
+  .header-actions .menu-btn { gap: 7px; }
+  .header-actions .menu-btn span {
+    box-shadow: none;
+    filter: none;
+    transition: transform .2s ease, opacity .2s ease, background .2s ease, height .2s ease;
+  }
+  .header-actions .menu-btn span:nth-child(1) { height: 3px; }
+  .header-actions .menu-btn span:nth-child(2) { height: 4px; }
+  .header-actions .menu-btn[aria-expanded="true"] span { height: 3px; }
+  .header-actions .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+  @media (max-width: 760px) {
+    .header-actions .menu-btn { gap: 5px; }
+    .header-actions .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4px) rotate(45deg); }
+    .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4px) rotate(-45deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .header-actions .menu-btn span { transition: none; } }
 </style>
 </head>
 <body>
