@@ -655,6 +655,67 @@
   #about::before { opacity: 0; transition: opacity .8s ease; }
   #about.tinted::before { opacity: 1; }
   @media (prefers-reduced-motion: reduce) { #about::before { transition: none; } }
+
+  /* Change 15: the three banner buttons (Get in touch, Customer Login, menu) look lit from above.
+     A light source overhead: bright top edge, gradient that darkens downwards, a darker bottom edge,
+     and a soft shadow falling beneath. Pressed / open states flip to an inset look. */
+  .header-actions > .btn.icon-btn,
+  .header-actions .login-btn.icon-btn,
+  .header-actions .menu-btn {
+    background-image: linear-gradient(180deg, #FFFFFF 0%, #F6F8FD 55%, #E6EBF6 100%);
+    background-color: #F6F8FD;
+    border-color: #CBD3E6;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .95),
+      inset 0 -2px 3px rgba(14, 27, 61, .10),
+      0 1px 0 rgba(255, 255, 255, .8),
+      0 3px 6px rgba(14, 27, 61, .16),
+      0 8px 14px -6px rgba(14, 27, 61, .18);
+    transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
+  }
+  .header-actions > .btn.icon-btn {
+    background-image: linear-gradient(180deg, #4B7BF5 0%, #0A45E0 52%, #0837B5 100%);
+    background-color: #0A45E0;
+    border-color: #0A2A8F;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .45),
+      inset 0 -2px 3px rgba(5, 20, 80, .35),
+      0 3px 6px rgba(10, 42, 143, .30),
+      0 8px 14px -6px rgba(10, 42, 143, .35);
+  }
+  .header-actions > .btn.icon-btn:hover {
+    background-image: linear-gradient(180deg, #3F70EE 0%, #0A3CC4 52%, #0A2A8F 100%);
+    background-color: #0A3CC4;
+    border-color: #0A2A8F;
+  }
+  .header-actions .login-btn.icon-btn:hover,
+  .header-actions .menu-btn:hover {
+    background-image: linear-gradient(180deg, #FFFFFF 0%, #EEF2FB 55%, #DCE4F5 100%);
+    background-color: #EEF2FB;
+    border-color: var(--blue);
+  }
+  /* Pressed, and the menu button while its panel is open: sits slightly in, light now falls on the lower lip. */
+  .header-actions > .btn.icon-btn:active,
+  .header-actions .login-btn.icon-btn:active,
+  .header-actions .menu-btn:active,
+  .header-actions .menu-btn[aria-expanded="true"] {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 2px 4px rgba(14, 27, 61, .22),
+      inset 0 -1px 0 rgba(255, 255, 255, .7),
+      0 1px 2px rgba(14, 27, 61, .12);
+  }
+  .header-actions > .btn.icon-btn:active {
+    box-shadow:
+      inset 0 2px 4px rgba(5, 20, 80, .5),
+      inset 0 -1px 0 rgba(255, 255, 255, .25),
+      0 1px 2px rgba(10, 42, 143, .2);
+  }
+  /* Icons catch the same light: a tiny highlight just below each glyph gives an embossed feel. */
+  .header-actions .login-btn.icon-btn svg,
+  .header-actions .menu-btn span { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .9)); }
+  .header-actions > .btn.icon-btn svg { filter: drop-shadow(0 -1px 0 rgba(5, 20, 80, .45)); }
+  .header-actions .menu-btn span { box-shadow: 0 1px 0 rgba(255, 255, 255, .9); filter: none; }
 </style>
 </head>
 <body>
