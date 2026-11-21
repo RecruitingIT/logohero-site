@@ -284,7 +284,15 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
   .price:hover, .price:focus-within { transform: scale(1.02); box-shadow: 0 10px 24px rgba(14, 27, 61, .12); }
   .price.featured { border-color: var(--blue); }
-  .price h3 { font-size: 28px; margin-bottom: 4px; }
+  .price { position: relative; overflow: hidden; padding-top: 0; }
+  .price .head { margin: 0 -32px 8px; padding: 22px 32px 16px; background: var(--soft); border-bottom: 2px solid var(--line); }
+  .price.featured .head { background: var(--blue); border-bottom-color: var(--blue); }
+  .price h3 { font-size: 48px; letter-spacing: 2px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .price.featured h3 { color: #fff; }
+  .price h3 .plus { color: var(--orange); }
+  .price .tagline { font-size: 20px; color: var(--muted); }
+  .price.featured .tagline { color: rgba(255, 255, 255, .85); }
+  .price .badge { position: absolute; top: 14px; right: 14px; background: var(--orange); color: #fff; font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
   .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
   .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
@@ -950,7 +958,10 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
       <h2>Simple, fixed prices</h2>
       <div class="prices">
         <div class="price">
-          <h3>Logo</h3>
+          <div class="head">
+            <h3>Logo</h3>
+            <div class="tagline">Just the logo</div>
+          </div>
           <div class="amount">£150</div>
           <ul>
             <li>Your logo, refined</li>
@@ -963,7 +974,11 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
           <a class="btn ghost" href="/logo-order">Choose Logo</a>
         </div>
         <div class="price featured">
-          <h3>Logo+</h3>
+          <span class="badge">Best value</span>
+          <div class="head">
+            <h3>Logo<span class="plus">+</span></h3>
+            <div class="tagline">The full kit</div>
+          </div>
           <div class="amount">£225</div>
           <ul>
             <li>Everything in Logo</li>
