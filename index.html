@@ -656,7 +656,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   #about h2, #how h2 { color: #fff; }
   #about p { color: rgba(255, 255, 255, .82); }
   #contact { position: relative; }
-  #about::before, #about::after, #how::before, #how::after, #contact::before {
+  #about::before, #about::after, #how::before, #how::after, #contact::before, #contact::after {
     content: "";
     position: absolute;
     left: 0; right: 0;
@@ -667,7 +667,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     box-shadow: 0 0 5px 1px rgba(255, 130, 38, .8), 0 0 14px 3px rgba(255, 130, 38, .4);
   }
   #about::before, #how::before, #contact::before { top: 0; }
-  #about::after, #how::after { bottom: 0; }
+  #about::after, #how::after, #contact::after { bottom: 0; }
 
   /* Change 15: the three banner buttons (Get in touch, Customer Login, menu) look lit from above.
      A light source overhead: bright top edge, gradient that darkens downwards, a darker bottom edge,
