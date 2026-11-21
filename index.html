@@ -1021,7 +1021,7 @@ window.addEventListener('scroll', () => {
     scrollingUp = y < previousScrollY;
     // Any real scrolling hands the banner back to its normal show/hide behaviour.
     openingHeader.classList.remove('banner-prep', 'banner-fade');
-    const hideAtTop = !(openingDone || openingFinished);   // banner only hides during the opening itself
+    const hideAtTop = !(openingDone || bannerShown);   // banner only hides until its fade-in has started
     // The banner only hides during the opening animation; once that's done it stays put.
     openingHeader.classList.toggle('is-hidden', hideAtTop && (y <= 20 || !scrollingUp));
     openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
@@ -1034,6 +1034,7 @@ const mobileOpeningQuery = window.matchMedia('(max-width: 760px)');
 
 let openingFinished = false;
 let openingDone = false;
+let bannerShown = false;   // set once the delayed banner fade-in has started (or been skipped)
 
 // The top banner fades into view this long after the logo animation finishes.
 const BANNER_DELAY = 500;
@@ -1042,6 +1043,7 @@ function scheduleBannerFade() {
   clearTimeout(bannerTimer);
   bannerTimer = setTimeout(() => {
     if (openingDone || !openingMetrics) return;
+    bannerShown = true;
     // Only if the visitor is still sitting at the end of the animation.
     const endY = openingMetrics.stageTop + openingMetrics.travel;
     if (window.scrollY > endY + 40) return;
