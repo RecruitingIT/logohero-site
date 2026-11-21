@@ -27,6 +27,58 @@
   document.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('#menu-btn')) measure();
   }, true);
+
+  /* Pop sounds: one soft "pop" per menu item, synthesised with Web Audio (no audio files), timed
+     to the same delays the CSS uses for each item. Watches the panel's "open" class so it works
+     however the page opens or closes the menu. */
+  var audioCtx = null;
+  function getCtx() {
+    if (audioCtx) return audioCtx;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try { audioCtx = new AC(); } catch (err) { return null; }
+    return audioCtx;
+  }
+  function pop(delayMs, opening, i) {
+    var ctx = getCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
+    var t = ctx.currentTime + delayMs / 1000;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    var base = opening ? 380 + i * 35 : 300 - i * 15;   /* rises slightly down the list on open, falls on close */
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(base, t);
+    osc.frequency.exponentialRampToValueAtTime(base * (opening ? 2.4 : 0.55), t + 0.07);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.16, t + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.12);
+  }
+  function playPops(opening) {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var panel = document.getElementById('menu-panel');
+    if (!panel) return;
+    var n = 0;
+    panel.querySelectorAll('a').forEach(function (a) {
+      if (!a.offsetParent) return;
+      var d = parseFloat(a.style.getPropertyValue(opening ? '--in-delay' : '--out-delay')) || 0;
+      pop(d, opening, n++);
+    });
+  }
+  (function watch() {
+    var panel = document.getElementById('menu-panel');
+    if (!panel || !window.MutationObserver) return;
+    var was = panel.classList.contains('open');
+    new MutationObserver(function () {
+      var now = panel.classList.contains('open');
+      if (now !== was) { was = now; playPops(now); }
+    }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+  })();
+
   window.addEventListener('resize', measure);
   window.addEventListener('load', measure);
   /* When a menu link goes to another page, let the menu finish closing first, then navigate.
