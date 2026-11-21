@@ -841,6 +841,18 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     .crop.tl, .crop.bl { left: 3.4vw; }
     .crop.tr, .crop.br { right: 3.4vw; }
   }
+
+  /* ================= DESKTOP EDGE SPACING =================
+     The frame corners sit 40px from the window edge at every window size (see .crop above).
+       - The banner's logo and buttons line up with those corners: banner spans the full window width
+         with 40px at each side (it was held to the 1040px content column, so it sat too far in).
+       - Text and the hero logo never come closer to the window edge than twice that (80px).
+         max-width is raised by the extra padding so the content column keeps its width on big screens. */
+  @media (min-width: 761px) {
+    :root { --corner-gap: 40px; }
+    header .wrap { max-width: none; padding: 0 var(--corner-gap); }
+    .wrap { max-width: calc(1040px + 2 * var(--corner-gap) + 32px); padding-left: calc(2 * var(--corner-gap)); padding-right: calc(2 * var(--corner-gap)); }
+  }
 </style>
 <link rel="stylesheet" href="/menu-anim.css">
 <script src="/menu-anim.js" defer></script>
