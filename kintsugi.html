@@ -111,7 +111,7 @@
     .site-header .wrap { transition: min-height var(--open-dur) var(--open-ease); }
     .site-header .logo img { transition: height var(--open-dur) var(--open-ease); }
     .hero { transition: min-height var(--open-dur) var(--open-ease); }
-    .hero__art { transition: width var(--open-dur) var(--open-ease), transform var(--open-dur) var(--open-ease); }
+    .hero__art { transition: width var(--open-dur) var(--open-ease); }
     .opening-intro .site-header .wrap { min-height: 11rem; }
     .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
@@ -121,7 +121,6 @@
     }
     .opening-intro .hero__art {
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
-      transform: translateX(-3vw);   /* opening view sits a little left; eases back to centre as the header shrinks */
     }
     @media (max-width: 35.99rem) {
       :root { --open-dur: 2.4s; --open-ease: cubic-bezier(.45,.05,.25,1); }  /* slower, more even opening animation on phones */
@@ -525,6 +524,9 @@
           return;
         }
         var fadeRange = Math.max(1, (window.innerHeight - top) * 0.68);
+        // The last section can never be scrolled to the centre of the screen (the page runs out first),
+        // so forgive the distance it falls short by. At the very bottom it then reads as fully in focus.
+        var scrollLimit = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         var opacities = sections.map(function (section, index) {
           var rect = section.getBoundingClientRect();
           // The hero rests at the top of the page rather than at the viewport centre, so measure
@@ -533,6 +535,10 @@
           var distance = index === 0
             ? Math.max(0, window.scrollY)
             : Math.abs(rect.top + rect.height / 2 - center);
+          if (index === sections.length - 1 && index > 0) {
+            var shortfall = Math.max(0, window.scrollY + rect.top + rect.height / 2 - center - scrollLimit);
+            distance = Math.max(0, distance - shortfall);
+          }
           var visibility = Math.max(0, 1 - distance / fadeRange);
           return visibility * visibility;
         });
