@@ -21,7 +21,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     --muted: #55607A;
     --line: #DDE3F0;
     --soft: #F3F6FC;
-    --bg: #FBFDFF;
+    --bg: #FFFFFF;
   }
   * { box-sizing: border-box; }
   /* No sideways scrolling anywhere: html is hidden (applies to the viewport), body is clipped
@@ -475,19 +475,6 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
 
   /* ================= PREMIUM BACKGROUND & ATMOSPHERE ================= */
 
-  /* Premium 1: fine grain overlay. Sits over the whole page; ignores clicks.
-     Tweak opacity between .03 (barely there) and .07 (clearly textured). */
-  body { position: relative; }
-  body::before {
-    content: "";
-    position: absolute;   /* spans the whole page and scrolls with it */
-    inset: 0;
-    z-index: 1;           /* above section backgrounds, below content (see "keep content clean" below) */
-    pointer-events: none;
-    opacity: .11;
-    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
   /* Premium 2 (dot grid) removed. */
   body { background-color: var(--bg); }
   .opening-scene { background: transparent; }
@@ -663,10 +650,13 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   /* Change 13: no spotlight/backlight behind the hero logo (the corner marks keep their fade-in). */
   .hero .wrap::before { display: none; }
 
-  /* Section dividers: the blue sections (About, How) are solid colour with hard edges, and each
-     blue/grey divide carries a 1px static orange line with a soft glow. No fades, no scroll animation. */
-  #about, #how { position: relative; background: #D5E3FC; transition: none; }
-  #about::before, #about::after, #how::before, #how::after {
+  /* Section rhythm: white and deep navy, with a 1px static orange glow line on every white/navy divide.
+     About and How are navy (their text flips to white); Examples and Pricing stay white; Contact is navy too. */
+  #about, #how { position: relative; background: var(--ink); transition: none; }
+  #about h2, #how h2 { color: #fff; }
+  #about p { color: rgba(255, 255, 255, .82); }
+  #contact { position: relative; }
+  #about::before, #about::after, #how::before, #how::after, #contact::before {
     content: "";
     position: absolute;
     left: 0; right: 0;
@@ -674,9 +664,9 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     background: #FF8226;
     z-index: 2;
     pointer-events: none;
-    box-shadow: 0 0 4px 1px rgba(255, 130, 38, .75), 0 0 12px 3px rgba(255, 130, 38, .35);
+    box-shadow: 0 0 5px 1px rgba(255, 130, 38, .8), 0 0 14px 3px rgba(255, 130, 38, .4);
   }
-  #about::before, #how::before { top: 0; }
+  #about::before, #how::before, #contact::before { top: 0; }
   #about::after, #how::after { bottom: 0; }
 
   /* Change 15: the three banner buttons (Get in touch, Customer Login, menu) look lit from above.
