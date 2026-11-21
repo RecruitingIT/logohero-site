@@ -66,6 +66,49 @@
     }, { passive: true });
   })();
 
+  /* Mouse / trackpad: a Mac trackpad keeps sending scroll "momentum" events for a second or more after
+     the fingers lift, and the page keeps sliding under the cursor. When the menu button is pressed
+     during that, the leftover momentum is cancelled (the page-scroll events are swallowed until they
+     die away) and the menu opens straight away if the click didn't come through by itself. */
+  (function () {
+    var lastWheelT = 0, lastScrollT = 0, blocking = false, clicked = false, timer = 0, poll = 0;
+    window.addEventListener('wheel', function (e) {
+      lastWheelT = Date.now();
+      if (blocking && e.cancelable) e.preventDefault();
+    }, { passive: false });
+    window.addEventListener('scroll', function () { lastScrollT = Date.now(); }, { passive: true });
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('#menu-btn')) clicked = true;
+    }, true);
+    function onBtn(e) { return e.target.closest && e.target.closest('#menu-btn'); }
+    function release() {
+      clearInterval(poll);
+      var started = Date.now();
+      poll = setInterval(function () {
+        /* stop swallowing once the momentum has gone quiet (or after a safety limit) */
+        if (Date.now() - lastWheelT > 150 || Date.now() - started > 1500) { blocking = false; clearInterval(poll); }
+      }, 50);
+    }
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || !onBtn(e)) return;
+      clicked = false;
+      var now = Date.now();
+      if (now - lastWheelT < 250 || now - lastScrollT < 150) {
+        blocking = true;
+        window.scrollTo({ top: window.pageYOffset, left: window.pageXOffset, behavior: 'instant' });
+      }
+    }, true);
+    document.addEventListener('pointerup', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      if (blocking) release();
+      if (!onBtn(e)) return;
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (!clicked && blocking) { var b = document.getElementById('menu-btn'); if (b) b.click(); }
+      }, 60);
+    }, true);
+  })();
+
   /* Pop sounds: one soft "pop" per menu item, synthesised with Web Audio (no audio files), timed
      to the same delays the CSS uses for each item. Watches the panel's "open" class so it works
      however the page opens or closes the menu. */
