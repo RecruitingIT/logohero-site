@@ -28,6 +28,44 @@
     if (e.target.closest && e.target.closest('#menu-btn')) measure();
   }, true);
 
+  /* Tapping the menu button while the page is still coasting from a swipe (momentum / fling, or a
+     smooth anchor scroll): touch browsers use that first tap just to halt the scroll and swallow
+     the click, so the menu never opened. Here the scroll is stopped dead on touch-down and, if the
+     browser swallowed the click, the menu is opened from the touch-up instead. */
+  (function () {
+    var lastScrollT = 0, moving = false, startX = 0, startY = 0, drifted = false, clicked = false, timer = 0;
+    window.addEventListener('scroll', function () { lastScrollT = Date.now(); }, { passive: true });
+    document.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('#menu-btn')) clicked = true;
+    }, true);
+    function onBtn(e) { return e.target.closest && e.target.closest('#menu-btn'); }
+    document.addEventListener('touchstart', function (e) {
+      if (!onBtn(e) || !e.touches[0]) return;
+      clicked = false; drifted = false;
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      moving = Date.now() - lastScrollT < 150;
+      if (moving) {
+        /* Cancel any momentum or smooth scroll by jumping to where the page is right now. */
+        window.scrollTo({ top: window.pageYOffset, left: window.pageXOffset, behavior: 'instant' });
+      }
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!moving || !e.touches[0]) return;
+      if (Math.abs(e.touches[0].clientX - startX) > 10 || Math.abs(e.touches[0].clientY - startY) > 10) drifted = true;
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (!moving || !onBtn(e)) { moving = false; return; }
+      var open = !drifted;
+      moving = false;
+      if (!open) return;
+      clearTimeout(timer);
+      /* Give a normal click a moment to arrive; only step in if the browser swallowed it. */
+      timer = setTimeout(function () {
+        if (!clicked) { var b = document.getElementById('menu-btn'); if (b) b.click(); }
+      }, 60);
+    }, { passive: true });
+  })();
+
   /* Pop sounds: one soft "pop" per menu item, synthesised with Web Audio (no audio files), timed
      to the same delays the CSS uses for each item. Watches the panel's "open" class so it works
      however the page opens or closes the menu. */
