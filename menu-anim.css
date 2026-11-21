@@ -36,3 +36,8 @@
   .menu-panel, .menu-panel.open, .menu-panel a, .menu-panel.open a { transition: none; }
   .menu-panel a { transform: none; }
 }
+
+/* Menu button raises on hover, like the padlock and mail buttons next to it (all pages with the menu). */
+.menu-btn.menu-btn { transition: border-color .15s, background .15s, transform .15s, box-shadow .15s; }
+.menu-btn:hover { transform: translateY(-1px); }
+@media (prefers-reduced-motion: reduce) { .menu-btn.menu-btn { transition: none; } }
