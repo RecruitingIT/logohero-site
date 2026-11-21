@@ -395,6 +395,22 @@
   /* Optical centring: the font sits slightly low in its line box, so nudge the text up (~2px) */
   .header-actions > .btn { padding-bottom: 4px; }
   .header-actions .login-btn { padding-bottom: 2px; }
+
+  /* Section dividers: the blue sections (About, How) are solid colour with hard edges, and each
+     blue/grey divide carries a 1px static orange line with a soft glow. No fades, no scroll animation. */
+  #about, #how { position: relative; background: #D5E3FC; transition: none; }
+  #about::before, #about::after, #how::before, #how::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    height: 1px;
+    background: #FF8226;
+    z-index: 2;
+    pointer-events: none;
+    box-shadow: 0 0 4px 1px rgba(255, 130, 38, .75), 0 0 12px 3px rgba(255, 130, 38, .35);
+  }
+  #about::before, #how::before { top: 0; }
+  #about::after, #how::after { bottom: 0; }
 </style>
 <link rel="stylesheet" href="/menu-anim.css">
 <script src="/menu-anim.js" defer></script>
