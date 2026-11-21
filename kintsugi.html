@@ -363,7 +363,11 @@
       will-change: opacity;
     }
     /* Only while the opening animation settles: the faint preview of the next section eases in as the header finishes shrinking. */
-    .js.fade-ease .fade-section { transition: opacity calc(var(--open-dur) * 0.67) ease calc(var(--open-dur) * 0.33); }
+    .js.fade-ease .fade-section { transition: opacity calc(var(--open-dur) * 0.6) ease calc(var(--open-dur) * 0.33); }
+    @media (max-width: 35.99rem) {
+      /* Phones: the second section finishes fading in exactly as the hero finishes settling. */
+      .js.fade-ease .fade-section { transition: opacity calc(var(--open-dur) * 0.67) ease calc(var(--open-dur) * 0.33); }
+    }
     @media (prefers-reduced-motion: reduce) {
       .js .fade-section { will-change: auto; }
       .js.fade-ease .fade-section { transition: none; }
@@ -509,7 +513,9 @@
       sections.forEach(function (section) { section.classList.add('fade-section'); });
       var framePending = false;
       var root = document.documentElement;
-      var PEEK = 0.25; // how faintly the third section shows while the hero and second section are in focus
+      var PEEK = 0.25; // phones: how faintly the third section shows while the hero and second section are in focus
+      var PEEK_DESKTOP = 0.22; // desktop: how faintly the second section shows while the hero is in focus
+      var phoneQuery = window.matchMedia('(max-width: 35.99rem)');
 
       function updateFades() {
         framePending = false;
@@ -542,10 +548,15 @@
           var visibility = Math.max(0, 1 - distance / fadeRange);
           return visibility * visibility;
         });
-        // The first view is the hero AND the second section together: the second matches the hero's
-        // opacity, and the third shows faintly beneath them.
-        if (opacities.length > 1) opacities[1] = Math.max(opacities[1], opacities[0]);
-        if (opacities.length > 2) opacities[2] = Math.max(opacities[2], PEEK * opacities[0]);
+        if (phoneQuery.matches) {
+          // Phones: the first view is the hero AND the second section together: the second matches the
+          // hero's opacity, and the third shows faintly beneath them.
+          if (opacities.length > 1) opacities[1] = Math.max(opacities[1], opacities[0]);
+          if (opacities.length > 2) opacities[2] = Math.max(opacities[2], PEEK * opacities[0]);
+        } else if (opacities.length > 1) {
+          // Desktop: keep the second section faintly visible in proportion to how much the hero is in focus.
+          opacities[1] = Math.max(opacities[1], PEEK_DESKTOP * opacities[0]);
+        }
         sections.forEach(function (section, i) {
           section.style.setProperty('--fade-opacity', opacities[i].toFixed(3));
         });
@@ -597,11 +608,16 @@
         });
         return index;
       }
-      // The hero and second section are viewed together, so they form a single stop at the top.
-      var stops = [0];
-      for (var k = 2; k < sections.length; k++) stops.push(k);
-      if (sections.length === 2) stops = [0, 1];
-      function toStop(index) { return (sections.length > 2 && index === 1) ? 0 : index; }
+      // Phones: the hero and second section are viewed together, so they form a single stop at the top
+      // (the first scroll lands on section 3). Desktop: every section is its own stop.
+      var phoneQuery = window.matchMedia('(max-width: 35.99rem)');
+      function getStops() {
+        var all = [];
+        for (var k = 0; k < sections.length; k++) all.push(k);
+        if (!phoneQuery.matches || sections.length <= 2) return all;
+        return all.filter(function (k) { return k !== 1; });
+      }
+      function toStop(index) { return (phoneQuery.matches && sections.length > 2 && index === 1) ? 0 : index; }
       function targetY(index) {
         if (index === 0) return 0;
         var rect = sections[index].getBoundingClientRect();
@@ -660,6 +676,7 @@
 
       function handleDirection(direction) {
         if (openingActive()) return;
+        var stops = getStops();
         var pos = stops.indexOf(toStop(desiredIndex)) + (direction > 0 ? 1 : -1);
         desiredIndex = stops[Math.max(0, Math.min(stops.length - 1, pos))];
         if (animation) animateTo(desiredIndex);
