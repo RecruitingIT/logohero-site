@@ -31,7 +31,7 @@
   /* Pop sounds: one soft "pop" per menu item, synthesised with Web Audio (no audio files), timed
      to the same delays the CSS uses for each item. Watches the panel's "open" class so it works
      however the page opens or closes the menu. */
-  var audioCtx = null;
+  var audioCtx = null, bus = null;
   function getCtx() {
     if (audioCtx) return audioCtx;
     var AC = window.AudioContext || window.webkitAudioContext;
@@ -39,24 +39,55 @@
     try { audioCtx = new AC(); } catch (err) { return null; }
     return audioCtx;
   }
+  /* One shared output chain: a master gain with headroom, then a gentle limiter, so several pops
+     landing close together can't add up and clip. */
+  function getBus(ctx) {
+    if (bus) return bus;
+    var master = ctx.createGain();
+    master.gain.value = 0.7;
+    var out = master;
+    if (ctx.createDynamicsCompressor) {
+      var comp = ctx.createDynamicsCompressor();
+      comp.threshold.value = -18;
+      comp.knee.value = 12;
+      comp.ratio.value = 6;
+      comp.attack.value = 0.003;
+      comp.release.value = 0.12;
+      master.connect(comp);
+      comp.connect(ctx.destination);
+    } else {
+      master.connect(ctx.destination);
+    }
+    bus = master;
+    return bus;
+  }
   function pop(delayMs, opening, i) {
     var ctx = getCtx();
     if (!ctx) return;
     if (ctx.state === 'suspended' && ctx.resume) ctx.resume();
     var t = ctx.currentTime + delayMs / 1000;
     var osc = ctx.createOscillator();
+    var filter = ctx.createBiquadFilter();
     var gain = ctx.createGain();
-    var base = opening ? 380 + i * 35 : 300 - i * 15;   /* rises slightly down the list on open, falls on close */
+    /* Close pops start higher and fall by less, and are quieter: a low, fast downward sweep with a
+       hard attack is what made them thump and distort. */
+    var base = opening ? 380 + i * 35 : 420 - i * 12;
+    var peak = opening ? 0.12 : 0.07;
     osc.type = 'sine';
     osc.frequency.setValueAtTime(base, t);
-    osc.frequency.exponentialRampToValueAtTime(base * (opening ? 2.4 : 0.55), t + 0.07);
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.16, t + 0.008);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    osc.frequency.exponentialRampToValueAtTime(base * (opening ? 2.2 : 0.75), t + 0.08);
+    filter.type = 'lowpass';
+    filter.frequency.value = 2200;
+    filter.Q.value = 0.5;
+    /* Soft attack (no click) and a smooth tail that reaches silence before the oscillator stops. */
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(peak, t + 0.015);
+    gain.gain.setTargetAtTime(0, t + 0.02, 0.03);
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(getBus(ctx));
     osc.start(t);
-    osc.stop(t + 0.12);
+    osc.stop(t + 0.22);
   }
   function playPops(opening) {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
