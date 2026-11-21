@@ -1038,9 +1038,15 @@ const COAST_MS = 220;
   const header = document.getElementById('site-header');
   if (!hero || !header || !('IntersectionObserver' in window)) return;
   const bannerH = header.offsetHeight || 80;
+  let heroIn = false;
+  // Hidden while the hero logo is on screen, except right at the very top of the page, where it shows.
+  // Everything is recalculated on scroll, so it fades out and back in whichever way you scroll.
+  function update() { header.classList.toggle('hero-in-view', heroIn && window.scrollY > 20); }
   new IntersectionObserver(function (entries) {
-    header.classList.toggle('hero-in-view', entries[entries.length - 1].isIntersecting);
+    heroIn = entries[entries.length - 1].isIntersecting;
+    update();
   }, { rootMargin: '-' + bannerH + 'px 0px 0px 0px', threshold: 0 }).observe(hero);
+  window.addEventListener('scroll', update, { passive: true });
 })();
 </script>
 </body>
