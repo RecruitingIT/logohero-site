@@ -76,6 +76,19 @@
       lastWheelT = Date.now();
       if (blocking && e.cancelable) e.preventDefault();
     }, { passive: false });
+    /* Momentum wheel events often can't be cancelled, so the page is also locked (overflow hidden)
+       while they die away. The scroll position is kept, so nothing jumps. */
+    var de = document.documentElement, savedOverflow = '', locked = false;
+    function lock() {
+      if (locked) return;
+      locked = true; savedOverflow = de.style.overflow;
+      de.style.overflow = 'hidden';
+      setTimeout(unlock, 3000);   /* safety net: never leave the page locked */
+    }
+    function unlock() {
+      if (!locked) return;
+      locked = false; de.style.overflow = savedOverflow;
+    }
     window.addEventListener('scroll', function () { lastScrollT = Date.now(); }, { passive: true });
     document.addEventListener('click', function (e) {
       if (e.target.closest && e.target.closest('#menu-btn')) clicked = true;
@@ -86,7 +99,7 @@
       var started = Date.now();
       poll = setInterval(function () {
         /* stop swallowing once the momentum has gone quiet (or after a safety limit) */
-        if (Date.now() - lastWheelT > 150 || Date.now() - started > 1500) { blocking = false; clearInterval(poll); }
+        if (Date.now() - lastWheelT > 150 || Date.now() - started > 1500) { blocking = false; unlock(); clearInterval(poll); }
       }, 50);
     }
     document.addEventListener('pointerdown', function (e) {
@@ -95,6 +108,7 @@
       var now = Date.now();
       if (now - lastWheelT < 250 || now - lastScrollT < 150) {
         blocking = true;
+        lock();
         window.scrollTo({ top: window.pageYOffset, left: window.pageXOffset, behavior: 'instant' });
       }
     }, true);

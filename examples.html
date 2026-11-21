@@ -573,6 +573,13 @@ let previousScrollY = window.scrollY;
 let scrollingUp = false;
 window.addEventListener('scroll', () => {
   const y = window.scrollY;
+  /* While the menu is open the banner (which holds the menu) must stay put, however the page is moving. */
+  var menuPanelEl = document.getElementById('menu-panel');
+  if (menuPanelEl && menuPanelEl.classList.contains('open')) {
+    openingHeader.classList.add('is-revealed');
+    previousScrollY = y;
+    return;
+  }
   if (Math.abs(y - previousScrollY) > 2) {
     scrollingUp = y < previousScrollY;
     const hideAtTop = !openingDone;
