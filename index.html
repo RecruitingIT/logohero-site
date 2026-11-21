@@ -1338,6 +1338,7 @@ const COAST_MS = 220;
   if (!marquee || !track || !EXAMPLES.length) return;
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let builtWidth = 0, pausedAt = null;
   let items = [], setWidth = 0, offset = 0, last = 0, mx = -1, my = -1, rafId;
   let vel = SPEED, dragging = false, moved = false;
 
@@ -1365,14 +1366,16 @@ const COAST_MS = 220;
   function build() {
     track.innerHTML = '';
     pinned = null;
-    offset = 0;
+    const keep = setWidth ? offset / setWidth : 0;   /* keep our place along the strip when rebuilding */
     const vw = marquee.clientWidth;
+    builtWidth = vw;
     const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
     const cardW = parseFloat(getComputedStyle(marquee).getPropertyValue('--cardw')) || 280;
     const unit = cardW + gap;
     let count = EXAMPLES.length;
     while (count * unit < vw * 1.2) count += EXAMPLES.length;
     setWidth = count * unit;
+    offset = keep * setWidth;
 
     for (let pass = 0; pass < 2; pass++) {
       for (let i = 0; i < count; i++) {
@@ -1460,16 +1463,36 @@ const COAST_MS = 220;
     marquee.addEventListener('pointercancel', e => release(e, true));
   }
 
+  /* The strip keeps "moving" while it is off screen (or the tab is hidden): when it stops being
+     drawn we note the time, and when it's drawn again we advance it by however long it was away,
+     so it's exactly where it would have been had it been watched the whole time. */
   let visible = true;
-  new IntersectionObserver(es => {
-    visible = es[0].isIntersecting;
+  function pause() {
+    if (pausedAt === null) pausedAt = performance.now();
+    cancelAnimationFrame(rafId);
+  }
+  function resume() {
+    if (pausedAt !== null) {
+      offset += SPEED * (performance.now() - pausedAt) / 1000;
+      wrap();
+      pausedAt = null;
+    }
+    last = 0;
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(frame);
+  }
+  function sync() {
     if (reduce) return;
-    if (visible) { last = 0; cancelAnimationFrame(rafId); rafId = requestAnimationFrame(frame); }
-    else cancelAnimationFrame(rafId);
-  }).observe(marquee);
+    if (visible && !document.hidden) resume(); else pause();
+  }
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; sync(); }).observe(marquee);
+  document.addEventListener('visibilitychange', sync);
 
   let rt;
-  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(start, 200); });
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { if (marquee.clientWidth !== builtWidth) start(); }, 200);
+  });
   start();
 })();
 </script>
