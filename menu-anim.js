@@ -72,7 +72,7 @@
     /* Close pops start higher and fall by less, and are quieter: a low, fast downward sweep with a
        hard attack is what made them thump and distort. */
     var base = opening ? 380 + i * 35 : 420 - i * 12;
-    var peak = opening ? 0.12 : 0.07;
+    var peak = opening ? 0.12 : 0.11;
     osc.type = 'sine';
     osc.frequency.setValueAtTime(base, t);
     osc.frequency.exponentialRampToValueAtTime(base * (opening ? 2.2 : 0.75), t + 0.08);
