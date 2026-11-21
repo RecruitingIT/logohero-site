@@ -261,23 +261,24 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     -webkit-touch-callout: none;
   }
   .marquee.touch .ex { -webkit-tap-highlight-color: transparent; cursor: pointer; }
-  .ex .before { opacity: 1; }
-  .ex .after { opacity: 0; }
-  .ex.is-after .before { opacity: 0; }
-  .ex.is-after .after { opacity: 1; }
+  /* Default is the polished "after"; hovering / tapping a card shows the original "before". */
+  .ex .before { opacity: 0; }
+  .ex .after { opacity: 1; }
+  .ex.is-before .before { opacity: 1; }
+  .ex.is-before .after { opacity: 0; }
   .ex .tag {
     position: absolute; left: 0; right: 0; top: 8px; text-align: center;
-    font-size: 20px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
-    color: var(--muted);
+    font-size: 22px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--orange);
     transition: color .2s ease, font-size .2s ease;
   }
-  .ex .tag::before { content: "Before"; }
-  .ex.is-after .tag { color: var(--orange); font-size: 22px; font-weight: 800; }
-  .ex.is-after .tag::before { content: "After"; }
+  .ex .tag::before { content: "After"; }
+  .ex.is-before .tag { color: var(--muted); font-size: 20px; font-weight: 700; }
+  .ex.is-before .tag::before { content: "Before"; }
 
   .marquee.static { overflow-x: auto; -webkit-mask-image: none; mask-image: none; }
-  .marquee.static .ex:hover .before, .marquee.static .ex:focus .before { opacity: 0; }
-  .marquee.static .ex:hover .after, .marquee.static .ex:focus .after { opacity: 1; }
+  .marquee.static .ex:hover .before, .marquee.static .ex:focus .before { opacity: 1; }
+  .marquee.static .ex:hover .after, .marquee.static .ex:focus .after { opacity: 0; }
 
   .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; max-width: 760px; margin: 0 auto; }
   .price { border: 2px solid var(--line); border-radius: 16px; padding: 32px; background: #fff; display: flex; flex-direction: column; transition: transform .2s ease, box-shadow .2s ease; }
@@ -943,7 +944,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   <section id="examples">
     <div class="wrap">
       <h2>See the difference</h2>
-      <p class="examples-sub">Hover to see the logo enhanced</p>
+      <p class="examples-sub">Hover to see where each logo started</p>
     </div>
     <div class="marquee" id="marquee" aria-label="Examples of logos before and after Logo Hero">
       <div class="track" id="track"></div>
@@ -1347,7 +1348,7 @@ const COAST_MS = 220;
   let pinned = null, pinTimer;
   if (touchMode) {
     const sub = document.querySelector('.examples-sub');
-    if (sub) sub.textContent = 'Tap a logo to see it enhanced';
+    if (sub) sub.textContent = 'Tap a logo to see where it started';
     marquee.classList.add('touch');
   }
 
@@ -1402,7 +1403,7 @@ const COAST_MS = 220;
       const over = touchMode
         ? it.el === pinned
         : (mx >= r.left && mx <= r.right && my >= r.top && my <= r.bottom);
-      it.el.classList.toggle('is-after', over);
+      it.el.classList.toggle('is-before', over);
     });
     rafId = requestAnimationFrame(frame);
   }
@@ -1428,7 +1429,7 @@ const COAST_MS = 220;
     applyPinned();
   });
   function applyPinned() {
-    items.forEach(it => it.el.classList.toggle('is-after', touchMode && it.el === pinned));
+    items.forEach(it => it.el.classList.toggle('is-before', touchMode && it.el === pinned));
   }
   document.addEventListener('mouseleave', () => { mx = my = -1; });
 
