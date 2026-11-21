@@ -1,9 +1,7 @@
-/* TWK Lausanne (Weltkern) is a licensed font, so the files are not bundled by default.
-   Drop the licensed web font files into /fonts/ with these names and it takes over automatically.
-   Until then the browser falls back to Darker Grotesque (see each page's font-family stack). */
-@font-face { font-family: "TWK Lausanne"; font-weight: 400; font-style: normal; font-display: swap;
-  src: local("TWK Lausanne 400"), url("/fonts/TWKLausanne-400.woff2") format("woff2"); }
-@font-face { font-family: "TWK Lausanne"; font-weight: 500; font-style: normal; font-display: swap;
-  src: local("TWK Lausanne 500"), url("/fonts/TWKLausanne-500.woff2") format("woff2"); }
-@font-face { font-family: "TWK Lausanne"; font-weight: 700; font-style: normal; font-display: swap;
-  src: local("TWK Lausanne 700"), url("/fonts/TWKLausanne-700.woff2") format("woff2"); }
+/* Body text is Hanken Grotesk (loaded from Google Fonts in each page's <head>).
+   Hanken has a bigger x-height than the Darker Grotesque the layouts were sized for, so
+   font-size-adjust shrinks it to match and the existing sizes and spacing still hold.
+   To make it bigger or smaller everywhere, change .42 (higher = bigger). Headings and prices
+   stay in Barlow Condensed at their normal size. */
+body, button, input, select, textarea { font-size-adjust: .42; }
+h1, h2, h3, .step .n, .price .amount, th, .showcase h2 { font-size-adjust: none; }
