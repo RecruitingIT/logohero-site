@@ -43,6 +43,8 @@
     background: rgba(238, 240, 243, .97);
     transition: transform .22s ease, opacity .22s ease;
   }
+  .site-header .logo-link { transition: opacity .25s ease, visibility .25s; }
+  .site-header.hero-in-view .logo-link { opacity: 0; visibility: hidden; pointer-events: none; }   /* banner logo only shows once the hero logo has scrolled away */
   .site-header.is-hidden { transform: translateY(-105%); }
   .site-header.is-hidden.is-revealed { transform: translateY(0); }
   @media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
@@ -582,8 +584,9 @@ window.addEventListener('scroll', () => {
   }
   if (Math.abs(y - previousScrollY) > 2) {
     scrollingUp = y < previousScrollY;
-    const hideAtTop = !openingDone;
-    openingHeader.classList.toggle('is-hidden', (hideAtTop && y <= 20) || !scrollingUp && (hideAtTop || y > 20));
+    const hideAtTop = !(openingDone || openingFinished);   // banner only hides during the opening itself
+    // The banner only hides during the opening animation; once that's done it stays put.
+    openingHeader.classList.toggle('is-hidden', hideAtTop && (y <= 20 || !scrollingUp));
     openingHeader.classList.toggle('is-revealed', scrollingUp && y > 20);
     previousScrollY = y;
   }
@@ -1026,6 +1029,18 @@ const COAST_MS = 220;
     target = Math.max(0, Math.min(max, target + dy * factor(target)));
     if (!running) { running = true; requestAnimationFrame(tick); }
   }, { passive: false });
+})();
+</script>
+<script>
+// Banner logo: only visible while the big hero logo is off screen.
+(function () {
+  const hero = document.getElementById('hero-logo-target');
+  const header = document.getElementById('site-header');
+  if (!hero || !header || !('IntersectionObserver' in window)) return;
+  const bannerH = header.offsetHeight || 80;
+  new IntersectionObserver(function (entries) {
+    header.classList.toggle('hero-in-view', entries[entries.length - 1].isIntersecting);
+  }, { rootMargin: '-' + bannerH + 'px 0px 0px 0px', threshold: 0 }).observe(hero);
 })();
 </script>
 </body>
