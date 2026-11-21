@@ -1555,6 +1555,10 @@ const COAST_MS = 220;
   let target = window.scrollY, current = window.scrollY, running = false;
   const smooth = function (t) { return t * t * (3 - 2 * t); };
 
+  /* The menu button can freeze the glide dead (and hold it frozen while trackpad momentum dies away). */
+  window.__smoothScrollHold = false;
+  window.__stopSmoothScroll = function () { current = target = window.scrollY; };
+
   window.__syncSmoothScroll = function () {
     measureEdges();
     current = target = window.scrollY;
@@ -1591,6 +1595,7 @@ const COAST_MS = 220;
     if (e.ctrlKey || e.defaultPrevented) return;
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     e.preventDefault();
+    if (window.__smoothScrollHold) return;
     let dy = e.deltaY;
     if (e.deltaMode === 1) dy *= 16;
     else if (e.deltaMode === 2) dy *= window.innerHeight;
