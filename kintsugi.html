@@ -111,7 +111,7 @@
     .site-header .wrap { transition: min-height var(--open-dur) var(--open-ease); }
     .site-header .logo img { transition: height var(--open-dur) var(--open-ease); }
     .hero { transition: min-height var(--open-dur) var(--open-ease); }
-    .hero__art { transition: width var(--open-dur) var(--open-ease); }
+    .hero__art { transition: width var(--open-dur) var(--open-ease), transform var(--open-dur) var(--open-ease); }
     .opening-intro .site-header .wrap { min-height: 11rem; }
     .opening-intro .site-header .logo img { height: 6.5rem; }
     .opening-intro .hero {
@@ -121,6 +121,7 @@
     }
     .opening-intro .hero__art {
       width: min(calc((100svh - 11rem - var(--topbar-h) - 2rem) * var(--line-ar)), 100%);
+      transform: translateX(-3vw);   /* opening view sits a little left; eases back to centre as the header shrinks */
     }
     @media (max-width: 35.99rem) {
       :root { --open-dur: 2.4s; --open-ease: cubic-bezier(.45,.05,.25,1); }  /* slower, more even opening animation on phones */
@@ -255,10 +256,10 @@
       /* Opening view is enlarged (line + text together) and eases down to normal size with the logo. */
       .hero__art {
         transform-origin: 7% 50%;
-        transform: scale(1);
+        transform: translateX(0) scale(1);
         transition: width var(--open-dur) var(--open-ease), padding-bottom var(--open-dur) var(--open-ease), transform var(--open-dur) var(--open-ease);
       }
-      .opening-intro .hero__art { transform: scale(1.12); }
+      .opening-intro .hero__art { transform: translateX(-3vw) scale(1.12); }
       .hero .br-m { display: inline; }
       /* Phone type: heading larger, body smaller (both still scale with the width of the line). */
       .hero h1 { font-size: clamp(0.9rem, 5.6cqw, 3.2rem); transition: font-size var(--open-dur) var(--open-ease); }
@@ -363,7 +364,7 @@
       will-change: opacity;
     }
     /* Only while the opening animation settles: the faint preview of the next section eases in as the header finishes shrinking. */
-    .js.fade-ease .fade-section { transition: opacity calc(var(--open-dur) * 0.6) ease calc(var(--open-dur) * 0.33); }
+    .js.fade-ease .fade-section { transition: opacity calc(var(--open-dur) * 0.67) ease calc(var(--open-dur) * 0.33); }
     @media (prefers-reduced-motion: reduce) {
       .js .fade-section { will-change: auto; }
       .js.fade-ease .fade-section { transition: none; }
@@ -509,7 +510,7 @@
       sections.forEach(function (section) { section.classList.add('fade-section'); });
       var framePending = false;
       var root = document.documentElement;
-      var PEEK = 0.22; // how faintly the second section shows while the hero is in focus
+      var PEEK = 0.25; // how faintly the third section shows while the hero and second section are in focus
 
       function updateFades() {
         framePending = false;
@@ -535,8 +536,10 @@
           var visibility = Math.max(0, 1 - distance / fadeRange);
           return visibility * visibility;
         });
-        // Keep the second section faintly visible in proportion to how much the hero is in focus.
-        if (opacities.length > 1) opacities[1] = Math.max(opacities[1], PEEK * opacities[0]);
+        // The first view is the hero AND the second section together: the second matches the hero's
+        // opacity, and the third shows faintly beneath them.
+        if (opacities.length > 1) opacities[1] = Math.max(opacities[1], opacities[0]);
+        if (opacities.length > 2) opacities[2] = Math.max(opacities[2], PEEK * opacities[0]);
         sections.forEach(function (section, i) {
           section.style.setProperty('--fade-opacity', opacities[i].toFixed(3));
         });
@@ -588,14 +591,20 @@
         });
         return index;
       }
+      // The hero and second section are viewed together, so they form a single stop at the top.
+      var stops = [0];
+      for (var k = 2; k < sections.length; k++) stops.push(k);
+      if (sections.length === 2) stops = [0, 1];
+      function toStop(index) { return (sections.length > 2 && index === 1) ? 0 : index; }
       function targetY(index) {
+        if (index === 0) return 0;
         var rect = sections[index].getBoundingClientRect();
         var target = window.scrollY + rect.top + rect.height / 2 - centerY();
         var limit = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
         return Math.max(0, Math.min(limit, target));
       }
 
-      activeIndex = nearestSection();
+      activeIndex = toStop(nearestSection());
       desiredIndex = activeIndex;
 
       function animateTo(index) {
@@ -645,7 +654,8 @@
 
       function handleDirection(direction) {
         if (openingActive()) return;
-        desiredIndex = Math.max(0, Math.min(sections.length - 1, desiredIndex + (direction > 0 ? 1 : -1)));
+        var pos = stops.indexOf(toStop(desiredIndex)) + (direction > 0 ? 1 : -1);
+        desiredIndex = stops[Math.max(0, Math.min(stops.length - 1, pos))];
         if (animation) animateTo(desiredIndex);
         else if (desiredIndex !== activeIndex) animateTo(desiredIndex);
       }
@@ -708,6 +718,7 @@
         var section = target && target.closest('main section');
         var index = section ? sections.indexOf(section) : -1;
         if (index < 0) return;
+        index = toStop(index);
         event.preventDefault();
         history.pushState(null, '', '#' + encodeURIComponent(id));
         desiredIndex = index;
