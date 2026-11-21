@@ -10,19 +10,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --blue: #0A45E0; --blue-dark: #0A2A8F; --ink: #0E1B3D; --muted: #55607A; --line: #DDE3F0; --soft: #F3F6FC; --bg: #FFFFFF; }
+    :root { --blue: #0A45E0; --blue-dark: #0A2A8F; --ink: #0E1B3D; --muted: #55607A; --line: #DDE3F0; --soft: #F3F6FC; --bg: #0E1B3D; }
     * { box-sizing: border-box; }
     body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font: 500 20px/1.3 "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body { position: relative; }
     header, main, footer { position: relative; z-index: 2; }
     header { z-index: 10; } /* keeps the drop-down menu above the login card */
-    header { padding: 18px 24px; border-bottom: 1px solid var(--line); }
+    header { padding: 18px 24px; border-bottom: 1px solid var(--line); background: #fff; } /* stays white so the cobalt logo reads */
     header .bar { max-width: 1040px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     header img { display: block; width: auto; height: 58px; }
     .back { color: var(--blue); font-weight: 700; text-decoration: none; }
     .back:hover { color: var(--blue-dark); text-decoration: underline; }
     main { flex: 1; display: grid; place-items: center; padding: 48px 24px; }
-    .card { width: min(100%, 460px); padding: 40px; border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: 0 16px 42px rgba(14, 27, 61, .08); }
+    .card { width: min(100%, 460px); padding: 40px; border: 1px solid #FF8226; border-radius: 18px; background: #fff; box-shadow: 0 0 6px 1px rgba(255, 130, 38, .8), 0 0 22px 4px rgba(255, 130, 38, .4); }
     .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 16px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
     h1 { margin: 0 0 8px; font: 700 42px/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
     h1 .magic { color: var(--blue); }
@@ -46,7 +46,7 @@
     .spinner { width: 22px; height: 22px; flex: none; border: 3px solid rgba(255, 255, 255, .35); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 17px; }
-    footer { padding: 20px 24px; color: var(--muted); text-align: center; font-size: 17px; }
+    footer { padding: 20px 24px; color: rgba(255, 255, 255, .72); text-align: center; font-size: 17px; }
 
     /* ---------- Menu button (two lines) + pop-up menu (same as home page) ---------- */
     .menu-wrap { position: relative; display: flex; align-items: center; }
