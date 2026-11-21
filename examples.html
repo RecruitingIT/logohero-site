@@ -278,8 +278,8 @@
   .price:hover, .price:focus-within { transform: scale(1.02); box-shadow: 0 10px 24px rgba(14, 27, 61, .12); }
   .price.featured { border-color: var(--blue); }
   .price h3 { font-size: 28px; margin-bottom: 4px; }
-  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
-  .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
+  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 0 0 20px; }
+  .price ul { list-style: none; padding: 0; margin: 0 0 16px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
   .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--blue); border-bottom: 3px solid var(--blue); transform: rotate(-45deg); }
   .price li.plus-item { color: var(--blue); font-weight: 800; }
@@ -516,7 +516,6 @@
       <div class="prices">
         <div class="price">
           <h3>Logo</h3>
-          <div class="amount">£150</div>
           <ul>
             <li>Your logo, refined</li>
             <li>Available with any background</li>
@@ -524,11 +523,11 @@
             <li>High-resolution files, ready to use</li>
             <li>Yours to keep</li>
           </ul>
+          <div class="amount">£150</div>
           <a class="btn ghost" href="/logo-order">Choose Logo</a>
         </div>
         <div class="price featured">
           <h3>Logo+</h3>
-          <div class="amount">£225</div>
           <ul>
             <li>Everything in Logo</li>
             <li class="plus-item">PLUS...</li>
@@ -539,6 +538,7 @@
             <li>Any other social media profile pictures or headers</li>
             <li>Yours to keep</li>
           </ul>
+          <div class="amount">£225</div>
           <a class="btn" href="/logoplusorder">Choose Logo+</a>
         </div>
       </div>
