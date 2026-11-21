@@ -15,7 +15,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
 <style>
   :root {
     --blue: #0A45E0;
-    --orange: #FF7000;
+    --orange: #FF8226;
     --blue-dark: #0A2A8F;
     --ink: #0E1B3D;
     --muted: #55607A;
@@ -287,7 +287,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 12px 0 16px; }
   .price ul { list-style: none; padding: 0; margin: 0 0 24px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
-  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--orange); border-bottom: 3px solid var(--orange); transform: rotate(-45deg); filter: drop-shadow(0 0 3px rgba(255, 112, 0, .8)) drop-shadow(0 0 6px rgba(255, 112, 0, .45)); }
+  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--orange); border-bottom: 3px solid var(--orange); transform: rotate(-45deg); filter: drop-shadow(0 0 3px rgba(255, 130, 38, .8)) drop-shadow(0 0 6px rgba(255, 130, 38, .45)); }
   .price li.plus-item { color: var(--blue); font-weight: 800; }
   .price li.plus-item::before { content: none; display: none; }
   .price .btn { margin-top: auto; text-align: center; font-size: 24px; }
@@ -520,7 +520,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     width: 48px;
     height: 48px;
     border: 0 solid var(--orange);
-    filter: drop-shadow(0 0 3px rgba(255, 112, 0, .9)) drop-shadow(0 0 8px rgba(255, 112, 0, .55));   /* neon glow */
+    filter: drop-shadow(0 0 3px rgba(255, 130, 38, .9)) drop-shadow(0 0 8px rgba(255, 130, 38, .55));   /* neon glow */
     pointer-events: none;
     opacity: var(--glow, 1);
   }
@@ -565,6 +565,34 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   #contact p { color: rgba(255, 255, 255, .78); }
   #contact .btn { background: #fff; border-color: #fff; color: var(--ink); }
   #contact .btn:hover { background: var(--soft); border-color: var(--soft); color: var(--blue); }
+  /* Contact button: orange and 3D, lit from above like the banner buttons. Bright top edge, gradient
+     darkening downwards, darker bottom edge and a soft shadow beneath; pressed state sits slightly in. */
+  #contact .btn {
+    background-image: linear-gradient(180deg, #FFA55E 0%, #FF8226 55%, #F2690A 100%);
+    background-color: #FF8226;
+    border-color: #FF9442;
+    color: var(--ink);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .5),
+      inset 0 -2px 3px rgba(120, 40, 0, .22),
+      0 3px 6px rgba(0, 0, 0, .30),
+      0 8px 14px -6px rgba(0, 0, 0, .35);
+    transition: background .15s, border-color .15s, transform .15s, box-shadow .15s;
+  }
+  #contact .btn:hover {
+    background-image: linear-gradient(180deg, #FFB06E 0%, #FF8B33 55%, #F87612 100%);
+    background-color: #FF8B33;
+    border-color: #FFA05A;
+    color: var(--ink);
+    transform: translateY(-1px);
+  }
+  #contact .btn:active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 2px 4px rgba(120, 40, 0, .45),
+      inset 0 -1px 0 rgba(255, 255, 255, .25),
+      0 1px 2px rgba(0, 0, 0, .25);
+  }
 
   /* Change 7 (desktop only): keep the hero headline clear of the banner and inside the frame corners.
      The pinned opening scene now reserves space at the top for the banner (and the top corner marks),
@@ -930,7 +958,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   <section class="soft contact" id="contact">
     <div class="wrap">
       <h2>Let's sharpen yours</h2>
-      <p>Send us your current logo, we'll enhance it.</p>
+      <p>Send us your current logo,<br>we'll enhance it.</p>
       <a class="btn" href="mailto:branding@logohero.co.uk?subject=Logo%20Hero%20enquiry">branding@logohero.co.uk</a>
     </div>
   </section>
