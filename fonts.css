@@ -1,0 +1,9 @@
+/* TWK Lausanne (Weltkern) is a licensed font, so the files are not bundled by default.
+   Drop the licensed web font files into /fonts/ with these names and it takes over automatically.
+   Until then the browser falls back to Darker Grotesque (see each page's font-family stack). */
+@font-face { font-family: "TWK Lausanne"; font-weight: 400; font-style: normal; font-display: swap;
+  src: local("TWK Lausanne 400"), url("/fonts/TWKLausanne-400.woff2") format("woff2"); }
+@font-face { font-family: "TWK Lausanne"; font-weight: 500; font-style: normal; font-display: swap;
+  src: local("TWK Lausanne 500"), url("/fonts/TWKLausanne-500.woff2") format("woff2"); }
+@font-face { font-family: "TWK Lausanne"; font-weight: 700; font-style: normal; font-display: swap;
+  src: local("TWK Lausanne 700"), url("/fonts/TWKLausanne-700.woff2") format("woff2"); }
