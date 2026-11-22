@@ -134,6 +134,19 @@
     .pair img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
     .pair figcaption { margin-top: 12px; color: rgba(255, 255, 255, .82); font-weight: 800; font-size: 16px; letter-spacing: 1.7px; text-transform: uppercase; text-align: center; }
     .pair figure.after figcaption { color: var(--orange); }
+    /* ---------- Your files (downloads) ---------- */
+    .files-group { margin-top: 34px; }
+    .files-group:first-of-type { margin-top: 0; }
+    .files-group h3 { margin: 0 0 14px; color: #fff; font: 700 clamp(24px, 4vw, 30px)/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    .file-card { display: flex; flex-direction: column; gap: 14px; padding: 20px; border: 2px solid var(--orange); border-radius: 14px; background: #fff; }
+    .file-card .label { font-size: 21px; font-weight: 700; color: var(--ink); }
+    .file-card .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
+    .dl-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 2px solid #2F63E8; border-radius: 10px; background-image: linear-gradient(180deg, #4B7BF5 0%, #1A55E6 55%, #0A45E0 100%); background-color: #1A55E6; color: #fff; font: 700 18px/1.2 "Hanken Grotesk", sans-serif; text-decoration: none; box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, .4), 0 3px 6px rgba(10, 42, 143, .25); transition: transform .15s, background .15s; }
+    .dl-btn:hover { transform: translateY(-1px); background-image: linear-gradient(180deg, #3F70EE 0%, #0F4BDB 55%, #0A3CC4 100%); }
+    .dl-btn:active { transform: translateY(1px); }
+    .dl-btn:focus-visible { outline: 3px solid rgba(255, 130, 38, .6); outline-offset: 3px; }
+    .dl-btn svg { width: 17px; height: 17px; flex: none; }
     @media (max-width: 700px) { .pair { grid-template-columns: 1fr; } .card.showcase { padding: 30px 0; } }
     footer { padding: 20px 24px; color: rgba(255, 255, 255, .7); text-align: center; font-size: 17px; }
     @media (max-width: 520px) { header img { height: 48px; } main { padding: 36px 16px; } .card { padding: 30px 24px; } }
@@ -183,6 +196,10 @@
       <p class="summary" id="showcase-summary" hidden></p>
       <div class="pair" id="pair"></div>
     </section>
+    <section class="card showcase" id="files" aria-labelledby="files-title" hidden>
+      <h2 id="files-title">Your files</h2>
+      <div id="files-list"></div>
+    </section>
   </main>
   <footer>© <span id="year"></span> Logo Hero</footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -227,12 +244,13 @@
     // Before / after logos: every customer has a private folder in the storage bucket named after their user id.
     // Files with "before" / "after" in the name are shown side by side (private bucket, so short-lived signed links).
     async function loadLogos(userId, summary) {
-      const { data: files, error } = await supabaseClient.storage.from('customer-portal-images').list(userId);
+      const { data: files, error } = await supabaseClient.storage.from('customer-portal-images').list(userId, { limit: 500 });
       if (error || !files) return;
       const pick = function (word) {
         return files.find(function (f) { return f.name.toLowerCase().includes(word) && /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name); });
       };
       const items = [['Before', pick('before')], ['After', pick('after')]].filter(function (i) { return i[1]; });
+      loadFiles(userId, files, items.map(function (i) { return i[1].name; }));
       if (!items.length) return;
       const { data: signed, error: signError } = await supabaseClient.storage
         .from('customer-portal-images')
@@ -263,6 +281,98 @@
         }
         document.getElementById('showcase').hidden = false;
       }
+    }
+
+    // Downloads: files in the customer's folder are grouped by their name prefix.
+    //   logo-transparent.png / logo-white.svg / logo-custom.png  -> Logo (Transparent / White / Customer background)
+    //   signature-jane-smith.png                                 -> Signature Block (one option per employee)
+    //   linkedin-profile.png, linkedin-banner.png                -> LinkedIn
+    //   favicon.ico, favicon-32.png                              -> Favicon
+    // Several formats of the same option (e.g. .png and .svg) become separate buttons on one card.
+    const FILE_SECTIONS = [
+      { title: 'Logo', prefix: 'logo', fallback: 'Logo', fixed: [['Transparent background', /transparent/], ['White background', /white/], ['Customer background', /custom/]] },
+      { title: 'Signature Block', prefix: 'signature', fallback: 'Signature' },
+      { title: 'LinkedIn', prefix: 'linkedin', fallback: 'LinkedIn' },
+      { title: 'Favicon', prefix: 'favicon', fallback: 'Favicon' }
+    ];
+    function niceLabel(text) { return text.replace(/[-_.\s]+/g, ' ').trim().replace(/\b\w/g, function (c) { return c.toUpperCase(); }); }
+    async function loadFiles(userId, files, shownNames) {
+      const usable = files.filter(function (f) { return f.id && f.name && f.name.charAt(0) !== '.' && shownNames.indexOf(f.name) === -1; });
+      const groups = [];
+      FILE_SECTIONS.forEach(function (sec) {
+        const options = [];
+        const byLabel = {};
+        usable.forEach(function (f) {
+          const lower = f.name.toLowerCase();
+          if (lower.indexOf(sec.prefix) !== 0) return;
+          const rest = lower.replace(/\.[^.]+$/, '').slice(sec.prefix.length).replace(/^[-_.\s]+|[-_.\s]+$/g, '');
+          let label = null;
+          (sec.fixed || []).forEach(function (fx) { if (!label && fx[1].test(rest)) label = fx[0]; });
+          if (!label) label = /^\d+$/.test(rest) ? rest + ' × ' + rest + ' px' : (rest ? niceLabel(rest) : sec.fallback);
+          if (!byLabel[label]) { byLabel[label] = { label: label, files: [], order: 0 }; options.push(byLabel[label]); }
+          byLabel[label].files.push(f);
+        });
+        if (sec.fixed) {
+          const labels = sec.fixed.map(function (fx) { return fx[0]; });
+          options.sort(function (a, b) {
+            const ai = labels.indexOf(a.label), bi = labels.indexOf(b.label);
+            return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+          });
+        } else {
+          options.sort(function (a, b) { return a.label.localeCompare(b.label); });
+        }
+        if (options.length) groups.push({ title: sec.title, options: options });
+      });
+      if (!groups.length) return;
+      const paths = [];
+      groups.forEach(function (g) { g.options.forEach(function (o) { o.files.forEach(function (f) { paths.push(userId + '/' + f.name); }); }); });
+      // download: true makes the link save the file (with its own name) instead of opening it in the browser.
+      const { data: signed, error: signError } = await supabaseClient.storage
+        .from('customer-portal-images')
+        .createSignedUrls(paths, 3600, { download: true });
+      if (signError || !signed) return;
+      const urlFor = {};
+      signed.forEach(function (row, i) { if (row && row.signedUrl) urlFor[paths[i]] = row.signedUrl; });
+      const list = document.getElementById('files-list');
+      groups.forEach(function (g) {
+        const wrap = document.createElement('div');
+        wrap.className = 'files-group';
+        const h = document.createElement('h3');
+        h.textContent = g.title;
+        wrap.appendChild(h);
+        const grid = document.createElement('div');
+        grid.className = 'files-grid';
+        g.options.forEach(function (o) {
+          const card = document.createElement('div');
+          card.className = 'file-card';
+          const label = document.createElement('div');
+          label.className = 'label';
+          label.textContent = o.label;
+          card.appendChild(label);
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+          o.files.forEach(function (f) {
+            const url = urlFor[userId + '/' + f.name];
+            if (!url) return;
+            const ext = (f.name.match(/\.([^.]+)$/) || [])[1];
+            const a = document.createElement('a');
+            a.className = 'dl-btn';
+            a.href = url;
+            a.setAttribute('download', f.name);
+            a.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            a.appendChild(document.createTextNode('Download' + (ext ? ' ' + ext.toUpperCase() : '')));
+            a.setAttribute('aria-label', 'Download ' + o.label + (ext ? ' (' + ext.toUpperCase() + ')' : '') + ' – ' + g.title);
+            actions.appendChild(a);
+          });
+          if (!actions.children.length) return;
+          card.appendChild(actions);
+          grid.appendChild(card);
+        });
+        if (!grid.children.length) return;
+        wrap.appendChild(grid);
+        list.appendChild(wrap);
+      });
+      if (list.children.length) document.getElementById('files').hidden = false;
     }
 
     signoutButton.addEventListener('click', async function (event) {
