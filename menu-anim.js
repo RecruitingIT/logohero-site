@@ -2,7 +2,8 @@
    menu item from the panel's real layout. The page's own script still opens and closes the
    menu by toggling the "open" class; this only prepares the numbers just before it does. */
 (function () {
-  var TOTAL = 500;   /* ms for the panel to grow / shrink */
+  var TOTAL = 500;   /* ms for the panel to grow / shrink (the straight part of the motion) */
+  var BOUNCE = 150;  /* ms of bounce at the bottom: after the grow on open, before the shrink on close */
   var IN_LEAD = 0;   /* ms: item starts popping in as soon as the panel is tall enough for it */
   var OUT_DUR = 180; /* ms: how long an item takes to shrink away */
 
@@ -17,7 +18,7 @@
       if (!a.offsetParent) return;
       var top = a.offsetTop, bottom = top + a.offsetHeight;
       var inDelay = Math.max(0, TOTAL * bottom / content - IN_LEAD);
-      var outDelay = Math.max(0, TOTAL * (1 - top / content) - OUT_DUR);
+      var outDelay = Math.max(0, BOUNCE + TOTAL * (1 - top / content) - OUT_DUR);
       a.style.setProperty('--in-delay', Math.round(inDelay) + 'ms');
       a.style.setProperty('--out-delay', Math.round(outDelay) + 'ms');
     });
@@ -183,13 +184,22 @@
       pop(d, opening, n++);
     });
   }
+  /* The closing pops play only when the menu button (the X) is pressed, not when a menu option is
+     chosen or the menu is closed some other way. */
+  var lastBtnPress = 0;
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('#menu-btn')) lastBtnPress = Date.now();
+  }, true);
   (function watch() {
     var panel = document.getElementById('menu-panel');
     if (!panel || !window.MutationObserver) return;
     var was = panel.classList.contains('open');
     new MutationObserver(function () {
       var now = panel.classList.contains('open');
-      if (now !== was) { was = now; playPops(now); }
+      if (now !== was) {
+        was = now;
+        if (now || Date.now() - lastBtnPress < 400) playPops(now);
+      }
     }).observe(panel, { attributes: true, attributeFilter: ['class'] });
   })();
 
@@ -213,6 +223,6 @@
     e.preventDefault();
     navigating = true;
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(function () { location.href = url.href; }, reduce ? 0 : TOTAL + 30);
+    setTimeout(function () { location.href = url.href; }, reduce ? 0 : TOTAL + BOUNCE + 30);
   });
 })();
