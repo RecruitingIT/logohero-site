@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Send an invitation</title>
+</head>
+<body>
+  <h1>Send an invitation</h1>
+
+  <form id="login-form">
+    <label>Email <input id="login-email" type="email" required></label><br>
+    <label>Password <input id="login-password" type="password" required></label><br>
+    <button>Sign in</button>
+  </form>
+
+  <section id="invite-section" hidden>
+    <p id="signed-in-as"></p>
+    <form id="invite-form">
+      <label>New user’s email <input id="invite-email" type="email" required></label>
+      <button>Send invite</button>
+    </form>
+    <button id="sign-out">Sign out</button>
+  </section>
+
+  <p id="message" role="status"></p>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabase = createClient(
+      "https://nnyuapzufrzucvpoczjv.supabase.co",
+      "sb_publishable_-svOFUFfYM47A9E-XSB6Jw_9mjJGzif"
+    );
+
+    const loginForm = document.querySelector("#login-form");
+    const inviteSection = document.querySelector("#invite-section");
+    const message = document.querySelector("#message");
+
+    function showSession(user) {
+      loginForm.hidden = Boolean(user);
+      inviteSection.hidden = !user;
+      document.querySelector("#signed-in-as").textContent =
+        user ? `Signed in as ${user.email}` : "";
+    }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    showSession(session?.user);
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "Signing in…";
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: document.querySelector("#login-email").value,
+        password: document.querySelector("#login-password").value,
+      });
+
+      message.textContent = error ? error.message : "";
+      if (!error) showSession(data.user);
+    });
+
+    document.querySelector("#invite-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "Sending invite…";
+
+      const { error } = await supabase.functions.invoke("send-invite", {
+        body: { email: document.querySelector("#invite-email").value },
+      });
+
+      message.textContent = error ? error.message : "Invitation sent.";
+    });
+
+    document.querySelector("#sign-out").addEventListener("click", async () => {
+      await supabase.auth.signOut();
+      showSession(null);
+      message.textContent = "Signed out.";
+    });
+  </script>
+</body>
+</html>
