@@ -1,30 +1,194 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Send an invitation</title>
+  <meta name="description" content="Logo Hero admin: send an invitation to a new customer.">
+  <meta name="robots" content="noindex">
+  <title>Admin Login | Logo Hero</title>
+  <link rel="icon" href="/LOGO%20HERO.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --blue: #0A45E0; --blue-dark: #0A2A8F; --ink: #0E1B3D; --muted: #55607A; --line: #DDE3F0; --soft: #F3F6FC; --bg: #0E1B3D; }
+    html { -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; }
+    body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); font: 500 20px/1.3 "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { position: relative; }
+    header, main, footer { position: relative; z-index: 2; }
+    header { z-index: 10; } /* keeps the drop-down menu above the card */
+    header { padding: 18px 24px; border-bottom: 1px solid var(--line); background: #fff; } /* stays white so the cobalt logo reads */
+    header .bar { max-width: 1040px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    header img { display: block; width: auto; height: 58px; }
+    main { flex: 1; display: grid; place-items: center; padding: 48px 24px; }
+    .card { width: min(100%, 460px); padding: 40px; border: 1px solid #FF8226; border-radius: 18px; background: #fff; box-shadow: 0 0 6px 1px rgba(255, 130, 38, .8), 0 0 22px 4px rgba(255, 130, 38, .4); }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 16px; font-weight: 800; letter-spacing: 1.7px; text-transform: uppercase; }
+    h1 { margin: 0 0 8px; font: 700 42px/1 "Barlow Condensed", sans-serif; letter-spacing: .5px; text-transform: uppercase; }
+    .intro { margin: 0 0 28px; color: var(--muted); font-size: 21px; }
+    label { display: block; margin: 0 0 6px; font-size: 19px; font-weight: 700; }
+    input { width: 100%; min-height: 52px; margin: 0 0 20px; padding: 11px 14px; border: 1px solid #BFC9DC; border-radius: 9px; background: #fff; color: var(--ink); font: inherit; }
+    input:focus { border-color: var(--blue); outline: 3px solid rgba(10, 69, 224, .16); }
+    button[type="submit"] { width: 100%; min-height: 54px; margin-top: 4px; border: 2px solid var(--blue); border-radius: 10px; background: var(--blue); color: #fff; font: 700 21px "Hanken Grotesk", sans-serif; cursor: pointer; }
+    button[type="submit"]:hover { border-color: var(--blue-dark); background: var(--blue-dark); }
+    .status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 17px; }
+    footer { padding: 20px 24px; color: rgba(255, 255, 255, .72); text-align: center; font-size: 17px; }
+    /* ---------- Menu button (two lines) + pop-up menu (same as home page) ---------- */
+    .menu-wrap { position: relative; display: flex; align-items: center; }
+    .menu-btn {
+      width: 48px; height: 48px;
+      display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 7px; padding: 0; margin: 0;
+      border: 2px solid var(--line); border-radius: 10px;
+      background: #fff; cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
+    .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+    .menu-btn span {
+      display: block; width: 22px; height: 3px; border-radius: 2px;
+      background: var(--ink);
+      transition: transform .2s ease, opacity .2s ease, background .2s ease;
+    }
+    .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+    .menu-panel {
+      position: absolute; right: 0; top: calc(100% + 14px); z-index: 50;
+      width: 300px; max-width: calc(100vw - 48px);
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      box-shadow: 0 14px 34px rgba(14, 27, 61, .18);
+      padding: 8px;
+      opacity: 0; visibility: hidden; transform: translateY(-6px);
+      transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+    }
+    .menu-panel.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+    .menu-group { padding: 4px 0; }
+    .menu-group + .menu-group { border-top: 1px solid var(--line); }
+    .menu-panel a {
+      display: block; padding: 12px 14px; border-radius: 8px;
+      color: var(--ink); text-decoration: none; font-size: 22px; font-weight: 700;
+    }
+    .menu-panel a:hover, .menu-panel a:focus-visible { background: var(--soft); color: var(--blue); outline: none; }
+    @media (prefers-reduced-motion: reduce) { .menu-panel, .menu-btn span { transition: none; } }
+
+    @media (max-width: 760px) {
+      .menu-btn { width: 40px; height: 40px; gap: 6px; }
+      .menu-btn span { width: 20px; }
+      .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+      .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4.5px) rotate(-45deg); }
+      .menu-panel a { font-size: 21px; }
+    }
+    @media (max-width: 520px) { header img { height: 48px; } .card { padding: 30px 24px; } h1 { font-size: 36px; } }
+      .pw-wrap { position: relative; margin: 0 0 20px; }
+    .pw-wrap input { margin: 0; padding-right: 52px; }
+    .pw-toggle { position: absolute; top: 0; right: 0; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; }
+    .pw-toggle:hover { color: var(--blue); }
+    .pw-toggle:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: -3px; }
+    .pw-toggle svg { width: 24px; height: 24px; }
+    .pw-toggle .eye-off { display: none; }
+    .pw-toggle.shown .eye { display: none; }
+    .pw-toggle.shown .eye-off { display: block; }
+    .status.error { color: #D92D20; }
+    .signed-in { margin: 0 0 22px; color: var(--muted); font-size: 19px; overflow-wrap: anywhere; }
+    button.secondary { width: 100%; min-height: 54px; margin-top: 14px; border: 2px solid var(--blue); border-radius: 10px; background: #fff; color: var(--blue); font: 700 21px "Hanken Grotesk", sans-serif; cursor: pointer; }
+    button.secondary:hover { border-color: var(--blue-dark); background: var(--soft); color: var(--blue-dark); }
+    form[hidden], section[hidden] { display: none; }
+  </style>
+<link rel="stylesheet" href="/menu-anim.css">
+<link rel="stylesheet" href="/banner-icons.css">
+<script src="/menu-anim.js" defer></script>
+<link rel="stylesheet" href="/fonts.css">
 </head>
 <body>
-  <h1>Send an invitation</h1>
+  <header>
+    <div class="bar">
+      <a href="/" aria-label="Logo Hero home"><img src="/LOGO%20HERO.png" alt="Logo Hero"></a>
+      <div class="menu-wrap">
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+          <span></span><span></span>
+        </button>
+        <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
+          <div class="menu-group">
+            <a href="/#top">Home</a>
+            <a href="/#examples">Before/After Examples</a>
+            <a href="/#how">Process</a>
+            <a href="/#pricing">Pricing</a>
+          </div>
+          <div class="menu-group"><a href="/client-login">Customer Area</a></div>
+          <div class="menu-group"><a href="/privacy-notice">Privacy Policy</a></div>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="invite-title">
+      <h1 id="invite-title">Admin Login</h1>
 
-  <form id="login-form">
-    <label>Email <input id="login-email" type="email" required></label><br>
-    <label>Password <input id="login-password" type="password" required></label><br>
-    <button>Sign in</button>
-  </form>
+      <form id="login-form">
+        <label for="login-email">Email address</label>
+        <input id="login-email" type="email" autocomplete="username" required>
+        <label for="login-password">Password</label>
+        <div class="pw-wrap">
+          <input id="login-password" type="password" autocomplete="current-password" required>
+          <button class="pw-toggle" id="pw-toggle" type="button" aria-label="Show password" aria-pressed="false">
+            <svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19C5 19 1 12 1 12a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.1 9.1 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+          </button>
+        </div>
+        <button type="submit">Log in</button>
+      </form>
 
-  <section id="invite-section" hidden>
-    <p id="signed-in-as"></p>
-    <form id="invite-form">
-      <label>New user’s email <input id="invite-email" type="email" required></label>
-      <button>Send invite</button>
-    </form>
-    <button id="sign-out">Sign out</button>
-  </section>
+      <section id="invite-section" hidden>
+        <p class="signed-in" id="signed-in-as"></p>
+        <form id="invite-form">
+          <label for="invite-email">New customer’s email address</label>
+          <input id="invite-email" type="email" autocomplete="off" required>
+          <button type="submit">Send invite</button>
+        </form>
+        <button class="secondary" id="sign-out" type="button">Sign out</button>
+      </section>
 
-  <p id="message" role="status"></p>
-
+      <p class="status" id="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <footer>© <span id="year"></span> Logo Hero</footer>
+  <script>
+    /* Menu button behaviour (same as the log in page) */
+    (function () {
+      const btn = document.getElementById('menu-btn');
+      const panel = document.getElementById('menu-panel');
+      if (!btn || !panel) return;
+      function isOpen() { return panel.classList.contains('open'); }
+      function setOpen(open) {
+        panel.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      }
+      btn.addEventListener('click', function (e) { e.stopPropagation(); setOpen(!isOpen()); });
+      panel.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+      document.addEventListener('click', function (e) { if (isOpen() && !panel.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && isOpen()) { setOpen(false); btn.focus(); }
+      });
+      window.addEventListener('scroll', function () { if (isOpen()) setOpen(false); }, { passive: true });
+    })();
+  </script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    /* Show / hide password */
+    (function () {
+      const toggle = document.getElementById('pw-toggle');
+      const pw = document.getElementById('login-password');
+      toggle.addEventListener('click', function () {
+        const show = pw.type === 'password';
+        pw.type = show ? 'text' : 'password';
+        toggle.classList.toggle('shown', show);
+        toggle.setAttribute('aria-pressed', show ? 'true' : 'false');
+        toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      });
+    })();
+  </script>
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -36,10 +200,18 @@
     const loginForm = document.querySelector("#login-form");
     const inviteSection = document.querySelector("#invite-section");
     const message = document.querySelector("#message");
+    const title = document.querySelector("#invite-title");
+
+    function setMessage(text, isError) {
+      message.textContent = text;
+      message.classList.toggle("error", Boolean(isError) && Boolean(text));
+    }
 
     function showSession(user) {
       loginForm.hidden = Boolean(user);
       inviteSection.hidden = !user;
+      title.textContent = user ? "Send invitation to new customer" : "Admin Login";
+      document.title = (user ? "Send Invitation" : "Admin Login") + " | Logo Hero";
       document.querySelector("#signed-in-as").textContent =
         user ? `Signed in as ${user.email}` : "";
     }
@@ -49,32 +221,32 @@
 
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      message.textContent = "Signing in…";
+      setMessage("Signing in…");
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: document.querySelector("#login-email").value,
         password: document.querySelector("#login-password").value,
       });
 
-      message.textContent = error ? error.message : "";
+      setMessage(error ? error.message : "", Boolean(error));
       if (!error) showSession(data.user);
     });
 
     document.querySelector("#invite-form").addEventListener("submit", async (event) => {
       event.preventDefault();
-      message.textContent = "Sending invite…";
+      setMessage("Sending invite…");
 
       const { error } = await supabase.functions.invoke("send-invite", {
         body: { email: document.querySelector("#invite-email").value },
       });
 
-      message.textContent = error ? error.message : "Invitation sent.";
+      setMessage(error ? error.message : "Invitation sent.", Boolean(error));
     });
 
     document.querySelector("#sign-out").addEventListener("click", async () => {
       await supabase.auth.signOut();
       showSession(null);
-      message.textContent = "Signed out.";
+      setMessage("Signed out.");
     });
   </script>
 </body>
