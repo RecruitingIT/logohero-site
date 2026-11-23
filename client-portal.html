@@ -207,6 +207,9 @@
         return;
       }
 
+      // Signed in: always offer "Change password" and "Sign out" in the menu, even if the page below can't load.
+      document.querySelectorAll('.account-group').forEach(function (g) { g.hidden = false; });
+
       const { data: page, error } = await supabaseClient
         .from('customer_pages')
         .select('page_title, welcome_message, logo_summary')
@@ -230,7 +233,6 @@
         para.textContent = part.trim();
         statusEl.appendChild(para);
       });
-      document.querySelectorAll('.account-group').forEach(function (g) { g.hidden = false; });
       loadLogos(session.user.id, page.logo_summary);
     }
 
