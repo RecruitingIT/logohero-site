@@ -62,13 +62,6 @@
 .menu-mute:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 1px; }
 @media (prefers-reduced-motion: reduce) { .menu-mute { transition: none; } }
 
-/* Hover / keyboard focus highlights just the words of a menu option, not the whole row. */
+/* Hover / keyboard focus on a menu option: just the text colour changes (blue); no background highlight. */
 .menu-panel .menu-group a:hover,
 .menu-panel .menu-group a:focus-visible { background: none; }
-.menu-panel .menu-text {
-  padding: 3px 8px; margin: 0 -8px; border-radius: 7px;
-  -webkit-box-decoration-break: clone; box-decoration-break: clone;
-  transition: background .15s;
-}
-.menu-panel a:hover .menu-text,
-.menu-panel a:focus-visible .menu-text { background: var(--soft, #F3F6FC); }
