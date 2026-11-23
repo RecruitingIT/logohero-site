@@ -280,4 +280,52 @@
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setTimeout(function () { location.href = url.href; }, reduce ? 0 : TOTAL + 30);
   });
+
+  /* Hidden "Admin Access" link: press and hold the menu button for 2 seconds to add it to the menu.
+     It is not in the page markup, so it only appears for someone who knows the trick. It lasts
+     until the page is reloaded or the visitor goes to another page. */
+  (function () {
+    var HOLD_MS = 2000, MOVE_TOL = 12;
+    var btn = document.getElementById('menu-btn');
+    if (!btn) return;
+    var timer = 0, startX = 0, startY = 0, revealed = false, swallowClick = false;
+    btn.style.webkitTouchCallout = 'none';
+    btn.style.webkitUserSelect = 'none';
+    btn.style.userSelect = 'none';
+
+    function reveal() {
+      var panel = document.getElementById('menu-panel');
+      if (!panel) return;
+      if (!panel.querySelector('a[href="/invite"]')) {
+        var group = document.createElement('div');
+        group.className = 'menu-group';
+        var a = document.createElement('a');
+        a.href = '/invite';
+        a.textContent = 'Admin Access';
+        group.appendChild(a);
+        panel.appendChild(group);
+        measure();
+      }
+      revealed = true;
+      /* The release after a long press would normally toggle the menu. If it is already open, keep it open. */
+      swallowClick = panel.classList.contains('open');
+    }
+    function cancel() { clearTimeout(timer); timer = 0; }
+
+    btn.addEventListener('pointerdown', function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      startX = e.clientX; startY = e.clientY;
+      cancel();
+      timer = setTimeout(function () { timer = 0; reveal(); }, HOLD_MS);
+    });
+    btn.addEventListener('pointermove', function (e) {
+      if (timer && (Math.abs(e.clientX - startX) > MOVE_TOL || Math.abs(e.clientY - startY) > MOVE_TOL)) cancel();
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { btn.addEventListener(t, cancel); });
+    btn.addEventListener('contextmenu', function (e) { if (timer || revealed) e.preventDefault(); });
+    /* Capture phase on the button runs before the page's own toggle handler. */
+    btn.addEventListener('click', function (e) {
+      if (swallowClick) { swallowClick = false; e.stopImmediatePropagation(); e.preventDefault(); }
+    }, true);
+  })();
 })();
