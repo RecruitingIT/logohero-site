@@ -1588,6 +1588,7 @@ const COAST_MS = 220;
   window.addEventListener('resize', measureEdges);
 
   let target = window.scrollY, current = window.scrollY, running = false;
+  let trackpadUntil = 0;
   const smooth = function (t) { return t * t * (3 - 2 * t); };
 
   /* The menu button can freeze the glide dead (and hold it frozen while trackpad momentum dies away). */
@@ -1629,6 +1630,14 @@ const COAST_MS = 220;
   window.addEventListener('wheel', function (e) {
     if (e.ctrlKey || e.defaultPrevented) return;
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    /* Trackpads (smooth, small or fractional deltas, plus their momentum tail) already scroll smoothly,
+       so leave them to the browser. The glide below is only for notched mouse wheels. */
+    const now = Date.now();
+    const looksLikeTrackpad = e.deltaMode === 0 && (Math.abs(e.deltaY) < 50 || e.deltaY % 1 !== 0 || e.deltaX !== 0);
+    if (e.deltaMode === 0 && (looksLikeTrackpad || now < trackpadUntil)) {
+      trackpadUntil = now + 400;
+      return;
+    }
     e.preventDefault();
     if (window.__smoothScrollHold) return;
     let dy = e.deltaY;
