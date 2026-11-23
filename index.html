@@ -857,10 +857,10 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   }
 
   /* ================= BARE-ICON BANNER CONTROLS =================
-     The padlock, envelope and menu icons sit directly on the banner with no box, border or fill.
-     Each keeps the same square tap area as before (48px desktop, 40px phone) and gets a little depth
-     from a soft drop shadow instead: it lifts on hover and presses down when tapped.
-     Padlock and menu lines are black, the envelope is Logo Hero blue. */
+     The padlock, envelope and menu icons sit directly on the banner with no box, border, fill or shadow.
+     Each keeps the same square tap area as before (48px desktop, 40px phone).
+     Padlock and menu lines are black, the envelope is Logo Hero blue. The envelope and menu icon sit 1px
+     lower than centre, and the top menu line is 1px thicker (4px v 3px). */
   header .header-actions > .btn.icon-btn,
   header .header-actions .login-btn.icon-btn,
   header .header-actions .menu-btn,
@@ -885,40 +885,32 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
 
   header .header-actions .icon-btn svg {
     width: 30px; height: 30px;
-    transition: filter .15s ease, transform .15s ease;
+    transition: transform .15s ease;
   }
-  header .header-actions .login-btn.icon-btn svg {
-    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .28)) drop-shadow(0 3px 3px rgba(14, 27, 61, .30));
-  }
-  header .header-actions > .btn.icon-btn svg {
-    filter: drop-shadow(0 1px 0 rgba(5, 20, 80, .30)) drop-shadow(0 3px 3px rgba(10, 42, 143, .38));
-  }
+  header .header-actions .login-btn.icon-btn svg,
+  header .header-actions > .btn.icon-btn svg { filter: none; }
+  header .header-actions > .btn.icon-btn svg { position: relative; top: 1px; }
   header .header-actions .login-btn.icon-btn:hover svg,
-  header .header-actions > .btn.icon-btn:hover svg {
-    transform: translateY(-1px);
-    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .28)) drop-shadow(0 5px 4px rgba(14, 27, 61, .34));
-  }
-  header .header-actions > .btn.icon-btn:hover svg {
-    filter: drop-shadow(0 1px 0 rgba(5, 20, 80, .30)) drop-shadow(0 5px 4px rgba(10, 42, 143, .42));
-  }
+  header .header-actions > .btn.icon-btn:hover svg { transform: translateY(-1px); }
   header .header-actions .login-btn.icon-btn:active svg,
-  header .header-actions > .btn.icon-btn:active svg {
-    transform: translateY(1px);
-    filter: drop-shadow(0 1px 1px rgba(14, 27, 61, .35));
-  }
+  header .header-actions > .btn.icon-btn:active svg { transform: translateY(1px); }
 
   header .header-actions .menu-btn span {
+    position: relative; top: 1px;
     width: 30px;
     background: #0A0A0A;
-    box-shadow: 0 1px 0 rgba(0, 0, 0, .28), 0 3px 3px rgba(14, 27, 61, .30);
+    box-shadow: none;
   }
-  header .header-actions .menu-btn:hover span { box-shadow: 0 1px 0 rgba(0, 0, 0, .28), 0 5px 4px rgba(14, 27, 61, .34); }
-  header .header-actions .menu-btn:active span { box-shadow: 0 1px 1px rgba(14, 27, 61, .35); }
-  /* Open-menu cross stays Logo Hero blue. */
+  header .header-actions .menu-btn span:nth-child(1) { height: 4px; }
+  /* Open-menu cross stays Logo Hero blue. Offsets = half the distance between line centres (4px + 7px gap + 3px lines). */
   header .header-actions .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+  header .header-actions .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5.25px) rotate(45deg); }
+  header .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-5.25px) rotate(-45deg); }
   @media (max-width: 760px) {
     header .header-actions .icon-btn svg { width: 26px; height: 26px; }
     header .header-actions .menu-btn span { width: 26px; }
+    header .header-actions .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.75px) rotate(45deg); }
+    header .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4.75px) rotate(-45deg); }
   }
 </style>
 <link rel="stylesheet" href="/menu-anim.css">
