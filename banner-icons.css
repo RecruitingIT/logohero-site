@@ -1,0 +1,94 @@
+/* Shared banner controls (loaded by every page with a banner).
+   The padlock, envelope and menu icons sit directly on the banner: no box, border, fill or shadow.
+   Each has a square tap area (48px desktop, 40px phone). Padlock and menu lines are black, the envelope
+   is Logo Hero blue. The envelope and menu icon sit 1px below centre.
+   Menu lines: the bottom line is deliberately thicker (5px v 4px) so the pair looks intentional; when the
+   menu opens, both lines settle to the same 4px and form an even cross.
+   Selectors are deliberately specific so they win over each page's own older banner styles. */
+
+body header .login-btn.icon-btn.icon-btn,
+body header .btn.icon-btn.icon-btn,
+body header .contact-btn.contact-btn,
+body header .menu-btn.menu-btn,
+body header .login-btn.icon-btn.icon-btn:hover,
+body header .btn.icon-btn.icon-btn:hover,
+body header .contact-btn.contact-btn:hover,
+body header .menu-btn.menu-btn:hover,
+body header .login-btn.icon-btn.icon-btn:active,
+body header .btn.icon-btn.icon-btn:active,
+body header .contact-btn.contact-btn:active,
+body header .menu-btn.menu-btn:active,
+body header .menu-btn.menu-btn[aria-expanded="true"] {
+  box-sizing: border-box;
+  width: 48px; height: 48px;
+  margin: 0; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+  background: none; background-image: none;
+  border: 0; border-radius: 12px;
+  box-shadow: none; text-shadow: none;
+  text-decoration: none; cursor: pointer;
+}
+body header .login-btn.icon-btn.icon-btn,
+body header .login-btn.icon-btn.icon-btn:hover { color: #0A0A0A; }
+body header .btn.icon-btn.icon-btn,
+body header .btn.icon-btn.icon-btn:hover,
+body header .contact-btn.contact-btn,
+body header .contact-btn.contact-btn:hover { color: var(--blue, #0A45E0); }
+
+body header .icon-btn.icon-btn svg,
+body header .contact-btn.contact-btn svg {
+  width: 30px; height: 30px; display: block; flex: 0 0 auto;
+  filter: none !important;   /* no drop shadow: beats older per-page shadow rules */
+  transition: transform .15s ease;
+}
+body header .btn.icon-btn.icon-btn svg,
+body header .contact-btn.contact-btn svg { position: relative; top: 1px; }
+body header .login-btn.icon-btn.icon-btn:hover svg,
+body header .btn.icon-btn.icon-btn:hover svg,
+body header .contact-btn.contact-btn:hover svg { transform: translateY(-1px); }
+body header .login-btn.icon-btn.icon-btn:active svg,
+body header .btn.icon-btn.icon-btn:active svg,
+body header .contact-btn.contact-btn:active svg { transform: translateY(1px); }
+
+/* Menu icon: two lines, bottom one thicker; even cross when open. */
+body header .menu-btn.menu-btn { flex-direction: column; gap: 7px; }
+body header .menu-btn.menu-btn span {
+  display: block; position: relative; top: 1px;
+  width: 30px; height: 4px; border-radius: 2px;
+  background: #0A0A0A; box-shadow: none;
+  transition: transform .2s ease, opacity .2s ease, background .2s ease, height .2s ease;
+}
+body header .menu-btn.menu-btn span:nth-child(1) { height: 4px; }
+body header .menu-btn.menu-btn span:nth-child(2) { height: 5px; opacity: 1; }
+body header .menu-btn.menu-btn[aria-expanded="true"] span { background: var(--blue, #0A45E0); }
+body header .menu-btn.menu-btn[aria-expanded="true"] span:nth-child(1),
+body header .menu-btn.menu-btn[aria-expanded="true"] span:nth-child(2) { height: 4px; }
+/* Cross offsets = half of (4px line + 7px gap). */
+body header .menu-btn.menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+body header .menu-btn.menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5.5px) rotate(-45deg); }
+
+@media (max-width: 760px) {
+  body header .login-btn.icon-btn.icon-btn,
+  body header .btn.icon-btn.icon-btn,
+  body header .contact-btn.contact-btn,
+  body header .menu-btn.menu-btn,
+  body header .login-btn.icon-btn.icon-btn:hover,
+  body header .btn.icon-btn.icon-btn:hover,
+  body header .contact-btn.contact-btn:hover,
+  body header .menu-btn.menu-btn:hover,
+  body header .login-btn.icon-btn.icon-btn:active,
+  body header .btn.icon-btn.icon-btn:active,
+  body header .contact-btn.contact-btn:active,
+  body header .menu-btn.menu-btn:active,
+  body header .menu-btn.menu-btn[aria-expanded="true"] { width: 40px; height: 40px; }
+  body header .icon-btn.icon-btn svg, body header .contact-btn.contact-btn svg { width: 26px; height: 26px; }
+  body header .menu-btn.menu-btn { gap: 6px; }
+  body header .menu-btn.menu-btn span { width: 26px; }
+  /* Cross offsets = half of (4px line + 6px gap). */
+  body header .menu-btn.menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  body header .menu-btn.menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-5px) rotate(-45deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body header .icon-btn.icon-btn svg, body header .contact-btn.contact-btn svg, body header .menu-btn.menu-btn span { transition: none; }
+}
