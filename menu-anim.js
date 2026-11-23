@@ -116,6 +116,39 @@
      to the same delays the CSS uses for each item. Watches the panel's "open" class so it works
      however the page opens or closes the menu. */
   var audioCtx = null, bus = null;
+  /* Mute button (small grey speaker with a line through it, bottom right of the menu). Pressing it turns
+     it blue and silences the menu sounds; pressing again brings them back. Remembered between visits
+     and pages. */
+  var MUTE_KEY = 'lh-menu-muted', muted = false;
+  try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (err) {}
+  function applyMute() { if (bus) bus.gain.value = muted ? 0 : 0.7; }
+  (function addMuteButton() {
+    var panel = document.getElementById('menu-panel');
+    if (!panel || panel.querySelector('.menu-mute')) return;
+    var row = document.createElement('div');
+    row.className = 'menu-mute-row';
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'menu-mute';
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">' +
+      '<path d="M4 9.5h3.2L12 5.5v13l-4.8-4H4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' +
+      '<path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.2 6.6a7.6 7.6 0 0 1 0 10.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' +
+      '<path d="M4 4l16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+    function sync() {
+      b.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      b.setAttribute('aria-label', 'Mute menu sounds');
+      b.title = muted ? 'Menu sounds muted' : 'Mute menu sounds';
+    }
+    b.addEventListener('click', function () {
+      muted = !muted;
+      try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (err) {}
+      applyMute();
+      sync();
+    });
+    sync();
+    row.appendChild(b);
+    panel.appendChild(row);
+  })();
   function getCtx() {
     if (audioCtx) return audioCtx;
     var AC = window.AudioContext || window.webkitAudioContext;
@@ -128,7 +161,7 @@
   function getBus(ctx) {
     if (bus) return bus;
     var master = ctx.createGain();
-    master.gain.value = 0.7;
+    master.gain.value = muted ? 0 : 0.7;
     var out = master;
     if (ctx.createDynamicsCompressor) {
       var comp = ctx.createDynamicsCompressor();
@@ -174,6 +207,7 @@
     osc.stop(t + 0.22);
   }
   function playPops(opening) {
+    if (muted) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var panel = document.getElementById('menu-panel');
     if (!panel) return;

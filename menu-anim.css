@@ -45,3 +45,19 @@
 .menu-btn.menu-btn { transition: border-color .15s, background .15s, transform .15s, box-shadow .15s; }
 .menu-btn:hover { transform: translateY(-1px); }
 @media (prefers-reduced-motion: reduce) { .menu-btn.menu-btn { transition: none; } }
+
+/* Mute-menu-sounds button: small grey speaker with a line through it, bottom right of the menu.
+   Blue when selected (sounds muted). */
+.menu-mute-row { display: flex; justify-content: flex-end; margin: 0 8px; padding: 2px 0 0; }
+.menu-mute {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 32px; padding: 0; margin: 0;
+  border: 0; border-radius: 8px; background: none; cursor: pointer;
+  color: #9AA3B5;
+  transition: color .15s;
+}
+.menu-mute svg { width: 18px; height: 18px; display: block; }
+.menu-mute:hover { color: #6B7488; }
+.menu-mute[aria-pressed="true"], .menu-mute[aria-pressed="true"]:hover { color: var(--blue, #0A45E0); }
+.menu-mute:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) { .menu-mute { transition: none; } }
