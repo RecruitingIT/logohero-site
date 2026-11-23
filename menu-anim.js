@@ -281,22 +281,24 @@
     setTimeout(function () { location.href = url.href; }, reduce ? 0 : TOTAL + 30);
   });
 
-  /* Hidden "Admin Access" link: press and hold the menu button for 2 seconds to add it to the menu.
-     It is not in the page markup, so it only appears for someone who knows the trick. It lasts
-     until the page is reloaded or the visitor goes to another page. */
+  /* Hidden "Admin Access" link: tap or click an empty part of the banner 5 times in a row to add it to
+     the menu, and the same 5 taps again to take it away. It is not in the page markup, so it only
+     appears for someone who knows the trick. It lasts until the page is reloaded or the visitor goes
+     to another page. Taps on links and buttons (logo, login, email, menu) don't count. */
   (function () {
-    var HOLD_MS = 2000, MOVE_TOL = 12;
-    var btn = document.getElementById('menu-btn');
-    if (!btn) return;
-    var timer = 0, startX = 0, startY = 0, revealed = false, swallowClick = false;
-    btn.style.webkitTouchCallout = 'none';
-    btn.style.webkitUserSelect = 'none';
-    btn.style.userSelect = 'none';
+    var TAPS = 5, MAX_GAP = 1000;   /* 5 taps, each within 1 second of the one before */
+    var header = document.querySelector('header');
+    if (!header) return;
+    var count = 0, last = 0;
 
-    function reveal() {
+    function toggleAdmin() {
       var panel = document.getElementById('menu-panel');
       if (!panel) return;
-      if (!panel.querySelector('a[href="/invite"]')) {
+      var existing = panel.querySelector('a[href="/invite"]');
+      if (existing) {
+        var g = existing.closest('.menu-group');
+        (g && g.parentNode === panel ? g : existing).remove();
+      } else {
         var group = document.createElement('div');
         group.className = 'menu-group';
         var a = document.createElement('a');
@@ -304,28 +306,16 @@
         a.textContent = 'Admin Access';
         group.appendChild(a);
         panel.appendChild(group);
-        measure();
       }
-      revealed = true;
-      /* The release after a long press would normally toggle the menu. If it is already open, keep it open. */
-      swallowClick = panel.classList.contains('open');
+      measure();
     }
-    function cancel() { clearTimeout(timer); timer = 0; }
 
-    btn.addEventListener('pointerdown', function (e) {
-      if (e.button !== undefined && e.button !== 0) return;
-      startX = e.clientX; startY = e.clientY;
-      cancel();
-      timer = setTimeout(function () { timer = 0; reveal(); }, HOLD_MS);
+    header.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, button, #menu-panel')) { count = 0; return; }
+      var now = Date.now();
+      count = (now - last <= MAX_GAP) ? count + 1 : 1;
+      last = now;
+      if (count >= TAPS) { count = 0; toggleAdmin(); }
     });
-    btn.addEventListener('pointermove', function (e) {
-      if (timer && (Math.abs(e.clientX - startX) > MOVE_TOL || Math.abs(e.clientY - startY) > MOVE_TOL)) cancel();
-    });
-    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { btn.addEventListener(t, cancel); });
-    btn.addEventListener('contextmenu', function (e) { if (timer || revealed) e.preventDefault(); });
-    /* Capture phase on the button runs before the page's own toggle handler. */
-    btn.addEventListener('click', function (e) {
-      if (swallowClick) { swallowClick = false; e.stopImmediatePropagation(); e.preventDefault(); }
-    }, true);
   })();
 })();
