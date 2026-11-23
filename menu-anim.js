@@ -281,12 +281,12 @@
     setTimeout(function () { location.href = url.href; }, reduce ? 0 : TOTAL + 30);
   });
 
-  /* Hidden "Admin Access" link: tap or click an empty part of the banner 5 times in a row to add it to
-     the menu, and the same 5 taps again to take it away. It is not in the page markup, so it only
+  /* Hidden "Admin Access" link: tap or click an empty part of the banner 4 times in a row to add it to
+     the menu, and the same 4 taps again to take it away. It is not in the page markup, so it only
      appears for someone who knows the trick. It lasts until the page is reloaded or the visitor goes
      to another page. Taps on links and buttons (logo, login, email, menu) don't count. */
   (function () {
-    var TAPS = 5, MAX_GAP = 1000;   /* 5 taps, each within 1 second of the one before */
+    var TAPS = 4, MAX_GAP = 1000;   /* 4 taps, each within 1 second of the one before */
     var header = document.querySelector('header');
     if (!header) return;
     var count = 0, last = 0;
