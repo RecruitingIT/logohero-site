@@ -855,6 +855,71 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
     header .wrap { max-width: none; padding: 0 var(--corner-gap); }
     .wrap { max-width: calc(1040px + 2 * var(--corner-gap) + 32px); padding-left: calc(2 * var(--corner-gap)); padding-right: calc(2 * var(--corner-gap)); }
   }
+
+  /* ================= BARE-ICON BANNER CONTROLS =================
+     The padlock, envelope and menu icons sit directly on the banner with no box, border or fill.
+     Each keeps the same square tap area as before (48px desktop, 40px phone) and gets a little depth
+     from a soft drop shadow instead: it lifts on hover and presses down when tapped.
+     Padlock and menu lines are black, the envelope is Logo Hero blue. */
+  header .header-actions > .btn.icon-btn,
+  header .header-actions .login-btn.icon-btn,
+  header .header-actions .menu-btn,
+  header .header-actions > .btn.icon-btn:hover,
+  header .header-actions .login-btn.icon-btn:hover,
+  header .header-actions .menu-btn:hover,
+  header .header-actions > .btn.icon-btn:active,
+  header .header-actions .login-btn.icon-btn:active,
+  header .header-actions .menu-btn:active,
+  header .header-actions .menu-btn[aria-expanded="true"] {
+    background: none;
+    background-image: none;
+    border: 0;
+    box-shadow: none;
+    border-radius: 12px;
+    text-shadow: none;
+  }
+  header .header-actions .login-btn.icon-btn,
+  header .header-actions .login-btn.icon-btn:hover { color: #0A0A0A; }
+  header .header-actions > .btn.icon-btn,
+  header .header-actions > .btn.icon-btn:hover { color: var(--blue); }
+
+  header .header-actions .icon-btn svg {
+    width: 30px; height: 30px;
+    transition: filter .15s ease, transform .15s ease;
+  }
+  header .header-actions .login-btn.icon-btn svg {
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .28)) drop-shadow(0 3px 3px rgba(14, 27, 61, .30));
+  }
+  header .header-actions > .btn.icon-btn svg {
+    filter: drop-shadow(0 1px 0 rgba(5, 20, 80, .30)) drop-shadow(0 3px 3px rgba(10, 42, 143, .38));
+  }
+  header .header-actions .login-btn.icon-btn:hover svg,
+  header .header-actions > .btn.icon-btn:hover svg {
+    transform: translateY(-1px);
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, .28)) drop-shadow(0 5px 4px rgba(14, 27, 61, .34));
+  }
+  header .header-actions > .btn.icon-btn:hover svg {
+    filter: drop-shadow(0 1px 0 rgba(5, 20, 80, .30)) drop-shadow(0 5px 4px rgba(10, 42, 143, .42));
+  }
+  header .header-actions .login-btn.icon-btn:active svg,
+  header .header-actions > .btn.icon-btn:active svg {
+    transform: translateY(1px);
+    filter: drop-shadow(0 1px 1px rgba(14, 27, 61, .35));
+  }
+
+  header .header-actions .menu-btn span {
+    width: 30px;
+    background: #0A0A0A;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .28), 0 3px 3px rgba(14, 27, 61, .30);
+  }
+  header .header-actions .menu-btn:hover span { box-shadow: 0 1px 0 rgba(0, 0, 0, .28), 0 5px 4px rgba(14, 27, 61, .34); }
+  header .header-actions .menu-btn:active span { box-shadow: 0 1px 1px rgba(14, 27, 61, .35); }
+  /* Open-menu cross stays Logo Hero blue. */
+  header .header-actions .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+  @media (max-width: 760px) {
+    header .header-actions .icon-btn svg { width: 26px; height: 26px; }
+    header .header-actions .menu-btn span { width: 26px; }
+  }
 </style>
 <link rel="stylesheet" href="/menu-anim.css">
 <script src="/menu-anim.js" defer></script>
