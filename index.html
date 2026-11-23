@@ -292,13 +292,14 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
   .price h3 .plus { color: var(--orange); }
   .price .tagline { font-size: 20px; color: var(--muted); }
   .price .badge { position: absolute; top: 14px; right: 14px; background: var(--orange); color: #fff; font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
-  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 0 0 20px; }
+  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: auto 0 20px; text-align: right; }
   .price ul { list-style: none; padding: 0; margin: 0 0 16px; color: var(--muted); font-size: 24px; }
   .price li { padding: 6px 0 6px 28px; position: relative; }
   .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--orange); border-bottom: 3px solid var(--orange); transform: rotate(-45deg); filter: drop-shadow(0 0 3px rgba(255, 130, 38, .8)) drop-shadow(0 0 6px rgba(255, 130, 38, .45)); }
   .price li.plus-item { color: var(--blue); font-weight: 800; }
   .price li.plus-item::before { content: none; display: none; }
-  .price .btn { margin-top: auto; text-align: center; font-size: 24px; }
+  .price .btn { text-align: center; font-size: 24px; }
+  .price .btn .plus { color: var(--orange); }
 
   .about { max-width: 760px; }
   .about p { font-size: 25px; color: var(--muted); margin: 0 0 18px; }
@@ -982,7 +983,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
             <li>Yours to keep</li>
           </ul>
           <div class="amount">£150</div>
-          <a class="btn ghost" href="/logo-order">Choose Logo</a>
+          <a class="btn ghost" href="/logo-order">LOGO Package</a>
         </div>
         <div class="price featured">
           <span class="badge">Best value</span>
@@ -1001,7 +1002,7 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
             <li>Yours to keep</li>
           </ul>
           <div class="amount">£225</div>
-          <a class="btn" href="/logoplusorder">Choose Logo+</a>
+          <a class="btn" href="/logoplusorder">LOGO<span class="plus">+</span> Package</a>
         </div>
       </div>
     </div>
