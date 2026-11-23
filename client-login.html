@@ -52,6 +52,7 @@
     .spinner { width: 22px; height: 22px; flex: none; border: 3px solid rgba(255, 255, 255, .35); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 17px; }
+    .status.error { color: #D92D20; }
     footer { padding: 20px 24px; color: rgba(255, 255, 255, .72); text-align: center; font-size: 17px; }
 
     /* ---------- Menu button (two lines) + pop-up menu (same as home page) ---------- */
@@ -173,6 +174,7 @@
         return;
       }
       submitButton.disabled = true;
+      statusEl.classList.remove('error');
       statusEl.textContent = 'Signing you in…';
       const { error } = await supabaseClient.auth.signInWithPassword({
         email: emailInput.value.trim(),
@@ -205,14 +207,25 @@
         return;
       }
       this.setAttribute('aria-disabled', 'true');
+      statusEl.classList.remove('error');
       statusEl.textContent = 'Sending password setup instructions…';
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value.trim(), {
+      const email = emailInput.value.trim();
+      /* Ask the database whether this email has portal access; only recognised emails get the reset email. */
+      const { data: known, error: lookupError } = await supabaseClient.rpc('portal_email_exists', { p_email: email });
+      if (!lookupError && known === false) {
+        this.removeAttribute('aria-disabled');
+        statusEl.classList.add('error');
+        statusEl.textContent = 'That email address hasn’t been set up with portal access yet';
+        return;
+      }
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://logohero.co.uk/set-password.html'
       });
       this.removeAttribute('aria-disabled');
+      if (error) statusEl.classList.add('error');
       statusEl.textContent = error
         ? 'We couldn’t send the email. Please try again or contact Logo Hero.'
-        : 'If this email has portal access, password setup instructions are on their way. Check your inbox and junk folder.';
+        : 'Password setup instructions are on their way. Check your inbox and junk folder.';
     });
 
     /* Show / hide password */
