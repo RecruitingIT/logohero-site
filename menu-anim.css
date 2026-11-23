@@ -48,8 +48,8 @@
 
 /* Mute-menu-sounds button: small grey speaker with a line through it, bottom right of the menu.
    Blue when selected (sounds muted). */
-.menu-mute-row { display: flex; justify-content: flex-end; margin: 0 8px; padding: 2px 0 0; }
 .menu-mute {
+  position: absolute; right: 10px; top: 0;   /* top is set by menu-anim.js to line up with the last option */
   display: inline-flex; align-items: center; justify-content: center;
   width: 40px; height: 36px; padding: 0; margin: 0;
   border: 0; border-radius: 8px; background: none; cursor: pointer;
@@ -61,3 +61,14 @@
 .menu-mute[aria-pressed="true"], .menu-mute[aria-pressed="true"]:hover { color: var(--blue, #0A45E0); }
 .menu-mute:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 1px; }
 @media (prefers-reduced-motion: reduce) { .menu-mute { transition: none; } }
+
+/* Hover / keyboard focus highlights just the words of a menu option, not the whole row. */
+.menu-panel .menu-group a:hover,
+.menu-panel .menu-group a:focus-visible { background: none; }
+.menu-panel .menu-text {
+  padding: 3px 8px; margin: 0 -8px; border-radius: 7px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background .15s;
+}
+.menu-panel a:hover .menu-text,
+.menu-panel a:focus-visible .menu-text { background: var(--soft, #F3F6FC); }

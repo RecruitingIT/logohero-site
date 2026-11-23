@@ -7,11 +7,34 @@
   var IN_LEAD = 0;   /* ms: item starts popping in as soon as the panel is tall enough for it */
   var OUT_DUR = 180; /* ms: how long an item takes to shrink away */
 
+  /* Each option's text sits in a span so hovering highlights just the words, not the whole row
+     (the row stays fully clickable). Re-run on every open in case a page rewrote a link. */
+  function wrapLinks(panel) {
+    panel.querySelectorAll('a').forEach(function (a) {
+      if (a.querySelector('.menu-text')) return;
+      var span = document.createElement('span');
+      span.className = 'menu-text';
+      while (a.firstChild) span.appendChild(a.firstChild);
+      a.appendChild(span);
+    });
+  }
+  /* The mute button sits at the right of the last visible option's line, vertically centred on it. */
+  function placeMute(panel) {
+    var btn = panel.querySelector('.menu-mute');
+    if (!btn) return;
+    var last = null;
+    panel.querySelectorAll('a').forEach(function (a) { if (a.offsetParent) last = a; });
+    if (!last) return;
+    btn.style.top = Math.round(last.offsetTop + last.offsetHeight / 2 - btn.offsetHeight / 2) + 'px';
+  }
+
   function measure() {
     var panel = document.getElementById('menu-panel');
     if (!panel) return;
     var content = panel.scrollHeight;
     if (!content) return;
+    wrapLinks(panel);
+    placeMute(panel);
     var border = panel.offsetHeight - panel.clientHeight;
     panel.style.setProperty('--menu-h', (content + border) + 'px');
     panel.querySelectorAll('a').forEach(function (a) {
@@ -125,8 +148,6 @@
   (function addMuteButton() {
     var panel = document.getElementById('menu-panel');
     if (!panel || panel.querySelector('.menu-mute')) return;
-    var row = document.createElement('div');
-    row.className = 'menu-mute-row';
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'menu-mute';
@@ -146,8 +167,9 @@
       sync();
     });
     sync();
-    row.appendChild(b);
-    panel.appendChild(row);
+    panel.appendChild(b);
+    wrapLinks(panel);
+    placeMute(panel);
   })();
   function getCtx() {
     if (audioCtx) return audioCtx;
