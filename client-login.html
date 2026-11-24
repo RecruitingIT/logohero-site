@@ -23,8 +23,8 @@
     .back { color: var(--blue); font-weight: 700; text-decoration: none; }
     .back:hover { color: var(--blue-dark); text-decoration: underline; }
     main { flex: 1; display: grid; place-items: center; padding: 48px 24px; }
-    .card { width: min(100%, 460px); padding: 40px; border: 1px solid #FF8226; border-radius: 18px; background: #fff; box-shadow: 0 0 6px 1px rgba(255, 130, 38, .8), 0 0 22px 4px rgba(255, 130, 38, .4); animation: glow 2.5s ease-in-out infinite alternate; }
-    /* Deliberate glow: 2.5s breathe in, 2.5s breathe out (alternate). */
+    .card { width: min(100%, 460px); padding: 40px; border: 1px solid #FF8226; border-radius: 18px; background: #fff; box-shadow: 0 0 6px 1px rgba(255, 130, 38, .8), 0 0 22px 4px rgba(255, 130, 38, .4); animation: glow 1.25s ease-in-out infinite alternate; }
+    /* Glow: 1.25s breathe in, 1.25s breathe out (alternate). */
     @keyframes glow {
       from { box-shadow: 0 0 6px 1px rgba(255, 130, 38, .8), 0 0 20px 4px rgba(255, 130, 38, .4); }
       to   { box-shadow: 0 0 10px 2px rgba(255, 130, 38, .98), 0 0 34px 7px rgba(255, 130, 38, .58), 0 0 50px 10px rgba(255, 130, 38, .15); }
