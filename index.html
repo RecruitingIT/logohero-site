@@ -1320,11 +1320,9 @@ if (!reduceOpeningMotion) {
 })();
 
 const revealTargets = document.querySelectorAll('h2, .about p, .examples-sub, .step, .contact p, .contact .btn');
-const revealObserver = new IntersectionObserver((entries, observer) => {
+const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
-    if (!entry.isIntersecting) return;
-    entry.target.classList.add('in-view');
-    observer.unobserve(entry.target);
+    entry.target.classList.toggle('in-view', entry.isIntersecting);
   });
 }, { threshold: 0.15 });
 revealTargets.forEach((el) => revealObserver.observe(el));
