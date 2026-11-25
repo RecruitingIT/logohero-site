@@ -309,6 +309,8 @@
   }
   #submit:disabled, #submit:disabled:hover, #submit:disabled:active { transform: none; background-image: linear-gradient(180deg, #4B7BF5 0%, #1A55E6 55%, #0A45E0 100%); border-color: #2F63E8; }
 
+  .price .upgrade .plus { color: var(--orange); text-shadow: none; }
+
   /* Banner sized exactly like the home page banner. */
   .menu-wrap { margin-left: 4px; }
   @media (max-width: 760px) {
@@ -363,7 +365,7 @@
 <main>
   <div class="wrap">
     <div class="price">
-      <a class="btn upgrade" href="/logoplusorder">Upgrade to Logo+</a>
+      <a class="btn upgrade" href="/logoplusorder">Upgrade to Logo<span class="plus">+</span></a>
       <h3>Logo</h3>
       <ul>
         <li>Your logo, refined</li>
@@ -391,7 +393,7 @@
         <input type="hidden" name="package" id="package-field" value="Not specified">
 
         <div class="field">
-          <label for="package-requested">Package Requested</label>
+          <label for="package-requested">Package Selected</label>
           <input type="text" id="package-requested" name="package_requested" value="Logo Only" readonly aria-readonly="true">
         </div>
 
