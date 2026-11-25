@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact | Logo Hero</title>
+<link rel="icon" href="LOGO%20HERO.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #0A45E0;
+    --orange: #FF8226;
+    --blue-dark: #0A2A8F;
+    --ink: #0E1B3D;
+    --muted: #55607A;
+    --line: #DDE3F0;
+    --soft: #F3F6FC;
+    --bg: #EEF0F3;
+    --error: #B3261E;
+  }
+  html { -webkit-tap-highlight-color: transparent; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.25;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { font-family: "Barlow Condensed", "Hanken Grotesk", sans-serif; line-height: 1.02; margin: 0; letter-spacing: 0.5px; text-transform: uppercase; }
+  a { color: var(--blue); }
+
+  header { padding: 20px 0; border-bottom: 1px solid var(--line); }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  header img { height: 64px; width: auto; display: block; }
+  .btn {
+    display: inline-block;
+    background: var(--blue);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 22px;
+    font-family: inherit;
+    padding: 14px 26px;
+    border-radius: 10px;
+    border: 2px solid var(--blue);
+    cursor: pointer;
+    transition: background .15s, transform .15s;
+  }
+  .btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); transform: translateY(-1px); }
+  .btn:disabled { opacity: .6; cursor: default; transform: none; }
+
+  main { padding: 48px 0 72px; }
+  .back { display: inline-block; margin-bottom: 24px; font-weight: 600; text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .eyebrow { font-size: 17px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
+  h1 { font-size: clamp(40px, 6vw, 64px); margin-bottom: 12px; }
+  h1 { transition: font-size 1.5s ease, opacity 1.5s ease; }
+  h1.done { font-size: clamp(30px, 4.4vw, 46px); opacity: .5; }
+  .lead { color: var(--muted); font-size: 25px; margin: 0 0 28px; max-width: 34em; }
+  .lead { transition: font-size 1.5s ease, opacity .5s ease; }
+  .lead.done { font-size: 18px; opacity: .5; }
+
+  .price { position: relative; border: 2px solid var(--blue); box-shadow: 0 14px 32px rgba(14, 27, 61, .22), 0 3px 8px rgba(14, 27, 61, .16); border-radius: 16px; padding: 32px; background: #fff; max-width: 480px; margin-bottom: 32px; }
+  .price .upgrade { position: absolute; top: 16px; right: 16px; font-size: 18px; font-style: italic; padding: 6px 12px; border-radius: 8px; background: transparent; color: var(--blue); }
+  .price .upgrade:hover { background: var(--soft); color: var(--blue-dark); }
+  .price h3 { font-size: 28px; margin-bottom: 4px; }
+  .price .amount { font-family: "Barlow Condensed", sans-serif; font-weight: 700; font-size: 64px; color: var(--blue); line-height: 1; margin: 16px 0 0; }
+  .price ul { list-style: none; padding: 0; margin: 0; color: var(--muted); }
+  .price li { padding: 6px 0 6px 28px; position: relative; }
+  .price li::before { content: ""; position: absolute; left: 0; top: 13px; width: 14px; height: 8px; border-left: 3px solid var(--orange); border-bottom: 3px solid var(--orange); transform: rotate(-45deg); filter: drop-shadow(0 0 3px rgba(255, 130, 38, .8)) drop-shadow(0 0 6px rgba(255, 130, 38, .45)); }
+
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 32px; max-width: 560px; }
+  .package { display: none; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; margin-bottom: 24px; }
+  .package.show { display: block; }
+  .package-head { font-weight: 600; }
+  .package-head span { color: var(--blue); }
+  .package ul { list-style: none; padding: 0; margin: 12px 0 0; color: var(--muted); }
+  .package li { padding: 4px 0 4px 28px; position: relative; }
+  .package li::before { content: ""; position: absolute; left: 0; top: 11px; width: 14px; height: 8px; border-left: 3px solid var(--orange); border-bottom: 3px solid var(--orange); transform: rotate(-45deg); filter: drop-shadow(0 0 3px rgba(255, 130, 38, .8)) drop-shadow(0 0 6px rgba(255, 130, 38, .45)); }
+  .field { margin-bottom: 20px; }
+  label { display: block; font-weight: 600; margin-bottom: 6px; }
+  input[type="text"], input[type="email"] {
+    width: 100%;
+    font: inherit;
+    padding: 12px 14px;
+    border: 1.5px solid #C5CDDF;
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input:focus { outline: 3px solid rgba(10, 69, 224, .25); border-color: var(--blue); }
+  input[readonly] { background: var(--soft); color: var(--muted); cursor: not-allowed; }
+  input[readonly]:focus { outline: none; border-color: #C5CDDF; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .fine { color: var(--muted); font-size: 19px; margin: 16px 0 0; }
+  .status { margin-top: 16px; font-weight: 600; }
+  .status.error { color: var(--error); }
+  .success { display: none; }
+  .success.show { display: block; }
+  .success h2 { font-size: 36px; margin-bottom: 8px; color: var(--blue); }
+  .success p { color: var(--muted); margin: 0; }
+
+  footer { border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 19px; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+
+  .linkbtn { font: inherit; font-weight: 700; background: none; border: 0; padding: 0; color: var(--blue); text-decoration: underline; cursor: pointer; }
+  .pay-title { font-size: 32px; margin: 8px 0 14px; }
+  #checkout-form { min-height: 120px; }
+  [hidden] { display: none !important; }
+
+  /* ---------- Menu button (two lines) + pop-up menu (same as home page) ---------- */
+  .menu-wrap { position: relative; display: flex; align-items: center; }
+  .menu-btn {
+    box-sizing: border-box;
+    width: 48px; height: 48px;
+    margin: 0;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 7px; padding: 0;
+    border: 2px solid var(--line); border-radius: 10px;
+    background: #fff; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .menu-btn:hover { border-color: var(--blue); background: var(--soft); }
+  .menu-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .menu-btn span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--ink);
+    transition: transform .2s ease, opacity .2s ease, background .2s ease;
+  }
+  /* The open-menu cross changes to Logo Hero blue. */
+  .menu-btn[aria-expanded="true"] span { background: var(--blue); }
+  .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+  .menu-panel {
+    position: absolute; right: 0; top: calc(100% + 14px);
+    z-index: 40;
+    width: 300px; max-width: calc(100vw - 48px);
+    background: #fff; border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 14px 34px rgba(14, 27, 61, .18);
+    padding: 8px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  }
+  .menu-panel.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .menu-group { padding: 4px 0; }
+  .menu-group + .menu-group { border-top: 1px solid var(--line); }
+  .menu-panel a {
+    display: block; padding: 12px 14px; border-radius: 8px;
+    color: var(--ink); text-decoration: none; font-size: 22px; font-weight: 700;
+  }
+  .menu-panel a:hover, .menu-panel a:focus-visible { background: var(--soft); color: var(--blue); outline: none; }
+  @media (prefers-reduced-motion: reduce) { .menu-panel, .menu-btn span { transition: none; } }
+
+  /* ---------- Banner buttons: same three as the home page (login, get in touch, menu), lit from above ---------- */
+  .header-actions { --ctl-h: 48px; display: flex; align-items: center; gap: 12px; }
+  .header-actions .login-btn.icon-btn,
+  .header-actions .btn.icon-btn,
+  .header-actions .menu-btn {
+    box-sizing: border-box;
+    width: var(--ctl-h); height: var(--ctl-h);
+    margin: 0; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
+    border: 2px solid #CBD3E6; border-radius: 10px;
+    color: var(--ink); text-decoration: none; cursor: pointer;
+    background-color: #F6F8FD;
+    background-image: linear-gradient(180deg, #FFFFFF 0%, #F6F8FD 55%, #E6EBF6 100%);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .95),
+      inset 0 -2px 3px rgba(14, 27, 61, .10),
+      0 1px 0 rgba(255, 255, 255, .8),
+      0 3px 6px rgba(14, 27, 61, .16),
+      0 8px 14px -6px rgba(14, 27, 61, .18);
+    transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
+  }
+  .header-actions .icon-btn svg { width: 22px; height: 22px; display: block; flex: 0 0 auto; }
+  .header-actions .login-btn.icon-btn svg { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .9)); }
+  .header-actions .login-btn.icon-btn:hover,
+  .header-actions .menu-btn:hover {
+    color: var(--ink);
+    background-color: #EEF2FB;
+    background-image: linear-gradient(180deg, #FFFFFF 0%, #EEF2FB 55%, #DCE4F5 100%);
+    border-color: var(--blue);
+  }
+  .header-actions .login-btn.icon-btn:hover, .header-actions .btn.icon-btn:hover { transform: translateY(-1px); }
+  .header-actions .login-btn.icon-btn:focus-visible,
+  .header-actions .btn.icon-btn:focus-visible { outline: 3px solid rgba(10, 69, 224, .35); outline-offset: 3px; }
+  .header-actions .btn.icon-btn {
+    color: #fff;
+    background-color: #1A55E6;
+    background-image: linear-gradient(180deg, #4B7BF5 0%, #1A55E6 55%, #0A45E0 100%);
+    border-color: #2F63E8;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .4),
+      inset 0 -2px 3px rgba(5, 20, 80, .18),
+      0 3px 6px rgba(10, 42, 143, .20),
+      0 8px 14px -6px rgba(10, 42, 143, .22);
+  }
+  .header-actions .btn.icon-btn:hover {
+    color: #fff;
+    background-color: #0F4BDB;
+    background-image: linear-gradient(180deg, #3F70EE 0%, #0F4BDB 55%, #0A3CC4 100%);
+    border-color: #2457DD;
+  }
+  .header-actions .btn.icon-btn svg { filter: drop-shadow(0 -1px 0 rgba(5, 20, 80, .45)); }
+  .header-actions .login-btn.icon-btn:active,
+  .header-actions .btn.icon-btn:active,
+  .header-actions .menu-btn:active,
+  .header-actions .menu-btn[aria-expanded="true"] {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 2px 4px rgba(14, 27, 61, .22),
+      inset 0 -1px 0 rgba(255, 255, 255, .7),
+      0 1px 2px rgba(14, 27, 61, .12);
+  }
+  .header-actions .btn.icon-btn:active {
+    box-shadow:
+      inset 0 2px 4px rgba(5, 20, 80, .5),
+      inset 0 -1px 0 rgba(255, 255, 255, .25),
+      0 1px 2px rgba(10, 42, 143, .2);
+  }
+  /* Menu icon: bottom line a touch thicker so both look the same weight; clean cross when open. */
+  .header-actions .menu-btn { flex-direction: column; gap: 7px; }
+  .header-actions .menu-btn span {
+    width: 22px; box-shadow: none; filter: none;
+    transition: transform .2s ease, opacity .2s ease, background .2s ease, height .2s ease;
+  }
+  .header-actions .menu-btn span:nth-child(1) { height: 3px; }
+  .header-actions .menu-btn span:nth-child(2) { height: 4px; }
+  .header-actions .menu-btn[aria-expanded="true"] span { height: 3px; }
+  .header-actions .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+  .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-5px) rotate(-45deg); }
+  @media (max-width: 760px) {
+    .header-actions { --ctl-h: 40px; gap: 5px; }
+    header .wrap { gap: 8px; }
+    .header-actions .icon-btn svg { width: 20px; height: 20px; }
+    .header-actions .menu-btn { gap: 5px; }
+    .header-actions .menu-btn span { width: 20px; }
+    .header-actions .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4px) rotate(45deg); }
+    .header-actions .menu-btn[aria-expanded="true"] span:nth-child(2) { transform: translateY(-4px) rotate(-45deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .header-actions .menu-btn span { transition: none; } }
+
+  @media (max-width: 760px) {
+    main { padding: 32px 0 48px; }
+    .card { padding: 22px; }
+    .price { padding: 24px; }
+    header img { height: 52px; }
+    .menu-btn { width: 40px; height: 40px; gap: 6px; }
+    .menu-btn span { width: 20px; }
+    .menu-btn[aria-expanded="true"] span:nth-child(1) { transform: translateY(4.5px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span:nth-child(2) { opacity: 1; transform: translateY(-4.5px) rotate(-45deg); }
+    .menu-panel a { font-size: 21px; }
+  }
+
+  /* ---------- Dark blue page, matching the customer login page ---------- */
+  :root { --bg: #0E1B3D; }
+  header { background: #fff; }   /* stays white so the cobalt logo reads */
+  .back { color: #9DB8FF; }
+  .eyebrow { color: #9DB8FF; }
+  h1 { color: #fff; }
+  .lead { color: rgba(255, 255, 255, .78); }
+  footer { color: rgba(255, 255, 255, .68); border-top-color: rgba(255, 255, 255, .14); }
+  footer a { color: #9DB8FF; }
+
+  /* Contact form card: orange border, glow on the outside only. */
+  .card { border: 1px solid #FF8226; box-shadow: 0 0 6px 1px rgba(255, 130, 38, .8), 0 0 22px 4px rgba(255, 130, 38, .4); }
+
+  /* Upgrade / switch and Continue to payment: royal blue, 3D, lit from the top
+     (same recipe as the Get in touch button in the banner). */
+  .price .upgrade, #submit {
+    color: #fff;
+    background-color: #1A55E6;
+    background-image: linear-gradient(180deg, #4B7BF5 0%, #1A55E6 55%, #0A45E0 100%);
+    border: 2px solid #2F63E8;
+    text-shadow: 0 -1px 0 rgba(5, 20, 80, .45);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, .4),
+      inset 0 -2px 3px rgba(5, 20, 80, .18),
+      0 3px 6px rgba(10, 42, 143, .20),
+      0 8px 14px -6px rgba(10, 42, 143, .22);
+    transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
+  }
+  .price .upgrade { font-style: normal; padding: 8px 16px; border-radius: 10px; }
+  .price .upgrade:hover, #submit:hover {
+    color: #fff;
+    background-color: #0F4BDB;
+    background-image: linear-gradient(180deg, #3F70EE 0%, #0F4BDB 55%, #0A3CC4 100%);
+    border-color: #2457DD;
+    transform: translateY(-1px);
+  }
+  .price .upgrade:active, #submit:active {
+    transform: translateY(1px);
+    box-shadow:
+      inset 0 2px 4px rgba(5, 20, 80, .5),
+      inset 0 -1px 0 rgba(255, 255, 255, .25),
+      0 1px 2px rgba(10, 42, 143, .2);
+  }
+  #submit:disabled, #submit:disabled:hover, #submit:disabled:active { transform: none; background-image: linear-gradient(180deg, #4B7BF5 0%, #1A55E6 55%, #0A45E0 100%); border-color: #2F63E8; }
+
+  /* Banner sized exactly like the home page banner. */
+  .menu-wrap { margin-left: 4px; }
+  @media (max-width: 760px) {
+    header { padding: 14px 0; }
+    header .wrap { gap: 8px; padding: 0 16px; }
+    header img { height: 42px; }
+    .menu-wrap { margin-left: 0; }
+  }
+
+  /* ---------- Contact page ---------- */
+  textarea {
+    width: 100%; font: inherit; padding: 12px 14px; min-height: 160px; resize: vertical;
+    border: 1.5px solid #C5CDDF; border-radius: 10px; background: #fff; color: var(--ink);
+  }
+  textarea:focus { outline: 3px solid rgba(10, 69, 224, .25); border-color: var(--blue); }
+  .contact-details { margin: 0 0 28px; display: grid; gap: 14px; max-width: 560px; }
+  .contact-details .row { display: flex; flex-direction: column; gap: 2px; }
+  .contact-details .k { font-size: 17px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #9DB8FF; }
+  .contact-details a { color: #fff; font-weight: 700; font-size: 28px; text-decoration: none; word-break: break-word; }
+  .contact-details a:hover { text-decoration: underline; }
+  @media (max-width: 760px) { .contact-details a { font-size: 24px; } }
+</style>
+<link rel="stylesheet" href="/menu-anim.css">
+<link rel="stylesheet" href="/banner-icons.css">
+<script src="/menu-anim.js" defer></script>
+<link rel="stylesheet" href="/fonts.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a href="/"><img src="/LOGO%20HERO.png" alt="Logo Hero"></a>
+    <div class="header-actions">
+    <a class="login-btn icon-btn" href="/client-login" aria-label="Customer login area" title="Customer login">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+        <rect x="4.5" y="10" width="15" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <a class="btn icon-btn" href="/contact" aria-label="Get in touch" title="Get in touch">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+        <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M3.5 6.5l8.5 6.5 8.5-6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <div class="menu-wrap">
+      <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu-panel">
+        <span></span><span></span>
+      </button>
+      <nav class="menu-panel" id="menu-panel" aria-label="Site menu">
+        <div class="menu-group">
+          <a href="/#top">Home</a>
+          <a href="/#examples">Before/After Examples</a>
+          <a href="/#how">Process</a>
+          <a href="/#pricing">Pricing</a>
+        </div>
+        <div class="menu-group"><a href="/contact">Contact</a></div>
+        <div class="menu-group"><a href="/client-login">Customer Area</a></div>
+      </nav>
+    </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="eyebrow">Contact</div>
+    <h1>Get in touch</h1>
+    <p class="lead">Questions about a logo, a package or an order? Drop us a message, or reach us directly below.</p>
+
+    <div class="contact-details">
+      <div class="row"><span class="k">Email</span><a href="mailto:branding@logohero.co.uk">branding@logohero.co.uk</a></div>
+      <div class="row"><span class="k">Mobile</span><a href="tel:+447356040850">07356 040850</a></div>
+    </div>
+
+    <div class="card">
+      <form id="contact-form" action="https://formspree.io/f/xoedrldq" method="POST">
+        <input type="hidden" name="_subject" value="Logo Hero website enquiry">
+
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" autocomplete="name" required>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+        </div>
+
+        <div class="field">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" required></textarea>
+        </div>
+
+        <!-- Spam trap: real people never see or fill this in -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Leave this empty</label>
+          <input type="text" id="website" name="_gotcha" tabindex="-1" autocomplete="off">
+        </div>
+
+        <button class="btn" type="submit" id="submit">Send message</button>
+        <div class="status" id="status" role="status" aria-live="polite"></div>
+        <p class="fine">We'll only use your details to reply to your message. See our <a href="/privacy-notice">privacy notice</a>.</p>
+      </form>
+
+      <div class="success" id="success" role="status" aria-live="polite">
+        <h2>Message sent. Thank you!</h2>
+        <p>We've got your message and will get back to you as soon as we can.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© <span id="y">2026</span> Logo Hero · <a href="/privacy-notice">Privacy notice</a></div>
+    <div><a href="mailto:branding@logohero.co.uk">branding@logohero.co.uk</a></div>
+  </div>
+</footer>
+
+<script>
+document.getElementById('y').textContent = new Date().getFullYear();
+
+const form = document.getElementById('contact-form');
+const statusEl = document.getElementById('status');
+const submitBtn = document.getElementById('submit');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  statusEl.textContent = '';
+  statusEl.className = 'status';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('Contact request failed');
+    form.style.display = 'none';
+    const done = document.getElementById('success');
+    done.classList.add('show');
+    done.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = 'Sorry, something went wrong. Please try again, or email branding@logohero.co.uk.';
+    statusEl.className = 'status error';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send message';
+  }
+});
+</script>
+</body>
+</html>
