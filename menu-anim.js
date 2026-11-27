@@ -245,6 +245,8 @@
     input.setAttribute('switch', '');
     input.tabIndex = -1;
     label.appendChild(input);
+    /* The page closes the menu on any click outside it, so this synthetic click must not bubble. */
+    label.addEventListener('click', function (e) { e.stopPropagation(); });
     document.body.appendChild(label);
     hapticLabel = label;
     return label;
