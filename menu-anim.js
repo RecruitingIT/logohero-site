@@ -231,11 +231,11 @@
   /* Haptic tick on each pop, timed to the same delays as the sounds. Uses the Vibration API, so it
      works on Android browsers; iPhones/iPads and desktops don't support it and simply skip it.
      Deliberately not tied to the mute button (that one is for sound), so a phone on silent still
-     gets the feel. Opening ticks are a touch firmer than closing ones. */
+     gets the feel. Kept very light (just noticeable); opening ticks are a touch firmer than closing ones. */
   function haptic(delayMs, opening) {
     if (!navigator.vibrate) return;
     setTimeout(function () {
-      try { navigator.vibrate(opening ? 12 : 8); } catch (err) {}
+      try { navigator.vibrate(opening ? 6 : 4); } catch (err) {}
     }, delayMs);
   }
   function playPops(opening) {
