@@ -228,15 +228,37 @@
     osc.start(t);
     osc.stop(t + 0.22);
   }
-  /* Haptic tick on each pop, timed to the same delays as the sounds. Uses the Vibration API, so it
-     works on Android browsers; iPhones/iPads and desktops don't support it and simply skip it.
+  /* Haptic tick on each pop, timed to the same delays as the sounds. Android browsers use the
+     Vibration API. iPhones/iPads don't have it, so there a hidden iOS 17.4+ "switch" checkbox is
+     toggled through its label instead: Safari gives a light tick whenever such a switch flips.
      Deliberately not tied to the mute button (that one is for sound), so a phone on silent still
-     gets the feel. Kept very light (just noticeable); opening ticks are a touch firmer than closing ones. */
+     gets the feel. Kept very light (just noticeable); opening ticks are a touch firmer on Android. */
+  var hapticLabel = null;
+  function getHapticLabel() {
+    if (hapticLabel) return hapticLabel;
+    if (!document.body) return null;
+    var label = document.createElement('label');
+    label.setAttribute('aria-hidden', 'true');
+    label.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden;';
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.setAttribute('switch', '');
+    input.tabIndex = -1;
+    label.appendChild(input);
+    document.body.appendChild(label);
+    hapticLabel = label;
+    return label;
+  }
+  function tick(opening) {
+    try {
+      if (navigator.vibrate) { navigator.vibrate(opening ? 6 : 4); return; }
+      var l = getHapticLabel();
+      if (l) l.click();
+    } catch (err) {}
+  }
   function haptic(delayMs, opening) {
-    if (!navigator.vibrate) return;
-    setTimeout(function () {
-      try { navigator.vibrate(opening ? 6 : 4); } catch (err) {}
-    }, delayMs);
+    if (delayMs > 0) setTimeout(function () { tick(opening); }, delayMs);
+    else tick(opening);   /* first pop fires inside the tap's own event, which iOS needs */
   }
   function playPops(opening) {
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
