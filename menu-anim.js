@@ -228,8 +228,17 @@
     osc.start(t);
     osc.stop(t + 0.22);
   }
+  /* Haptic tick on each pop, timed to the same delays as the sounds. Uses the Vibration API, so it
+     works on Android browsers; iPhones/iPads and desktops don't support it and simply skip it.
+     Deliberately not tied to the mute button (that one is for sound), so a phone on silent still
+     gets the feel. Opening ticks are a touch firmer than closing ones. */
+  function haptic(delayMs, opening) {
+    if (!navigator.vibrate) return;
+    setTimeout(function () {
+      try { navigator.vibrate(opening ? 12 : 8); } catch (err) {}
+    }, delayMs);
+  }
   function playPops(opening) {
-    if (muted) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var panel = document.getElementById('menu-panel');
     if (!panel) return;
@@ -237,7 +246,8 @@
     panel.querySelectorAll('a').forEach(function (a) {
       if (!a.offsetParent) return;
       var d = parseFloat(a.style.getPropertyValue(opening ? '--in-delay' : '--out-delay')) || 0;
-      pop(d, opening, n++);
+      haptic(d, opening);
+      if (!muted) pop(d, opening, n++);
     });
   }
   /* The closing pops play whenever the menu closes, except when a menu option was just selected. */
