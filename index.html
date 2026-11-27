@@ -512,13 +512,13 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
 
   /* Premium 4: corner marks framing the hero, like a print proof.
      They fade in with the hero copy, same as the spotlight.
-     Bolder L-shaped brackets in Logo Hero blue so they read as a deliberate frame. */
+     Bold L-shaped brackets in a bright orange so they read as a deliberate frame. */
   .crop {
     position: absolute;
     z-index: 1;
     width: 48px;
     height: 48px;
-    border: 0 solid var(--orange);
+    border: 0 solid #FF9A3D;
     filter: none;
     pointer-events: none;
     opacity: var(--glow, 1);
@@ -527,16 +527,16 @@ if (location.hash === '#top') document.documentElement.classList.add('opening-do
      (the script near the end of the page toggles .crops-bottom-off on the opening scene). */
   .crop.bl, .crop.br { transition: opacity .35s ease; }
   .crops-bottom-off .crop.bl, .crops-bottom-off .crop.br { opacity: 0; }
-  .crop.tl { top: 126px;   left: 40px;  border-top-width: 4.5px;    border-left-width: 4.5px; }
-  .crop.tr { top: 126px;   right: 40px; border-top-width: 4.5px;    border-right-width: 4.5px; }
-  .crop.bl { bottom: 40px; left: 40px;  border-bottom-width: 4.5px; border-left-width: 4.5px; }
-  .crop.br { bottom: 40px; right: 40px; border-bottom-width: 4.5px; border-right-width: 4.5px; }
+  .crop.tl { top: 126px;   left: 40px;  border-top-width: 6px;    border-left-width: 6px; }
+  .crop.tr { top: 126px;   right: 40px; border-top-width: 6px;    border-right-width: 6px; }
+  .crop.bl { bottom: 40px; left: 40px;  border-bottom-width: 6px; border-left-width: 6px; }
+  .crop.br { bottom: 40px; right: 40px; border-bottom-width: 6px; border-right-width: 6px; }
   @media (max-width: 760px) {
     .crop { width: 28px; height: 28px; }
-    .crop.tl, .crop.tr { top: 92px; border-top-width: 3px; }
-    .crop.bl, .crop.br { border-bottom-width: 3px; }
-    .crop.tl, .crop.bl { left: 14px; border-left-width: 3px; }
-    .crop.tr, .crop.br { right: 14px; border-right-width: 3px; }
+    .crop.tl, .crop.tr { top: 92px; border-top-width: 4px; }
+    .crop.bl, .crop.br { border-bottom-width: 4px; }
+    .crop.tl, .crop.bl { left: 14px; border-left-width: 4px; }
+    .crop.tr, .crop.br { right: 14px; border-right-width: 4px; }
     .crop.bl, .crop.br { bottom: 44px; }
   }
 
