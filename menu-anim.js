@@ -253,7 +253,7 @@
   }
   function tick(opening) {
     try {
-      if (navigator.vibrate) { navigator.vibrate(opening ? 6 : 4); return; }
+      if (navigator.vibrate) { navigator.vibrate(opening ? 4 : 3); return; }
       var l = getHapticLabel();
       if (l) l.click();
     } catch (err) {}
